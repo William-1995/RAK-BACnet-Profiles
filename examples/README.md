@@ -170,7 +170,6 @@ view.getInt16(0, true)
 
 ## 📞 获取帮助
 
-- 💬 [讨论区](https://github.com/RAKWireless/RAK-BACnet-Profiles/discussions) - 技术问题交流
 - 🐛 [报告问题](https://github.com/RAKWireless/RAK-BACnet-Profiles/issues/new?template=bug-report.yml) - 发现 Bug
 - 🆕 [请求 Profile](https://github.com/RAKWireless/RAK-BACnet-Profiles/issues/new?template=device-profile-request.yml) - 申请新设备支持
 

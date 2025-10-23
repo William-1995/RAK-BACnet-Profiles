@@ -118,5 +118,5 @@ profileVersion: 1.0.0
 
 ---
 
-**提示**: 遇到问题？访问 [讨论区](https://github.com/RAKWireless/RAK-BACnet-Profiles/discussions) 寻求帮助！
+**提示**: 遇到问题？[提交 Issue](https://github.com/RAKWireless/RAK-BACnet-Profiles/issues) 寻求帮助！
 
