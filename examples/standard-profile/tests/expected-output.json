@@ -1,0 +1,99 @@
+{
+  "description": "标准 Profile 期望输出结果",
+  "testCases": [
+    {
+      "name": "正常传感器数据",
+      "expectedOutput": [
+        { "name": "Temperature", "channel": 1, "value": 25.5, "unit": "°C" },
+        { "name": "Humidity", "channel": 2, "value": 40.0, "unit": "%" },
+        { "name": "Battery", "channel": 3, "value": 100, "unit": "%" },
+        { "name": "HumidityLowAlert", "channel": 4, "value": 0, "unit": null },
+        { "name": "HumidityHighAlert", "channel": 5, "value": 0, "unit": null },
+        { "name": "TemperatureLowAlert", "channel": 6, "value": 0, "unit": null },
+        { "name": "TemperatureHighAlert", "channel": 7, "value": 0, "unit": null },
+        { "name": "ButtonPressed", "channel": 8, "value": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "温度高报警",
+      "expectedOutput": [
+        { "name": "Temperature", "channel": 1, "value": 31.0, "unit": "°C" },
+        { "name": "Humidity", "channel": 2, "value": 40.0, "unit": "%" },
+        { "name": "Battery", "channel": 3, "value": 90, "unit": "%" },
+        { "name": "HumidityLowAlert", "channel": 4, "value": 0, "unit": null },
+        { "name": "HumidityHighAlert", "channel": 5, "value": 0, "unit": null },
+        { "name": "TemperatureLowAlert", "channel": 6, "value": 0, "unit": null },
+        { "name": "TemperatureHighAlert", "channel": 7, "value": 1, "unit": null },
+        { "name": "ButtonPressed", "channel": 8, "value": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "湿度低报警",
+      "expectedOutput": [
+        { "name": "Temperature", "channel": 1, "value": 25.0, "unit": "°C" },
+        { "name": "Humidity", "channel": 2, "value": 20.0, "unit": "%" },
+        { "name": "Battery", "channel": 3, "value": 100, "unit": "%" },
+        { "name": "HumidityLowAlert", "channel": 4, "value": 1, "unit": null },
+        { "name": "HumidityHighAlert", "channel": 5, "value": 0, "unit": null },
+        { "name": "TemperatureLowAlert", "channel": 6, "value": 0, "unit": null },
+        { "name": "TemperatureHighAlert", "channel": 7, "value": 0, "unit": null },
+        { "name": "ButtonPressed", "channel": 8, "value": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "按钮按下事件",
+      "expectedOutput": [
+        { "name": "Temperature", "channel": 1, "value": 25.5, "unit": "°C" },
+        { "name": "Humidity", "channel": 2, "value": 40.0, "unit": "%" },
+        { "name": "Battery", "channel": 3, "value": 100, "unit": "%" },
+        { "name": "HumidityLowAlert", "channel": 4, "value": 0, "unit": null },
+        { "name": "HumidityHighAlert", "channel": 5, "value": 0, "unit": null },
+        { "name": "TemperatureLowAlert", "channel": 6, "value": 0, "unit": null },
+        { "name": "TemperatureHighAlert", "channel": 7, "value": 0, "unit": null },
+        { "name": "ButtonPressed", "channel": 8, "value": 1, "unit": null }
+      ]
+    },
+    {
+      "name": "负温度场景",
+      "expectedOutput": [
+        { "name": "Temperature", "channel": 1, "value": -10.0, "unit": "°C" },
+        { "name": "Humidity", "channel": 2, "value": 40.0, "unit": "%" },
+        { "name": "Battery", "channel": 3, "value": 100, "unit": "%" },
+        { "name": "HumidityLowAlert", "channel": 4, "value": 0, "unit": null },
+        { "name": "HumidityHighAlert", "channel": 5, "value": 0, "unit": null },
+        { "name": "TemperatureLowAlert", "channel": 6, "value": 0, "unit": null },
+        { "name": "TemperatureHighAlert", "channel": 7, "value": 0, "unit": null },
+        { "name": "ButtonPressed", "channel": 8, "value": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "低电量场景",
+      "expectedOutput": [
+        { "name": "Temperature", "channel": 1, "value": 25.5, "unit": "°C" },
+        { "name": "Humidity", "channel": 2, "value": 40.0, "unit": "%" },
+        { "name": "Battery", "channel": 3, "value": 20, "unit": "%" },
+        { "name": "HumidityLowAlert", "channel": 4, "value": 0, "unit": null },
+        { "name": "HumidityHighAlert", "channel": 5, "value": 0, "unit": null },
+        { "name": "TemperatureLowAlert", "channel": 6, "value": 0, "unit": null },
+        { "name": "TemperatureHighAlert", "channel": 7, "value": 0, "unit": null },
+        { "name": "ButtonPressed", "channel": 8, "value": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "配置查询响应 - 上报间隔",
+      "expectedOutput": [
+        { "name": "DataUploadInterval", "channel": 9, "value": 600, "unit": "s" }
+      ]
+    },
+    {
+      "name": "阈值查询响应",
+      "expectedOutput": [
+        { "name": "TemperatureHighThreshold", "channel": 10, "value": 30, "unit": "°C" },
+        { "name": "TemperatureLowThreshold", "channel": 11, "value": -10, "unit": "°C" },
+        { "name": "HumidityHighThreshold", "channel": 12, "value": 80, "unit": "%" },
+        { "name": "HumidityLowThreshold", "channel": 13, "value": 30, "unit": "%" }
+      ]
+    }
+  ]
+}
+

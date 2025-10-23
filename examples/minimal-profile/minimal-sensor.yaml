@@ -1,0 +1,84 @@
+# 最小可行 Profile 示例 - 温度传感器
+# 本示例展示最基础的 Profile 结构，仅包含一个温度传感器
+
+# ==================== Codec 编解码函数 ====================
+codec: >
+  // 解码函数：将 LoRaWAN 上行数据解析为可读的传感器数值
+  function Decode(fPort, data, variables) {
+    var values = [];
+    
+    // 创建 Uint8Array 和 DataView 用于解析二进制数据
+    var array = new Uint8Array(data);
+    var view = new DataView(array.buffer);
+    
+    // 当 fPort = 10 时，表示这是传感器数据上报
+    if (fPort == 10) {
+      // 数据格式说明：
+      // Byte 0: 版本号（0x01）
+      // Byte 1-2: 温度值（有符号16位整数，大端序，单位：°C * 10）
+      
+      // 解析温度：从第1个字节开始读取2字节（大端序）
+      var temperature = view.getInt16(1, false);  // false = 大端序
+      
+      // 将原始值转换为实际温度（除以10）
+      var temperatureCelsius = temperature / 10.0;
+      
+      // 添加到结果数组
+      values.push({
+        name: "Temperature",        // 参数名称
+        channel: 1,                 // 通道编号（用于关联 BACnet 对象）
+        value: temperatureCelsius,  // 解析后的温度值
+        unit: '°C'                  // 单位（可选，用于调试）
+      });
+    }
+    
+    return values;
+  }
+
+  // 编码函数：将控制命令编码为 LoRaWAN 下行数据
+  // 本示例设备不支持下行控制，返回空数组
+  function Encode(data, variables) {
+    var bytes = [];
+    return bytes;
+  }
+
+  // 标准上行解码接口（LoRaWAN 标准格式）
+  function decodeUplink(input) {
+    return {
+      data: Decode(input.fPort, input.bytes, input.variables)
+    };
+  }
+
+  // 标准下行编码接口（LoRaWAN 标准格式）
+  function encodeDownlink(input) {
+    return {
+      bytes: Encode(input.data, input.variables)
+    };
+  }
+
+# ==================== BACnet 对象映射 ====================
+datatype:
+  # 通道 1：温度传感器
+  "1":
+    name: Temperature                # BACnet 对象名称
+    type: AnalogInputObject          # 对象类型：模拟输入（用于传感器读数）
+    units: degreesCelsius            # BACnet 标准单位：摄氏度
+    covIncrement: 0.1                # COV 变化检测阈值：当温度变化超过 0.1°C 时触发通知
+    updateInterval: 600              # 数据更新间隔：600秒（10分钟）
+
+# ==================== LoRaWAN 配置 ====================
+lorawan:
+  adrAlgorithm: LoRa Only            # ADR 算法：仅使用 LoRa
+  classCDownlinkTimeout: 5           # Class C 下行超时时间（秒）
+  macVersion: LORAWAN_1_0_3          # LoRaWAN MAC 版本
+  region: AS923                      # 区域频段：AS923（亚太地区）
+  regionalParametersRevision: A      # 区域参数修订版本
+  supportClassB: false               # 不支持 Class B
+  supportClassC: false               # 不支持 Class C（仅支持 Class A）
+  supportOTAA: true                  # 支持 OTAA 入网方式
+
+# ==================== 设备信息 ====================
+model: Example-MinimalSensor         # 设备型号
+profileVersion: 1.0.0               # Profile 版本号（语义化版本）
+vendor: ExampleVendor               # 厂商名称
+

@@ -1,0 +1,205 @@
+# 标准完整 Profile 示例 - 温湿度传感器
+# 本示例展示生产级 Profile 的完整结构，包含多传感器、报警、配置等功能
+
+# ==================== Codec 编解码函数 ====================
+codec: >
+  function Decode(fPort, data, variables) {
+    var values = [];
+    var array = new Uint8Array(data);
+    var view = new DataView(array.buffer);
+    
+    // fPort 10: 传感器数据上报
+    if (fPort == 10) {
+      // 数据格式（7字节）：
+      // Byte 0: 状态标志位
+      // Byte 1: 保留
+      // Byte 2: 电池电量 (%)
+      // Byte 3-4: 温度 (°C * 10, 有符号16位整数, 大端序)
+      // Byte 5-6: 湿度 (% * 10, 无符号16位整数, 大端序)
+      
+      // 解析温度和湿度
+      var temperature = view.getInt16(3, false) / 10.0;
+      var humidity = view.getUint16(5, false) / 10.0;
+      var battery = data[2];
+      
+      // 解析状态标志位（Byte 0）
+      var humidityLowAlert = (data[0] >> 5) & 0x01;
+      var humidityHighAlert = (data[0] >> 4) & 0x01;
+      var temperatureLowAlert = (data[0] >> 3) & 0x01;
+      var temperatureHighAlert = (data[0] >> 2) & 0x01;
+      var buttonPressed = data[0] & 0x01;
+      
+      // 添加传感器数据
+      values.push({ name: "Temperature", channel: 1, value: temperature, unit: '°C' });
+      values.push({ name: "Humidity", channel: 2, value: humidity, unit: '%' });
+      values.push({ name: "Battery", channel: 3, value: battery, unit: '%' });
+      
+      // 添加报警状态
+      values.push({ name: "HumidityLowAlert", channel: 4, value: humidityLowAlert, unit: null });
+      values.push({ name: "HumidityHighAlert", channel: 5, value: humidityHighAlert, unit: null });
+      values.push({ name: "TemperatureLowAlert", channel: 6, value: temperatureLowAlert, unit: null });
+      values.push({ name: "TemperatureHighAlert", channel: 7, value: temperatureHighAlert, unit: null });
+      
+      // 添加按钮事件
+      values.push({ name: "ButtonPressed", channel: 8, value: buttonPressed, unit: null });
+    }
+    
+    // fPort 12: 配置信息查询响应
+    if (fPort == 12) {
+      // 数据格式（3字节）：
+      // Byte 0: 命令类型 (0x01)
+      // Byte 1-2: 上报间隔 (秒, 无符号16位整数, 大端序)
+      
+      var uploadInterval = view.getUint16(1, false);
+      values.push({ name: "DataUploadInterval", channel: 9, value: uploadInterval, unit: 's' });
+    }
+    
+    // fPort 13: 阈值配置查询响应
+    if (fPort == 13) {
+      // 数据格式（7字节）：
+      // Byte 0: 命令类型 (0x02)
+      // Byte 1-2: 温度高阈值 (°C, 有符号16位整数, 大端序)
+      // Byte 3-4: 温度低阈值 (°C, 有符号16位整数, 大端序)
+      // Byte 5: 湿度高阈值 (%)
+      // Byte 6: 湿度低阈值 (%)
+      
+      var tempHighThreshold = view.getInt16(1, false);
+      var tempLowThreshold = view.getInt16(3, false);
+      var humidityHighThreshold = view.getUint8(5);
+      var humidityLowThreshold = view.getUint8(6);
+      
+      values.push({ name: "TemperatureHighThreshold", channel: 10, value: tempHighThreshold, unit: '°C' });
+      values.push({ name: "TemperatureLowThreshold", channel: 11, value: tempLowThreshold, unit: '°C' });
+      values.push({ name: "HumidityHighThreshold", channel: 12, value: humidityHighThreshold, unit: '%' });
+      values.push({ name: "HumidityLowThreshold", channel: 13, value: humidityLowThreshold, unit: '%' });
+    }
+    
+    return values;
+  }
+
+  function Encode(data, variables) {
+    // 下行控制命令编码（示例）
+    // 实际项目中根据设备支持的命令实现
+    var bytes = [];
+    
+    // 示例：设置上报间隔
+    // if (data.channel == 9) {
+    //   bytes.push(0x01);  // 命令类型
+    //   bytes.push(0x00);  // 间隔高字节
+    //   bytes.push((data.value >> 8) & 0xFF);
+    //   bytes.push(data.value & 0xFF);
+    // }
+    
+    return bytes;
+  }
+
+  function decodeUplink(input) {
+    return {
+      data: Decode(input.fPort, input.bytes, input.variables)
+    };
+  }
+
+  function encodeDownlink(input) {
+    return {
+      bytes: Encode(input.data, input.variables)
+    };
+  }
+
+# ==================== BACnet 对象映射 ====================
+datatype:
+  # 传感器数据
+  "1":
+    name: Temperature
+    type: AnalogInputObject
+    units: degreesCelsius
+    covIncrement: 0.1          # 温度变化 0.1°C 触发 COV 通知
+    updateInterval: 600        # 10分钟更新间隔
+    
+  "2":
+    name: Humidity
+    type: AnalogInputObject
+    units: percent
+    covIncrement: 1.0          # 湿度变化 1% 触发 COV 通知
+    updateInterval: 600
+    
+  "3":
+    name: Battery Capacity
+    type: AnalogInputObject
+    units: percent
+    covIncrement: 1.0          # 电池电量变化 1% 触发 COV 通知
+    updateInterval: 600
+    
+  # 报警状态（二值输入）
+  "4":
+    name: Humidity Low Alert
+    type: BinaryInputObject
+    updateInterval: 600
+    
+  "5":
+    name: Humidity High Alert
+    type: BinaryInputObject
+    updateInterval: 600
+    
+  "6":
+    name: Temperature Low Alert
+    type: BinaryInputObject
+    updateInterval: 600
+    
+  "7":
+    name: Temperature High Alert
+    type: BinaryInputObject
+    updateInterval: 600
+    
+  "8":
+    name: Button Pressed
+    type: BinaryInputObject
+    updateInterval: 600
+    
+  # 配置参数
+  "9":
+    name: Data Upload Interval
+    type: AnalogValueObject    # 使用 AnalogValueObject 存储配置值
+    units: seconds
+    updateInterval: 3600       # 配置信息更新频率较低
+    
+  # 阈值配置
+  "10":
+    name: Temperature High Threshold
+    type: AnalogValueObject
+    units: degreesCelsius
+    updateInterval: 3600
+    
+  "11":
+    name: Temperature Low Threshold
+    type: AnalogValueObject
+    units: degreesCelsius
+    updateInterval: 3600
+    
+  "12":
+    name: Humidity High Threshold
+    type: AnalogValueObject
+    units: percent
+    updateInterval: 3600
+    
+  "13":
+    name: Humidity Low Threshold
+    type: AnalogValueObject
+    units: percent
+    updateInterval: 3600
+
+# ==================== LoRaWAN 配置 ====================
+lorawan:
+  adrAlgorithm: LoRa Only
+  classCDownlinkTimeout: 5
+  macVersion: LORAWAN_1_0_3
+  region: AS923
+  regionalParametersRevision: A
+  supportClassB: false
+  supportClassC: false
+  supportOTAA: true
+
+# ==================== 设备信息 ====================
+model: Example-StandardSensor
+profileVersion: 1.0.0
+vendor: ExampleVendor
+
