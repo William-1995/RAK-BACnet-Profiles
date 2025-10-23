@@ -28,26 +28,31 @@ This repository provides conversion configuration files from LoRaWAN devices to 
 
 ```
 RAK-BACnet-Profiles/
-├── Carrier/                    # Carrier brand device profiles
-│   ├── Carrier-BAC-006-v4-20250709.yaml
-│   └── 7201_V2_modify_0619.yaml
-├── Dragino/                    # Dragino brand device profiles
-│   ├── Dragino-DDS45.yaml
-│   ├── Dragino-LDS02.yaml
-│   ├── Dragino-LES01.yaml
-│   └── Dragino-WSC2-L.yaml
-├── Milesight/                  # Milesight brand device profiles
-│   └── Milesight-VS330.yaml
-├── Senso8/                     # Senso8 brand device profiles
-│   ├── Senso8-LRS10701.yaml
-│   ├── Senso8-LRS20100.yaml
-│   ├── Senso8-LRS20200.yaml
-│   ├── Senso8-LRS20310.yaml
-│   ├── Senso8-LRS20600.yaml
-│   ├── Senso8-LRS20LD0.yaml
-│   ├── Senso8-LRS20Uxx.yaml
-│   ├── Senso8-LRS2M001.yaml
-│   └── Senso8-LRS30100.yaml
+├── profiles/                   # Real device profiles
+│   ├── Carrier/               # Carrier brand device profiles
+│   │   ├── Carrier-BAC-006-v4-20250709.yaml
+│   │   └── 7201_V2_modify_0619.yaml
+│   ├── Dragino/               # Dragino brand device profiles
+│   │   ├── Dragino-DDS45.yaml
+│   │   ├── Dragino-LDS02.yaml
+│   │   ├── Dragino-LES01.yaml
+│   │   └── Dragino-WSC2-L.yaml
+│   ├── Milesight/             # Milesight brand device profiles
+│   │   └── Milesight-VS330.yaml
+│   └── Senso8/                # Senso8 brand device profiles
+│       ├── Senso8-LRS10701.yaml
+│       ├── Senso8-LRS20100.yaml
+│       ├── Senso8-LRS20200.yaml
+│       ├── Senso8-LRS20310.yaml
+│       ├── Senso8-LRS20600.yaml
+│       ├── Senso8-LRS20LD0.yaml
+│       ├── Senso8-LRS20Uxx.yaml
+│       ├── Senso8-LRS2M001.yaml
+│       └── Senso8-LRS30100.yaml
+├── examples/                  # Example profiles and tutorials
+│   ├── minimal-profile/       # Minimal viable example
+│   └── standard-profile/      # Standard complete example
+├── .github/                   # Issue and PR templates
 └── README.md
 ```
 
@@ -177,9 +182,10 @@ Contributions of new device configuration files are welcome!
 1. **Fork this repository**
 
 2. **Create device configuration file**
-   - Create a new YAML file in the corresponding vendor directory
-   - If it's a new vendor, create a new vendor directory
+   - Create a new YAML file in the corresponding vendor directory under `profiles/`
+   - If it's a new vendor, create a new vendor directory under `profiles/`
    - File naming format: `Vendor-Model.yaml`
+   - Example: `profiles/YourVendor/YourVendor-Model.yaml`
 
 3. **Write configuration file**
    - Implement Decode and Encode functions

@@ -28,26 +28,31 @@
 
 ```
 RAK-BACnet-Profiles/
-├── Carrier/                    # 开利品牌设备配置
-│   ├── Carrier-BAC-006-v4-20250709.yaml
-│   └── 7201_V2_modify_0619.yaml
-├── Dragino/                    # Dragino 品牌设备配置
-│   ├── Dragino-DDS45.yaml
-│   ├── Dragino-LDS02.yaml
-│   ├── Dragino-LES01.yaml
-│   └── Dragino-WSC2-L.yaml
-├── Milesight/                  # Milesight 品牌设备配置
-│   └── Milesight-VS330.yaml
-├── Senso8/                     # Senso8 品牌设备配置
-│   ├── Senso8-LRS10701.yaml
-│   ├── Senso8-LRS20100.yaml
-│   ├── Senso8-LRS20200.yaml
-│   ├── Senso8-LRS20310.yaml
-│   ├── Senso8-LRS20600.yaml
-│   ├── Senso8-LRS20LD0.yaml
-│   ├── Senso8-LRS20Uxx.yaml
-│   ├── Senso8-LRS2M001.yaml
-│   └── Senso8-LRS30100.yaml
+├── profiles/                   # 真实设备 Profile 配置
+│   ├── Carrier/               # 开利品牌设备配置
+│   │   ├── Carrier-BAC-006-v4-20250709.yaml
+│   │   └── 7201_V2_modify_0619.yaml
+│   ├── Dragino/               # Dragino 品牌设备配置
+│   │   ├── Dragino-DDS45.yaml
+│   │   ├── Dragino-LDS02.yaml
+│   │   ├── Dragino-LES01.yaml
+│   │   └── Dragino-WSC2-L.yaml
+│   ├── Milesight/             # Milesight 品牌设备配置
+│   │   └── Milesight-VS330.yaml
+│   └── Senso8/                # Senso8 品牌设备配置
+│       ├── Senso8-LRS10701.yaml
+│       ├── Senso8-LRS20100.yaml
+│       ├── Senso8-LRS20200.yaml
+│       ├── Senso8-LRS20310.yaml
+│       ├── Senso8-LRS20600.yaml
+│       ├── Senso8-LRS20LD0.yaml
+│       ├── Senso8-LRS20Uxx.yaml
+│       ├── Senso8-LRS2M001.yaml
+│       └── Senso8-LRS30100.yaml
+├── examples/                  # Profile 示例和教程
+│   ├── minimal-profile/       # 最小可行示例
+│   └── standard-profile/      # 标准完整示例
+├── .github/                   # Issue 和 PR 模板
 └── README.md
 ```
 
@@ -177,9 +182,10 @@ Encode 函数编码
 1. **Fork 本仓库**
 
 2. **创建设备配置文件**
-   - 在对应厂商目录下创建新的 YAML 文件
-   - 如果是新厂商，请创建新的厂商目录
+   - 在 `profiles/` 下对应厂商目录中创建新的 YAML 文件
+   - 如果是新厂商，请在 `profiles/` 下创建新的厂商目录
    - 文件命名格式：`厂商-型号.yaml`
+   - 示例：`profiles/YourVendor/YourVendor-Model.yaml`
 
 3. **编写配置文件**
    - 实现 Decode 和 Encode 函数

@@ -1,0 +1,172 @@
+name: 🐛 Bug 报告
+description: 报告现有 Profile 的问题或错误
+title: "[Bug] <厂商>-<型号> - <问题简述>"
+labels: ["bug", "需要修复"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您报告 Bug！详细的问题描述有助于我们快速定位和修复。
+        
+  - type: dropdown
+    id: bug-type
+    attributes:
+      label: 问题类型
+      description: 选择最符合的问题类型
+      options:
+        - 解码错误 - 数据解析结果不正确
+        - 编码错误 - 下行命令格式错误
+        - BACnet 对象配置错误
+        - LoRaWAN 配置错误
+        - 文档错误
+        - 其他
+      default: 0
+    validations:
+      required: true
+      
+  - type: input
+    id: profile-path
+    attributes:
+      label: Profile 文件路径
+      description: 有问题的 Profile 文件路径
+      placeholder: 例如：profiles/Dragino/Dragino-LDS02.yaml
+    validations:
+      required: true
+      
+  - type: input
+    id: profile-version
+    attributes:
+      label: Profile 版本
+      description: Profile 的版本号（在 YAML 文件中的 profileVersion）
+      placeholder: 例如：1.0.0
+    validations:
+      required: false
+      
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 问题描述
+      description: 清楚地描述遇到的问题
+      placeholder: 详细说明发生了什么，期望的行为是什么
+    validations:
+      required: true
+      
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: 复现步骤
+      description: 如何复现这个问题
+      placeholder: |
+        1. 发送上行数据 '01 02 64 00 C8'
+        2. 使用 Decode 函数解码
+        3. 观察到...
+      value: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+      
+  - type: textarea
+    id: test-data
+    attributes:
+      label: 测试数据
+      description: 能复现问题的原始数据（十六进制格式）
+      placeholder: |
+        fPort: 10
+        Hex Data: 01 02 64 00 C8 01 90 00
+      render: text
+    validations:
+      required: true
+      
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 期望的结果
+      description: 说明期望得到的正确结果
+      placeholder: |
+        期望解码结果：
+        {
+          "Temperature": 20.0,
+          "Humidity": 65.5,
+          "Battery": 100
+        }
+      render: json
+    validations:
+      required: true
+      
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: 实际的结果
+      description: 说明实际得到的错误结果
+      placeholder: |
+        实际解码结果：
+        {
+          "Temperature": 0,
+          "Humidity": 0,
+          "Battery": 100
+        }
+      render: json
+    validations:
+      required: true
+      
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 使用环境的相关信息
+      placeholder: |
+        - 设备固件版本: v2.3.0 b30
+        - 区域: AS923
+      value: |
+        - 设备固件版本: 
+        - 区域: 
+    validations:
+      required: true
+      
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: 错误日志或截图
+      description: 如有错误日志或截图，请粘贴在这里
+      placeholder: 粘贴错误日志或拖拽截图到此处
+    validations:
+      required: false
+      
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 其他相关信息
+      description: 任何其他有助于理解问题的信息
+      placeholder: 例如：问题出现的频率、是否有临时解决方案等
+    validations:
+      required: false
+      
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 严重程度
+      description: 这个问题的影响程度
+      options:
+        - 🔴 严重 - 完全无法使用
+        - 🟠 中等 - 部分功能受影响
+        - 🟡 轻微 - 小问题或优化建议
+      default: 1
+    validations:
+      required: true
+      
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 提交前检查
+      options:
+        - label: 我已搜索现有 Issues，确认这不是重复报告
+          required: true
+        - label: 我已提供能复现问题的测试数据
+          required: true
+        - label: 我已说明期望和实际结果的差异
+          required: true
+

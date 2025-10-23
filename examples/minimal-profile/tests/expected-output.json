@@ -1,0 +1,50 @@
+{
+  "description": "最小 Profile 期望输出结果",
+  "testCases": [
+    {
+      "name": "正常温度数据 - 25.5°C",
+      "expectedOutput": [
+        {
+          "name": "Temperature",
+          "channel": 1,
+          "value": 25.5,
+          "unit": "°C"
+        }
+      ]
+    },
+    {
+      "name": "负温度数据 - -10.5°C",
+      "expectedOutput": [
+        {
+          "name": "Temperature",
+          "channel": 1,
+          "value": -10.5,
+          "unit": "°C"
+        }
+      ]
+    },
+    {
+      "name": "零度数据",
+      "expectedOutput": [
+        {
+          "name": "Temperature",
+          "channel": 1,
+          "value": 0,
+          "unit": "°C"
+        }
+      ]
+    },
+    {
+      "name": "高温数据 - 85.0°C",
+      "expectedOutput": [
+        {
+          "name": "Temperature",
+          "channel": 1,
+          "value": 85.0,
+          "unit": "°C"
+        }
+      ]
+    }
+  ]
+}
+
