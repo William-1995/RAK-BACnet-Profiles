@@ -65,7 +65,7 @@ Each YAML configuration file contains the following main sections:
 Defines JavaScript functions for encoding and decoding LoRaWAN data:
 
 ```yaml
-codec: >
+codec: |
   function Decode(fPort, data, variables) {
     // Decode LoRaWAN uplink data
     var values = [];
@@ -194,13 +194,42 @@ Contributions of new device configuration files are welcome!
    - Add complete metadata information
 
 4. **Testing and Validation**
-   - Test the configuration file on actual devices
-   - Verify data encoding/decoding correctness
-   - Confirm BACnet object mapping works properly
+   
+   Create test data for your Profile:
+   
+   ```bash
+   # Create test directory
+   mkdir -p profiles/YourVendor/tests
+   
+   # Add test input data
+   # Create profiles/YourVendor/tests/test-data.json
+   # Create profiles/YourVendor/tests/expected-output.json
+   ```
+   
+   Run validation:
+   
+   ```bash
+   # Install dependencies (first time only)
+   cd scripts && npm install && cd ..
+   
+   # Run full validation (including output verification)
+   node scripts/validate-profile.js profiles/YourVendor/YourVendor-Model.yaml
+   ```
+   
+   Ensure all tests pass:
+   - ✅ YAML syntax valid
+   - ✅ Profile structure correct
+   - ✅ Codec functions executable
+   - ✅ BACnet object types supported
+   - ✅ Test data decodes successfully
+   - ✅ Output matches expected results `[输出匹配]`
+   
+   See [docs/TESTING-GUIDE.md](docs/TESTING-GUIDE.md) for detailed testing instructions.
 
 5. **Submit Pull Request**
    - Provide detailed device description
-   - Include test results and use cases
+   - Include test data and expected outputs
+   - Ensure validation passes
    - Update device list in this README
 
 ### Configuration File Specifications

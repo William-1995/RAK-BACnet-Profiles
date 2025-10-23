@@ -64,7 +64,7 @@ cp examples/standard-profile/standard-temp-humidity-sensor.yaml profiles/YourVen
 
 ```yaml
 # Codec 编解码函数
-codec: >
+codec: |
   function Decode(fPort, data, variables) { ... }
   function Encode(data, variables) { ... }
   function decodeUplink(input) { ... }

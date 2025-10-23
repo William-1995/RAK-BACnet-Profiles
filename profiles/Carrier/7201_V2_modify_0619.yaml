@@ -1,4 +1,4 @@
-codec: >-
+codec: |
   function Decode(fPort, data, variables) {
     var values = [];
     if (data.length >= 2 && data[0] === 0x48) {

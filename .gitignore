@@ -1,0 +1,121 @@
+# ==================== Node.js ====================
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ==================== Python ====================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# ==================== IDEs and Editors ====================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs (PyCharm, WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+
+# ==================== Operating System ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+
+# ==================== Project Specific ====================
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.swp
+
+# Test outputs
+test-output/
+test-results/
+coverage/
+
+# Build artifacts
+*.js.map
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Debug files
+debug.log
+test-debug.js
+fix-*.js
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
+# Cache directories
+.cache/
+.npm/
+.eslintcache
+
+# ==================== Git ====================
+# Git conflict files
+*.orig
+

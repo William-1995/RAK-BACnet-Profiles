@@ -65,7 +65,7 @@ RAK-BACnet-Profiles/
 定义 LoRaWAN 数据的编码和解码函数（JavaScript）：
 
 ```yaml
-codec: >
+codec: |
   function Decode(fPort, data, variables) {
     // 解码 LoRaWAN 上行数据
     var values = [];
@@ -194,13 +194,42 @@ Encode 函数编码
    - 添加完整的元数据信息
 
 4. **测试验证**
-   - 在实际设备上测试配置文件
-   - 验证数据编解码的正确性
-   - 确认 BACnet 对象映射正常工作
+   
+   为 Profile 创建测试数据：
+   
+   ```bash
+   # 创建测试目录
+   mkdir -p profiles/YourVendor/tests
+   
+   # 添加测试输入数据
+   # 创建 profiles/YourVendor/tests/test-data.json
+   # 创建 profiles/YourVendor/tests/expected-output.json
+   ```
+   
+   运行验证：
+   
+   ```bash
+   # 安装依赖（首次运行）
+   cd scripts && npm install && cd ..
+   
+   # 运行完整验证（包括输出验证）
+   node scripts/validate-profile.js profiles/YourVendor/YourVendor-Model.yaml
+   ```
+   
+   确保所有测试通过：
+   - ✅ YAML 语法正确
+   - ✅ Profile 结构完整
+   - ✅ Codec 函数可执行
+   - ✅ BACnet 对象类型支持
+   - ✅ 测试数据解码成功
+   - ✅ 输出匹配期望结果 `[输出匹配]`
+   
+   详细测试说明请参考 [docs/TESTING-GUIDE.md](docs/TESTING-GUIDE.md)。
 
 5. **提交 Pull Request**
    - 提供设备的详细说明
-   - 包含测试结果和使用场景
+   - 包含测试数据和期望输出
+   - 确保验证通过
    - 更新本 README 中的设备列表
 
 ### 配置文件规范
