@@ -1,4 +1,4 @@
-codec: >-
+codec: |
   function Decode(fPort, bytes, variables) {
     var values = [];
     

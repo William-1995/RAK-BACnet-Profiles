@@ -1,0 +1,23 @@
+{
+  "name": "profile-validation-scripts",
+  "version": "1.0.0",
+  "description": "Validation scripts for RAK BACnet Profiles",
+  "main": "validate-profile.js",
+  "scripts": {
+    "validate": "node validate-profile.js",
+    "test": "node test-codec.js"
+  },
+  "keywords": [
+    "bacnet",
+    "lorawan",
+    "validation",
+    "profile"
+  ],
+  "author": "RAKwireless",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "ajv": "^8.12.0"
+  }
+}
+

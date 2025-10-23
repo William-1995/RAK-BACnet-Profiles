@@ -1,4 +1,4 @@
-codec: >
+codec: |
     const fieldTypeMap = 
     {
         0x01: { name: "Power", unit: null, parse: v => v },

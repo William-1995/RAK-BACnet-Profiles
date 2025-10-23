@@ -1,4 +1,4 @@
-codec: >
+codec: |
   function Decode(fPort, data, variables) {
     var values = [];
     
@@ -71,7 +71,7 @@ lorawan:
   supportClassC: false
   supportOTAA: true
 
-model: Dragino-DDS45-LB/LS
+model: Dragino-DDS45
 profileVersion: 1.0.0
 name: DDS45-LB/LS
 vendor: RAKwireless

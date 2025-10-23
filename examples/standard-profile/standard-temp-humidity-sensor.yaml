@@ -2,7 +2,7 @@
 # 本示例展示生产级 Profile 的完整结构，包含多传感器、报警、配置等功能
 
 # ==================== Codec 编解码函数 ====================
-codec: >
+codec: |
   function Decode(fPort, data, variables) {
     var values = [];
     var array = new Uint8Array(data);

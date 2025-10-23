@@ -1,4 +1,4 @@
-codec: >
+codec: |
   function Decode(fPort, data, variables) {
     var values = [];
     var array = new Uint8Array(data)

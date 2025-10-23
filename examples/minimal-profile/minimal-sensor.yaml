@@ -2,7 +2,7 @@
 # 本示例展示最基础的 Profile 结构，仅包含一个温度传感器
 
 # ==================== Codec 编解码函数 ====================
-codec: >
+codec: |
   // 解码函数：将 LoRaWAN 上行数据解析为可读的传感器数值
   function Decode(fPort, data, variables) {
     var values = [];

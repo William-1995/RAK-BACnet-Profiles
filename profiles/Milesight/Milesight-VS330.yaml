@@ -1,4 +1,4 @@
-codec: >
+codec: |
   function Decode(fPort, data, variables) {
     var values = [];
 
@@ -50,7 +50,7 @@ datatype:
     channel: 2
   "3":
     name: Occupancy Status
-    type: MultiStateInputObject
+    type: AnalogInputObject
     channel: 3
 
 lorawan:
