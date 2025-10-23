@@ -29,30 +29,21 @@
 ```
 RAK-BACnet-Profiles/
 ├── profiles/                   # 真实设备 Profile 配置
-│   ├── Carrier/               # 开利品牌设备配置
-│   │   ├── Carrier-BAC-006-v4-20250709.yaml
-│   │   └── 7201_V2_modify_0619.yaml
-│   ├── Dragino/               # Dragino 品牌设备配置
-│   │   ├── Dragino-DDS45.yaml
-│   │   ├── Dragino-LDS02.yaml
-│   │   ├── Dragino-LES01.yaml
-│   │   └── Dragino-WSC2-L.yaml
-│   ├── Milesight/             # Milesight 品牌设备配置
-│   │   └── Milesight-VS330.yaml
-│   └── Senso8/                # Senso8 品牌设备配置
-│       ├── Senso8-LRS10701.yaml
-│       ├── Senso8-LRS20100.yaml
-│       ├── Senso8-LRS20200.yaml
-│       ├── Senso8-LRS20310.yaml
-│       ├── Senso8-LRS20600.yaml
-│       ├── Senso8-LRS20LD0.yaml
-│       ├── Senso8-LRS20Uxx.yaml
-│       ├── Senso8-LRS2M001.yaml
-│       └── Senso8-LRS30100.yaml
-├── examples/                  # Profile 示例和教程
-│   ├── minimal-profile/       # 最小可行示例
-│   └── standard-profile/      # 标准完整示例
-├── .github/                   # Issue 和 PR 模板
+│   ├── Carrier/               # 开利设备
+│   ├── Dragino/               # Dragino 设备
+│   ├── Milesight/             # Milesight 设备
+│   └── Senso8/                # Senso8 设备
+│       ├── *.yaml             # Profile 文件
+│       └── tests/             # 测试数据（可选）
+├── examples/                  # 示例 Profile
+│   ├── minimal-profile/       # 最小示例
+│   └── standard-profile/      # 完整示例
+├── scripts/                   # 验证脚本
+│   ├── validate-profile.js    # Profile 验证器
+│   ├── test-codec.js          # Codec 测试器
+│   └── utils/                 # 工具函数
+├── docs/                      # 文档
+├── .github/                   # GitHub 模板
 └── README.md
 ```
 
@@ -99,9 +90,11 @@ datatype:
 **支持的 BACnet 对象类型：**
 - `AnalogInputObject` - 模拟输入（传感器读数）
 - `AnalogOutputObject` - 模拟输出（可控制的模拟值）
-- `BinaryInputObject` - 二进制输入（开关状态）
-- `BinaryOutputObject` - 二进制输出（可控制的开关）
-- `OctetStringValueObject` - 字节串值对象
+- `AnalogValueObject` - 模拟值（通用模拟量）
+- `BinaryInputObject` - 二值输入（开关状态、报警等）
+- `BinaryOutputObject` - 二值输出（可控制的开关）
+- `BinaryValueObject` - 二值变量（通用二值）
+- `OctetStringValueObject` - 字节串值（字符串、特殊数据）
 
 ### 3. LoRaWAN 配置
 

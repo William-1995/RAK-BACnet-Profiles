@@ -29,30 +29,21 @@ This repository provides conversion configuration files from LoRaWAN devices to 
 ```
 RAK-BACnet-Profiles/
 ├── profiles/                   # Real device profiles
-│   ├── Carrier/               # Carrier brand device profiles
-│   │   ├── Carrier-BAC-006-v4-20250709.yaml
-│   │   └── 7201_V2_modify_0619.yaml
-│   ├── Dragino/               # Dragino brand device profiles
-│   │   ├── Dragino-DDS45.yaml
-│   │   ├── Dragino-LDS02.yaml
-│   │   ├── Dragino-LES01.yaml
-│   │   └── Dragino-WSC2-L.yaml
-│   ├── Milesight/             # Milesight brand device profiles
-│   │   └── Milesight-VS330.yaml
-│   └── Senso8/                # Senso8 brand device profiles
-│       ├── Senso8-LRS10701.yaml
-│       ├── Senso8-LRS20100.yaml
-│       ├── Senso8-LRS20200.yaml
-│       ├── Senso8-LRS20310.yaml
-│       ├── Senso8-LRS20600.yaml
-│       ├── Senso8-LRS20LD0.yaml
-│       ├── Senso8-LRS20Uxx.yaml
-│       ├── Senso8-LRS2M001.yaml
-│       └── Senso8-LRS30100.yaml
-├── examples/                  # Example profiles and tutorials
-│   ├── minimal-profile/       # Minimal viable example
-│   └── standard-profile/      # Standard complete example
-├── .github/                   # Issue and PR templates
+│   ├── Carrier/               # Carrier devices
+│   ├── Dragino/               # Dragino devices
+│   ├── Milesight/             # Milesight devices
+│   └── Senso8/                # Senso8 devices
+│       ├── *.yaml             # Profile files
+│       └── tests/             # Test data (optional)
+├── examples/                  # Example profiles
+│   ├── minimal-profile/       # Minimal example
+│   └── standard-profile/      # Complete example
+├── scripts/                   # Validation scripts
+│   ├── validate-profile.js    # Profile validator
+│   ├── test-codec.js          # Codec tester
+│   └── utils/                 # Utilities
+├── docs/                      # Documentation
+├── .github/                   # GitHub templates
 └── README.md
 ```
 
@@ -99,9 +90,11 @@ datatype:
 **Supported BACnet Object Types:**
 - `AnalogInputObject` - Analog input (sensor readings)
 - `AnalogOutputObject` - Analog output (controllable analog values)
-- `BinaryInputObject` - Binary input (switch states)
+- `AnalogValueObject` - Analog value (general analog values)
+- `BinaryInputObject` - Binary input (switch states, alarms)
 - `BinaryOutputObject` - Binary output (controllable switches)
-- `OctetStringValueObject` - Octet string value object
+- `BinaryValueObject` - Binary value (general binary values)
+- `OctetStringValueObject` - Octet string value (strings, special data)
 
 ### 3. LoRaWAN Configuration
 
