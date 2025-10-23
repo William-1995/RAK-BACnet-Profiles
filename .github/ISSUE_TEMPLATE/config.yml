@@ -3,7 +3,3 @@ contact_links:
   - name: 💡 Profile 示例
     url: https://github.com/RAKWireless/RAK-BACnet-Profiles/tree/main/examples
     about: 查看标准 Profile 示例和测试数据
-    
-  - name: 💬 问题讨论
-    url: https://github.com/RAKWireless/RAK-BACnet-Profiles/discussions
-    about: 技术问题讨论和社区交流
