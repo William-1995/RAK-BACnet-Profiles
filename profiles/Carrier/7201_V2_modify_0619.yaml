@@ -65,7 +65,7 @@ datatype:
 lorawan:
   region: AS923
   macVersion: LORAWAN_1_0_3
-  regionalParametetsRevision: RP002_1_0_3
+  regionalParametersRevision: RP002_1_0_3
   adrAlgorithm: LoRA Only
   supportClassB: false
   supportClassC: false

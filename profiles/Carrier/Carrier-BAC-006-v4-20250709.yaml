@@ -252,7 +252,7 @@ lorawan:
   classCDownlinkTimeout: 5
   macVersion: LORAWAN_1_0_3
   region: AS923
-  regionalParametetsRevision: A
+  regionalParametersRevision: A
   supportClassB: false
   supportClassC: true
   supportOTAA: true
