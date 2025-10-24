@@ -11,9 +11,69 @@ npm install
 
 ## 🛠️ 工具列表
 
-### 1. validate-profile.js - 完整验证工具
+### 1. validate-all.js - 批量验证工具 ⭐
 
-**用途**: 对 Profile 进行全面验证，包括语法、结构、Codec 函数和测试数据。
+**用途**: 一次验证所有 Profile 文件，快速检查整个项目（不包含测试数据验证）。
+
+**使用方法**:
+```bash
+# 验证 profiles 目录下所有文件
+node scripts/validate-all.js
+
+# 验证特定目录
+node scripts/validate-all.js profiles/Senso8
+
+# JSON 格式输出（用于 CI/CD）
+node scripts/validate-all.js --json
+```
+
+**验证内容**:
+- ✅ YAML 语法检查
+- ✅ Profile 结构验证（Schema）
+- ✅ 必需字段检查
+- ✅ Codec 函数语法验证
+- ✅ BACnet 对象类型合规性
+- ✅ 文件命名规范
+- ⏭️ 跳过测试数据执行（快速验证）
+
+**输出示例**:
+```
+🔍 扫描目录: profiles
+
+📦 找到 16 个 Profile 文件
+
+======================================================================
+
+[1/16] profiles/Carrier/Carrier-BAC-006-v4-20250709.yaml
+----------------------------------------------------------------------
+✅ 通过
+
+[2/16] profiles/Dragino/Dragino-LDS02.yaml
+----------------------------------------------------------------------
+✅ 通过
+
+...
+
+======================================================================
+
+📊 验证结果汇总:
+
+  总计: 16
+  通过: 15 ✅
+  失败: 1 ❌
+  成功率: 93.8%
+
+❌ 失败的文件:
+  - profiles/Senso8/Senso8-LRS10701.yaml
+
+======================================================================
+```
+
+---
+
+### 2. validate-profile.js - 单文件验证工具
+
+**用途**: 对单个 Profile 进行全面验证，包括语法、结构、Codec 函数和测试数据。
 
 **使用方法**:
 ```bash
@@ -40,7 +100,7 @@ node scripts/validate-profile.js profiles/xxx.yaml --json
 
 ---
 
-### 2. test-codec.js - Codec 函数测试
+### 3. test-codec.js - Codec 函数测试
 
 **用途**: 单独测试 Profile 的编解码函数。
 
@@ -67,7 +127,7 @@ node scripts/test-codec.js --batch \
 
 ---
 
-### 3. profile-schema.json - Profile Schema 定义
+### 4. profile-schema.json - Profile Schema 定义
 
 **用途**: 定义 Profile YAML 文件的标准结构，用于自动验证。
 

@@ -58,7 +58,7 @@
               "description": "BACnet object type"
             },
             "units": {
-              "type": "string",
+              "type": ["string", "null"],
               "description": "BACnet engineering units"
             },
             "covIncrement": {

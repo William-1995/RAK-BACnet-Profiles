@@ -73,7 +73,7 @@ lorawan:
   adrAlgorithm: LoRa Only
   classCDownlinkTimeout: 5
   macVersion: LORAWAN_1_0_3
-  region: US923
+  region: AS923
   regionalParametersRevision: A
   supportClassB: false
   supportClassC: false
