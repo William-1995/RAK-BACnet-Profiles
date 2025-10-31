@@ -5,6 +5,7 @@ codec: |
     if (fPort === 2 && data.length >= 8) {
     
       var batteryRaw = (data[0] << 8) | data[1];
+      var interruptPin = data[4];
       var sensorFlag = data[7];
       
       var distanceRaw = (data[2] << 8) | data[3];
@@ -19,7 +20,8 @@ codec: |
 
       values.push({ name: "BatteryVoltage", channel: 1, value: batteryRaw });
       values.push({ name: "Distance", channel: 2, value: distanceValue});
-      values.push({ name: "SensorFlag", channel: 3, value: sensorFlag });
+      values.push({ name: "InterruptPin", channel: 3, value: interruptPin });
+      values.push({ name: "SensorFlag", channel: 4, value: sensorFlag });
     }
     
     return values;
@@ -56,10 +58,15 @@ datatype:
     updateInterval: 600
     channel: 2
   "3":
-    name: Sensor Flag
+    name: Interrupt Pin
     type: AnalogInputObject
     updateInterval: 600
     channel: 3
+  "4":
+    name: Sensor Flag
+    type: AnalogInputObject
+    updateInterval: 600
+    channel: 4
 
 lorawan:
   adrAlgorithm: LoRa Only
