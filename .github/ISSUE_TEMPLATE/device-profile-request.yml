@@ -1,40 +1,40 @@
-name: 🆕 设备 Profile 请求
-description: 请求为新设备创建 BACnet Profile 配置
-title: "[Profile Request] <厂商> - <型号>"
-labels: ["profile-request", "需求收集"]
+name: 🆕 Device Profile Request
+description: Request to create a BACnet profile configuration for a new device
+title: "[Profile Request] <Vendor> - <Model>"
+labels: ["profile-request", "requirement-gathering"]
 assignees: []
 
 body:
   - type: markdown
     attributes:
       value: |
-        感谢您提交设备 Profile 请求！请填写以下信息，以便我们为您的设备创建 BACnet Profile。
+        Thank you for submitting a device profile request! Please fill in the following information so we can create a BACnet profile for your device.
         
-        **注意**：信息越详细，Profile 创建速度越快。
+        **Note**: The more detailed the information, the faster the profile can be created.
         
   - type: input
     id: vendor
     attributes:
-      label: 设备厂商
-      description: 设备制造商名称
-      placeholder: 例如：Dragino, Milesight, Senso8
+      label: Device Vendor
+      description: Name of the device manufacturer
+      placeholder: e.g., Dragino, Milesight, Senso8
     validations:
       required: true
       
   - type: input
     id: model
     attributes:
-      label: 设备型号
-      description: 完整的设备型号
-      placeholder: 例如：LDS02, VS330, LRS20100
+      label: Device Model
+      description: Complete device model number
+      placeholder: e.g., LDS02, VS330, LRS20100
     validations:
       required: true
       
   - type: input
     id: datasheet
     attributes:
-      label: 产品手册/规格书链接
-      description: 产品数据手册或技术规格书的 URL
+      label: Product Manual/Datasheet Link
+      description: URL to the product datasheet or technical specification document
       placeholder: https://
     validations:
       required: true
@@ -43,7 +43,7 @@ body:
     id: lorawan-class
     attributes:
       label: LoRaWAN Class
-      description: 设备支持的 LoRaWAN Class
+      description: LoRaWAN Class supported by the device
       options:
         - Class A
         - Class B
@@ -55,8 +55,8 @@ body:
   - type: dropdown
     id: lorawan-region
     attributes:
-      label: 区域频段
-      description: 设备支持的 LoRaWAN 区域频段
+      label: Regional Frequency
+      description: LoRaWAN regional frequencies supported by the device
       multiple: true
       options:
         - AS923
@@ -73,8 +73,8 @@ body:
   - type: dropdown
     id: lorawan-version
     attributes:
-      label: LoRaWAN 协议版本
-      description: 设备使用的 LoRaWAN MAC 版本
+      label: LoRaWAN Protocol Version
+      description: LoRaWAN MAC version used by the device
       options:
         - LORAWAN_1_0_2
         - LORAWAN_1_0_3
@@ -86,8 +86,8 @@ body:
   - type: textarea
     id: uplink-data
     attributes:
-      label: 上行数据样例
-      description: 提供设备上行数据的十六进制样例（至少 2-3 个不同场景的数据）
+      label: Uplink Data Examples
+      description: Provide hexadecimal examples of device uplink data (at least 2-3 different scenarios)
       placeholder: |
         fPort 10: 01 02 64 00 C8 01 90 00
         fPort 10: 00 03 5A 00 FA 02 10 00
@@ -100,37 +100,37 @@ body:
   - type: textarea
     id: bacnet-mapping
     attributes:
-      label: BACnet 对象映射需求
+      label: BACnet Object Mapping Requirements
       description: |
-        说明每个参数期望映射为哪种 BACnet 对象类型
+        Specify which BACnet object type each parameter should be mapped to
         
-        **目前支持的 BACnet 对象类型：**
-        - AnalogInputObject - 模拟输入（传感器读数）
-        - AnalogOutputObject - 模拟输出（可控制的模拟量）
-        - AnalogValueObject - 模拟值（通用模拟量）
-        - BinaryInputObject - 二值输入（开关状态、报警等）
-        - BinaryOutputObject - 二值输出（可控制的开关）
-        - BinaryValueObject - 二值变量（通用二值）
-        - OctetStringValueObject - 字节串值（字符串、特殊数据）
+        **Currently supported BACnet object types:**
+        - AnalogInputObject - Analog input (sensor readings)
+        - AnalogOutputObject - Analog output (controllable analog values)
+        - AnalogValueObject - Analog value (general analog values)
+        - BinaryInputObject - Binary input (switch status, alarms, etc.)
+        - BinaryOutputObject - Binary output (controllable switches)
+        - BinaryValueObject - Binary value (general binary values)
+        - OctetStringValueObject - Octet string value (strings, special data)
       placeholder: |
-        - 温度 → AnalogInputObject (degreesCelsius)
-        - 湿度 → AnalogInputObject (percent)
-        - 门状态 → BinaryInputObject
-        - 电池电压 → AnalogInputObject (millivolts)
+        - Temperature → AnalogInputObject (degreesCelsius)
+        - Humidity → AnalogInputObject (percent)
+        - Door Status → BinaryInputObject
+        - Battery Voltage → AnalogInputObject (millivolts)
       value: |
-        - 参数名 → BACnet对象类型 (单位)
+        - Parameter Name → BACnet Object Type (unit)
     validations:
       required: true
       
   - type: dropdown
     id: priority
     attributes:
-      label: 优先级
-      description: 请求的优先级
+      label: Priority
+      description: Priority of this request
       options:
-        - 🔥 高 - 项目紧急需要
-        - ⚡ 中 - 近期计划使用
-        - 📝 低 - 长期规划
+        - 🔥 High - Urgently needed for project
+        - ⚡ Medium - Planned for near-term use
+        - 📝 Low - Long-term planning
       default: 1
     validations:
       required: true
@@ -138,15 +138,15 @@ body:
   - type: checkboxes
     id: checklist
     attributes:
-      label: 提交前检查
-      description: 请确认以下事项
+      label: Pre-submission Checklist
+      description: Please confirm the following
       options:
-        - label: 我已提供设备的完整型号信息
+        - label: I have provided complete device model information
           required: true
-        - label: 我已提供真实的上行数据样例
+        - label: I have provided real uplink data examples
           required: true
-        - label: 我已说明数据字段的含义
+        - label: I have explained the meaning of data fields
           required: true
-        - label: 我已检查没有重复的 Profile 请求
+        - label: I have checked for duplicate profile requests
           required: true
 

@@ -1,78 +1,78 @@
 # Pull Request
 
-## 📋 PR 类型
+## 📋 PR Type
 
-请选择本次 PR 的类型：
+Please select the type of this PR:
 
-- [ ] 🆕 新增设备 Profile
-- [ ] 🐛 修复现有 Profile Bug
-- [ ] 📝 文档更新
-- [ ] 🔧 其他（请说明）
-
----
-
-## 📦 变更内容
-
-### 变更摘要
-<!-- 简要描述本次 PR 的主要变更内容 -->
-
-
-
-### 设备信息（如适用于新增/修复 Profile）
-
-- **厂商**: 
-- **型号**: 
-- **Profile 文件路径**: `profiles/`
-- **Profile 版本**: 
+- [ ] 🆕 New Device Profile
+- [ ] 🐛 Fix Existing Profile Bug
+- [ ] 📝 Documentation Update
+- [ ] 🔧 Other (please specify)
 
 ---
 
-## ✅ 自检清单
+## 📦 Changes
 
-请确认以下事项都已完成：
+### Summary
+<!-- Briefly describe the main changes in this PR -->
 
-### 基础检查
-- [ ] YAML 文件语法正确（无格式错误）
-- [ ] 文件命名符合规范（`厂商-型号.yaml`）
-- [ ] Profile 版本号已设置（`profileVersion`）
-- [ ] 包含所有必需字段（`vendor`, `model`, `codec`, `datatype`, `lorawan`）
 
-### Codec 函数验证
-- [ ] 已实现 `Decode()` 函数
-- [ ] 已实现 `decodeUplink()` 函数
-- [ ] Codec 函数通过语法检查（无 JavaScript 错误）
-- [ ] 已使用真实数据测试解码功能
 
-### BACnet 对象配置
-- [ ] BACnet 对象类型正确（仅使用支持的7种类型）
-- [ ] Channel 编号唯一且从 1 开始
-- [ ] 单位（units）使用 BACnet 标准单位名称
-- [ ] 设置了合理的 `updateInterval` 和 `covIncrement`（如适用）
+### Device Information (if applicable for new/fixed profiles)
 
-### 设备测试
-- [ ] 在真实设备上验证过（或提供了充分的测试数据）
-- [ ] 测试数据覆盖主要功能场景
-- [ ] 解码结果与预期一致
-
-### 文档（如有更新）
-- [ ] 更新了相关 README（如有必要）
-- [ ] 添加了设备说明或特殊注意事项
+- **Vendor**: 
+- **Model**: 
+- **Profile File Path**: `profiles/`
+- **Profile Version**: 
 
 ---
 
-## 🧪 测试验证
+## ✅ Self-Check List
 
-### 测试数据
+Please confirm that the following items have been completed:
 
-请提供至少 2 组测试数据用于验证：
+### Basic Checks
+- [ ] YAML file syntax is correct (no formatting errors)
+- [ ] File naming follows convention (`Vendor-Model.yaml`)
+- [ ] Profile version is set (`profileVersion`)
+- [ ] All required fields are included (`vendor`, `model`, `codec`, `datatype`, `lorawan`)
 
-**测试用例 1:**
+### Codec Function Validation
+- [ ] `Decode()` function implemented
+- [ ] `decodeUplink()` function implemented
+- [ ] Codec functions pass syntax checks (no JavaScript errors)
+- [ ] Decoding functionality tested with real data
+
+### BACnet Object Configuration
+- [ ] BACnet object types are correct (only using supported 7 types)
+- [ ] Channel numbers are unique and start from 1
+- [ ] Units use BACnet standard unit names
+- [ ] Reasonable `updateInterval` and `covIncrement` are set (if applicable)
+
+### Device Testing
+- [ ] Verified on real device (or provided sufficient test data)
+- [ ] Test data covers main functional scenarios
+- [ ] Decoding results match expectations
+
+### Documentation (if updated)
+- [ ] Updated related README (if necessary)
+- [ ] Added device description or special notes
+
+---
+
+## 🧪 Test Verification
+
+### Test Data
+
+Please provide at least 2 sets of test data for verification:
+
+**Test Case 1:**
 ```
 fPort: 
-上行数据 (Hex): 
+Uplink Data (Hex): 
 ```
 
-**预期输出:**
+**Expected Output:**
 ```json
 {
   "data": [
@@ -83,13 +83,13 @@ fPort:
 
 ---
 
-**测试用例 2:**
+**Test Case 2:**
 ```
 fPort: 
-上行数据 (Hex): 
+Uplink Data (Hex): 
 ```
 
-**预期输出:**
+**Expected Output:**
 ```json
 {
   "data": [
@@ -100,9 +100,9 @@ fPort:
 
 ---
 
-### 验证方法
+### Verification Method
 
-使用 Node.js 验证脚本测试 Codec 函数：
+Test codec functions using the Node.js validation script:
 
 ```bash
 node scripts/test-codec.js \
@@ -111,58 +111,58 @@ node scripts/test-codec.js \
   -u <hex_data>
 ```
 
-**验证结果**:
-<!-- 粘贴命令输出 -->
+**Verification Result**:
+<!-- Paste command output -->
 ```
 
 ```
 
 ---
 
-## 📚 相关链接
+## 📚 Related Links
 
-- **关联 Issue**: #
-- **产品规格书**: 
-- **设备手册**: 
-- **测试报告**: 
-
----
-
-## 💬 补充说明
-
-### 特殊配置或注意事项
-<!-- 如果设备有特殊的配置要求、已知问题或使用注意事项，请在此说明 -->
-
-
-
-### 其他信息
-<!-- 任何其他需要 Reviewer 了解的信息 -->
-
-
+- **Related Issue**: #
+- **Product Specification**: 
+- **Device Manual**: 
+- **Test Report**: 
 
 ---
 
-## 📋 Reviewer 检查项
+## 💬 Additional Notes
 
-> **提示给 Reviewer**：请在审查时重点关注以下方面
+### Special Configuration or Considerations
+<!-- If the device has special configuration requirements, known issues, or usage notes, please specify here -->
 
-- [ ] Profile 结构完整性
-- [ ] Codec 函数逻辑正确性
-- [ ] BACnet 对象映射合理性
-- [ ] 测试数据充分性
-- [ ] 代码风格和注释
-- [ ] 文档完整性
+
+
+### Other Information
+<!-- Any other information reviewers need to know -->
+
+
+
+---
+
+## 📋 Reviewer Checklist
+
+> **Note to Reviewer**: Please focus on the following aspects during review
+
+- [ ] Profile structure completeness
+- [ ] Codec function logic correctness
+- [ ] BACnet object mapping reasonableness
+- [ ] Test data sufficiency
+- [ ] Code style and comments
+- [ ] Documentation completeness
 
 ---
 
 <!-- 
-感谢您的贡献！🎉
-提交 PR 前请确保：
-1. 所有自检清单项都已勾选
-2. 提供了充分的测试数据
-3. 通过了验证工具测试
-4. 填写了相关说明
+Thank you for your contribution! 🎉
+Before submitting your PR, please ensure:
+1. All self-check list items are checked
+2. Sufficient test data is provided
+3. Validation tool tests have passed
+4. Related descriptions are filled in
 
-我们会尽快审查您的 PR。如有问题，我们会在评论中反馈。
+We will review your PR as soon as possible. If there are any issues, we will provide feedback in the comments.
 -->
 
