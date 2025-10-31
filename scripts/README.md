@@ -1,69 +1,69 @@
-# Profile 验证脚本
+# Profile Validation Scripts
 
-本目录包含用于验证和测试 BACnet Profile 配置文件的 Node.js 脚本。
+This directory contains Node.js scripts for validating and testing BACnet Profile configuration files.
 
-## 📦 安装依赖
+## 📦 Install Dependencies
 
 ```bash
 cd scripts
 npm install
 ```
 
-## 🛠️ 工具列表
+## 🛠️ Tool List
 
-### 1. validate-all.js - 批量验证工具 ⭐
+### 1. validate-all.js - Batch Validation Tool ⭐
 
-**用途**: 一次验证所有 Profile 文件，快速检查整个项目（不包含测试数据验证）。
+**Purpose**: Validate all Profile files at once, quickly check the entire project (excludes test data validation).
 
-**使用方法**:
+**Usage**:
 ```bash
-# 验证 profiles 目录下所有文件
+# Validate all files in profiles directory
 node scripts/validate-all.js
 
-# 验证特定目录
+# Validate specific directory
 node scripts/validate-all.js profiles/Senso8
 
-# JSON 格式输出（用于 CI/CD）
+# JSON format output (for CI/CD)
 node scripts/validate-all.js --json
 ```
 
-**验证内容**:
-- ✅ YAML 语法检查
-- ✅ Profile 结构验证（Schema）
-- ✅ 必需字段检查
-- ✅ Codec 函数语法验证
-- ✅ BACnet 对象类型合规性
-- ✅ 文件命名规范
-- ⏭️ 跳过测试数据执行（快速验证）
+**Validation Content**:
+- ✅ YAML syntax check
+- ✅ Profile structure validation (Schema)
+- ✅ Required fields check
+- ✅ Codec function syntax validation
+- ✅ BACnet object type compliance
+- ✅ File naming convention
+- ⏭️ Skip test data execution (fast validation)
 
-**输出示例**:
+**Output Example**:
 ```
-🔍 扫描目录: profiles
+🔍 Scanning directory: profiles
 
-📦 找到 16 个 Profile 文件
+📦 Found 16 Profile files
 
 ======================================================================
 
 [1/16] profiles/Carrier/Carrier-BAC-006-v4-20250709.yaml
 ----------------------------------------------------------------------
-✅ 通过
+✅ Pass
 
 [2/16] profiles/Dragino/Dragino-LDS02.yaml
 ----------------------------------------------------------------------
-✅ 通过
+✅ Pass
 
 ...
 
 ======================================================================
 
-📊 验证结果汇总:
+📊 Validation Summary:
 
-  总计: 16
-  通过: 15 ✅
-  失败: 1 ❌
-  成功率: 93.8%
+  Total: 16
+  Passed: 15 ✅
+  Failed: 1 ❌
+  Success Rate: 93.8%
 
-❌ 失败的文件:
+❌ Failed files:
   - profiles/Senso8/Senso8-LRS10701.yaml
 
 ======================================================================
@@ -71,40 +71,40 @@ node scripts/validate-all.js --json
 
 ---
 
-### 2. validate-profile.js - 单文件验证工具
+### 2. validate-profile.js - Single File Validation Tool
 
-**用途**: 对单个 Profile 进行全面验证，包括语法、结构、Codec 函数和测试数据。
+**Purpose**: Comprehensive validation of a single Profile, including syntax, structure, Codec functions, and test data.
 
-**使用方法**:
+**Usage**:
 ```bash
 node scripts/validate-profile.js profiles/Senso8/Senso8-LRS20600.yaml
 ```
 
-**验证项目**:
-- ✅ YAML 语法检查
-- ✅ Profile 结构验证（Schema）
-- ✅ 必需字段检查
-- ✅ Codec 函数语法验证
-- ✅ BACnet 对象类型合规性
-- ✅ 文件命名规范
-- ✅ 测试数据执行（完整验证）
+**Validation Items**:
+- ✅ YAML syntax check
+- ✅ Profile structure validation (Schema)
+- ✅ Required fields check
+- ✅ Codec function syntax validation
+- ✅ BACnet object type compliance
+- ✅ File naming convention
+- ✅ Test data execution (complete validation)
 
-**选项**:
+**Options**:
 ```bash
-# 跳过测试数据验证
+# Skip test data validation
 node scripts/validate-profile.js profiles/xxx.yaml --no-tests
 
-# JSON 格式输出（用于 CI/CD）
+# JSON format output (for CI/CD)
 node scripts/validate-profile.js profiles/xxx.yaml --json
 ```
 
 ---
 
-### 3. test-codec.js - Codec 函数测试
+### 3. test-codec.js - Codec Function Testing
 
-**用途**: 单独测试 Profile 的编解码函数。
+**Purpose**: Test Profile encode/decode functions independently.
 
-**单次测试**:
+**Single Test**:
 ```bash
 node scripts/test-codec.js \
   -f profiles/Senso8/Senso8-LRS20600.yaml \
@@ -112,26 +112,26 @@ node scripts/test-codec.js \
   -u 040164010000000f41dc
 ```
 
-**批量测试**:
+**Batch Testing**:
 ```bash
 node scripts/test-codec.js --batch \
   profiles/Senso8/Senso8-LRS20600.yaml \
   examples/minimal-profile/tests/test-data.json
 ```
 
-**参数**:
-- `-f, --file`: Profile YAML 文件路径
-- `-p, --port`: LoRaWAN fPort（默认: 10）
-- `-u, --uplink`: 上行数据（十六进制格式）
-- `-b, --batch`: 批量测试模式
+**Parameters**:
+- `-f, --file`: Profile YAML file path
+- `-p, --port`: LoRaWAN fPort (default: 10)
+- `-u, --uplink`: Uplink data (hexadecimal format)
+- `-b, --batch`: Batch test mode
 
 ---
 
-### 4. profile-schema.json - Profile Schema 定义
+### 4. profile-schema.json - Profile Schema Definition
 
-**用途**: 定义 Profile YAML 文件的标准结构，用于自动验证。
+**Purpose**: Define the standard structure of Profile YAML files for automatic validation.
 
-**支持的 BACnet 对象类型**:
+**Supported BACnet Object Types**:
 - `AnalogInputObject`
 - `AnalogOutputObject`
 - `AnalogValueObject`
@@ -142,28 +142,28 @@ node scripts/test-codec.js --batch \
 
 ---
 
-## 🔧 工具函数库
+## 🔧 Utility Function Library
 
 ### utils/hex-converter.js
 
-十六进制数据转换工具：
+Hexadecimal data conversion tools:
 
 ```javascript
 const { hexToBytes, bytesToHex, formatHex } = require('./utils/hex-converter');
 
-// 十六进制字符串 → 字节数组
+// Hexadecimal string → Byte array
 const bytes = hexToBytes('040164');  // [4, 1, 100]
 
-// 字节数组 → 十六进制字符串
+// Byte array → Hexadecimal string
 const hex = bytesToHex([4, 1, 100]);  // "04 01 64"
 
-// 格式化十六进制字符串
+// Format hexadecimal string
 const formatted = formatHex('040164');  // "04 01 64"
 ```
 
 ### utils/yaml-parser.js
 
-YAML 解析和验证工具：
+YAML parsing and validation tools:
 
 ```javascript
 const {
@@ -173,109 +173,109 @@ const {
   validateBACnetObjects
 } = require('./utils/yaml-parser');
 
-// 加载 YAML 文件
+// Load YAML file
 const profile = loadYAML('profiles/xxx.yaml');
 
-// 提取 Codec 函数
+// Extract Codec functions
 const codec = extractCodec(profile);
 
-// 验证必需字段
+// Validate required fields
 const result = validateRequiredFields(profile);
 
-// 验证 BACnet 对象
+// Validate BACnet objects
 const bacnetResult = validateBACnetObjects(profile);
 ```
 
 ---
 
-## 📋 验证流程
+## 📋 Validation Process
 
-### 完整验证流程
+### Complete Validation Flow
 
 ```
-1. YAML 语法检查
+1. YAML syntax check
    ↓
-2. Schema 结构验证
+2. Schema structure validation
    ↓
-3. 必需字段检查
+3. Required fields check
    ↓
-4. Codec 函数语法检查
+4. Codec function syntax check
    ↓
-5. BACnet 对象合规性验证
+5. BACnet object compliance validation
    ↓
-6. 文件命名规范检查
+6. File naming convention check
    ↓
-7. 测试数据执行验证
+7. Test data execution validation
    ↓
-生成验证报告
+Generate validation report
 ```
 
-### 验证等级
+### Validation Levels
 
-**Level 1 - 基础验证** (`--no-tests`):
-- YAML 语法
-- Profile 结构
-- 必需字段
-- 文件命名
+**Level 1 - Basic Validation** (`--no-tests`):
+- YAML syntax
+- Profile structure
+- Required fields
+- File naming
 
-**Level 2 - 标准验证**:
-- 基础验证 +
-- Codec 函数语法
-- BACnet 对象配置
+**Level 2 - Standard Validation**:
+- Basic validation +
+- Codec function syntax
+- BACnet object configuration
 
-**Level 3 - 完整验证** (默认):
-- 标准验证 +
-- 运行实际测试数据
-- 执行解码并验证成功
+**Level 3 - Complete Validation** (default):
+- Standard validation +
+- Run actual test data
+- Execute decode and verify success
 
-**Level 4 - 严格验证** (自动启用):
-- Level 3 验证 +
-- **深度比对解码输出**
-- 确保输出完全匹配期望结果
-- 需要提供 `expected-output.json`
+**Level 4 - Strict Validation** (automatically enabled):
+- Level 3 validation +
+- **Deep comparison of decode output**
+- Ensure output completely matches expected results
+- Requires `expected-output.json`
 
 ---
 
-## 🧪 测试数据格式
+## 🧪 Test Data Format
 
-验证脚本支持两个测试文件，位于 Profile 同目录的 `tests/` 文件夹下：
+Validation scripts support two test files located in the `tests/` folder in the same directory as the Profile:
 
 ```
 profiles/Vendor/
 ├── Vendor-Model.yaml
 └── tests/
-    ├── test-data.json          # 必需：测试输入
-    └── expected-output.json    # 可选：期望输出（推荐）
+    ├── test-data.json          # Required: Test input
+    └── expected-output.json    # Optional: Expected output (recommended)
 ```
 
-### 1. test-data.json（必需）
+### 1. test-data.json (Required)
 
-定义测试输入数据：
+Define test input data:
 
 ```json
 {
-  "description": "测试数据集描述",
+  "description": "Test data set description",
   "testCases": [
     {
-      "name": "测试用例名称",
+      "name": "Test case name",
       "fPort": 10,
       "input": "040164010000000f41dc",
-      "description": "用例说明（可选）"
+      "description": "Case description (optional)"
     }
   ]
 }
 ```
 
-### 2. expected-output.json（可选，推荐）
+### 2. expected-output.json (Optional, Recommended)
 
-定义期望的输出结果，用于**自动验证输出正确性**：
+Define expected output results for **automatic output correctness validation**:
 
 ```json
 {
-  "description": "期望输出",
+  "description": "Expected output",
   "testCases": [
     {
-      "name": "测试用例名称",
+      "name": "Test case name",
       "expectedOutput": [
         {
           "name": "Temperature",
@@ -295,25 +295,25 @@ profiles/Vendor/
 }
 ```
 
-**重要说明**:
-- ✅ `expectedOutput` 是一个**数组**，对应 `decodeUplink` 返回的 `data` 字段
-- ✅ 测试用例的顺序必须与 `test-data.json` 保持一致
-- ✅ 提供此文件后，验证会进行**深度比对**，确保输出完全匹配
-- ⚠️ 如果不提供此文件，验证只检查解码是否成功执行，不验证输出内容
+**Important Notes**:
+- ✅ `expectedOutput` is an **array** corresponding to the `data` field returned by `decodeUplink`
+- ✅ Test case order must match `test-data.json` consistently
+- ✅ When this file is provided, validation performs **deep comparison** to ensure output matches completely
+- ⚠️ If this file is not provided, validation only checks if decode executes successfully, not output content
 
-### 验证行为对比
+### Validation Behavior Comparison
 
-| 文件配置 | 验证行为 | 测试结果显示 |
-|---------|---------|-------------|
-| 只有 `test-data.json` | 只检查解码成功执行 | `✓ 测试用例名 [未验证输出]` |
-| 同时提供两个文件 | **严格验证**：深度比对输出 | `✓ 测试用例名 [输出匹配]` |
-| 输出不匹配 | 验证失败，显示差异 | `✗ 测试用例名: Output does not match` |
+| File Configuration | Validation Behavior | Test Result Display |
+|-------------------|---------------------|---------------------|
+| Only `test-data.json` | Only checks decode execution success | `✓ Test case name [Output not verified]` |
+| Both files provided | **Strict validation**: Deep comparison of output | `✓ Test case name [Output matched]` |
+| Output mismatch | Validation fails, shows differences | `✗ Test case name: Output does not match` |
 
 ---
 
-## 🔄 集成到工作流
+## 🔄 Workflow Integration
 
-### 在 package.json 中添加脚本
+### Add Scripts to package.json
 
 ```json
 {
@@ -330,11 +330,11 @@ profiles/Vendor/
 #!/bin/sh
 # .git/hooks/pre-commit
 
-# 验证所有修改的 Profile 文件
+# Validate all modified Profile files
 for file in $(git diff --cached --name-only | grep 'profiles/.*\.yaml$'); do
   node scripts/validate-profile.js "$file"
   if [ $? -ne 0 ]; then
-    echo "❌ Profile 验证失败: $file"
+    echo "❌ Profile validation failed: $file"
     exit 1
   fi
 done
@@ -342,51 +342,51 @@ done
 
 ### GitHub Actions
 
-参见 `.github/workflows/validate-profiles.yml` 获取完整的 CI/CD 配置。
+See `.github/workflows/validate-profiles.yml` for complete CI/CD configuration.
 
 ---
 
-## 📊 输出格式
+## 📊 Output Format
 
-### 控制台输出
+### Console Output
 
 ```
 ======================================================================
-验证 Profile: profiles/Senso8/Senso8-LRS20600.yaml
+Validating Profile: profiles/Senso8/Senso8-LRS20600.yaml
 ======================================================================
 
-📝 检查 YAML 语法...
-  ✓ 通过
+📝 Checking YAML syntax...
+  ✓ Pass
 
-📋 检查 Profile 结构...
-  ✓ 通过
+📋 Checking Profile structure...
+  ✓ Pass
 
-📦 检查必需字段...
-  ✓ 通过
+📦 Checking required fields...
+  ✓ Pass
 
-🔧 检查 Codec 函数...
-  ✓ 通过
-  ⚠ Optional function not found: encodeDownlink (下行控制将不可用)
+🔧 Checking Codec functions...
+  ✓ Pass
+  ⚠ Optional function not found: encodeDownlink (downlink control will be unavailable)
 
-🏢 检查 BACnet 对象配置...
-  ✓ 通过
+🏢 Checking BACnet object configuration...
+  ✓ Pass
 
-📁 检查文件命名规范...
-  ✓ 通过
+📁 Checking file naming convention...
+  ✓ Pass
 
-🧪 运行测试数据验证...
-  ✓ 通过
+🧪 Running test data validation...
+  ✓ Pass
 
-测试结果详情:
-  ✓ 正常温度数据 [输出匹配]
-  ✓ 负温度数据 [输出匹配]
+Test result details:
+  ✓ Normal temperature data [Output matched]
+  ✓ Negative temperature data [Output matched]
 
 ======================================================================
-✅ 验证通过
+✅ Validation passed
 ======================================================================
 ```
 
-### JSON 输出
+### JSON Output
 
 ```json
 {
@@ -409,7 +409,7 @@ done
       "errors": [],
       "results": [
         {
-          "name": "正常温度数据",
+          "name": "Normal temperature data",
           "status": "PASS",
           "matched": true
         }
@@ -421,46 +421,45 @@ done
 
 ---
 
-## 🐛 常见问题
+## 🐛 Frequently Asked Questions
 
-### Q: npm install 失败？
-A: 确保 Node.js 版本 >= 14.0.0，并且网络连接正常。
+### Q: npm install fails?
+A: Ensure Node.js version >= 14.0.0 and network connection is stable.
 
-### Q: 验证脚本报错 "Module not found"？
-A: 在 scripts/ 目录下运行 `npm install` 安装依赖。
+### Q: Validation script error "Module not found"?
+A: Run `npm install` in the scripts/ directory to install dependencies.
 
-### Q: 测试数据在哪里？
-A: 测试数据应该放在 Profile 文件同目录的 `tests/` 子目录下：
-- `tests/test-data.json` - 测试输入（必需）
-- `tests/expected-output.json` - 期望输出（可选）
+### Q: Where is the test data?
+A: Test data should be placed in the `tests/` subdirectory in the same directory as the Profile file:
+- `tests/test-data.json` - Test input (required)
+- `tests/expected-output.json` - Expected output (optional)
 
-### Q: 为什么我的测试显示 "[未验证输出]"？
-A: 因为缺少 `expected-output.json` 文件。验证只检查了解码是否成功，但没有验证输出内容。建议添加期望输出文件以进行严格验证。
+### Q: Why does my test show "[Output not verified]"?
+A: Because the `expected-output.json` file is missing. Validation only checked if decode succeeded, but didn't verify output content. It's recommended to add an expected output file for strict validation.
 
-### Q: 如何生成 expected-output.json？
-A: 步骤如下：
-1. 先运行 `test-codec.js` 查看实际输出
-2. 确认输出正确后，复制到 `expected-output.json`
-3. 再次运行验证确保匹配
+### Q: How to generate expected-output.json?
+A: Follow these steps:
+1. First run `test-codec.js` to view actual output
+2. After confirming output is correct, copy to `expected-output.json`
+3. Run validation again to ensure match
 
 ```bash
-# 查看实际输出
+# View actual output
 node scripts/test-codec.js -f profiles/Vendor/Model.yaml -p 10 -u <hex>
 
-# 将输出的 "data" 部分复制到 expected-output.json 的 expectedOutput 字段
+# Copy the "data" part of output to the expectedOutput field in expected-output.json
 ```
 
-### Q: 验证失败提示 "Output does not match"，怎么办？
-A: 验证会显示期望输出和实际输出的详细差异。检查：
-1. **数据是否正确**：确认 `test-data.json` 中的输入数据正确
-2. **期望输出是否正确**：可能期望输出有误，需要更新
-3. **Codec 函数问题**：可能 Codec 解码逻辑有 bug
+### Q: Validation fails with "Output does not match", what to do?
+A: Validation will show detailed differences between expected and actual output. Check:
+1. **Data correctness**: Confirm input data in `test-data.json` is correct
+2. **Expected output correctness**: Expected output may be wrong, needs updating
+3. **Codec function issue**: Codec decode logic may have a bug
 
-### Q: 如何添加自定义验证规则？
-A: 修改 `validate-profile.js` 或扩展 `profile-schema.json`。
+### Q: How to add custom validation rules?
+A: Modify `validate-profile.js` or extend `profile-schema.json`.
 
 ---
 
 
-**最后更新**: 2025-10-23
-
+**Last Updated**: 2025-10-23

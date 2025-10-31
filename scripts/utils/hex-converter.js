@@ -1,22 +1,22 @@
 /**
- * 十六进制转换工具
+ * Hexadecimal Conversion Tools
  */
 
 /**
- * 将十六进制字符串转换为字节数组
- * @param {string} hexString - 十六进制字符串，如 "040164" 或 "04 01 64"
- * @returns {number[]} 字节数组，如 [4, 1, 100]
+ * Convert hexadecimal string to byte array
+ * @param {string} hexString - Hexadecimal string, e.g. "040164" or "04 01 64"
+ * @returns {number[]} Byte array, e.g. [4, 1, 100]
  */
 function hexToBytes(hexString) {
-  // 移除所有空格和连字符
+  // Remove all spaces and hyphens
   const cleaned = hexString.replace(/[\s-]/g, '');
   
-  // 验证是否为有效的十六进制字符串
+  // Validate if it's a valid hexadecimal string
   if (!/^[0-9A-Fa-f]*$/.test(cleaned)) {
     throw new Error(`Invalid hex string: ${hexString}`);
   }
   
-  // 确保长度为偶数
+  // Ensure length is even
   if (cleaned.length % 2 !== 0) {
     throw new Error(`Hex string length must be even: ${hexString}`);
   }
@@ -30,10 +30,10 @@ function hexToBytes(hexString) {
 }
 
 /**
- * 将字节数组转换为十六进制字符串
- * @param {number[]|Uint8Array} bytes - 字节数组
- * @param {string} separator - 分隔符（默认为空格）
- * @returns {string} 十六进制字符串
+ * Convert byte array to hexadecimal string
+ * @param {number[]|Uint8Array} bytes - Byte array
+ * @param {string} separator - Separator (default is space)
+ * @returns {string} Hexadecimal string
  */
 function bytesToHex(bytes, separator = ' ') {
   return Array.from(bytes)
@@ -42,9 +42,9 @@ function bytesToHex(bytes, separator = ' ') {
 }
 
 /**
- * 格式化十六进制字符串（添加空格分隔）
- * @param {string} hexString - 十六进制字符串
- * @returns {string} 格式化后的字符串
+ * Format hexadecimal string (add space separation)
+ * @param {string} hexString - Hexadecimal string
+ * @returns {string} Formatted string
  */
 function formatHex(hexString) {
   const cleaned = hexString.replace(/[\s-]/g, '');

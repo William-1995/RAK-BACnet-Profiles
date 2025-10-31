@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Profile 验证工具
- * 完整验证 BACnet Profile 配置文件
+ * Profile Validation Tool
+ * Comprehensive validation for BACnet Profile configuration files
  */
 
 const fs = require('fs');
@@ -16,7 +16,7 @@ const {
 } = require('./utils/yaml-parser');
 const { testDecode } = require('./test-codec');
 
-// 颜色输出
+// Color output
 const colors = {
   reset: '\x1b[0m',
   red: '\x1b[31m',
@@ -26,9 +26,9 @@ const colors = {
 };
 
 /**
- * 验证 YAML 语法
- * @param {string} filePath - YAML 文件路径
- * @returns {object} 验证结果
+ * Validate YAML syntax
+ * @param {string} filePath - YAML file path
+ * @returns {object} Validation result
  */
 function validateYAMLSyntax(filePath) {
   const errors = [];
@@ -46,9 +46,9 @@ function validateYAMLSyntax(filePath) {
 }
 
 /**
- * 验证 Profile Schema
- * @param {object} profile - Profile 对象
- * @returns {object} 验证结果
+ * Validate Profile Schema
+ * @param {object} profile - Profile object
+ * @returns {object} Validation result
  */
 function validateSchema(profile) {
   const ajv = new Ajv({ allErrors: true });
@@ -69,15 +69,15 @@ function validateSchema(profile) {
 }
 
 /**
- * 验证 Codec 函数语法
- * @param {string} codecSource - Codec 源码
- * @returns {object} 验证结果
+ * Validate Codec function syntax
+ * @param {string} codecSource - Codec source code
+ * @returns {object} Validation result
  */
 function validateCodecSyntax(codecSource) {
   const errors = [];
   const warnings = [];
   
-  // 检查必需的函数
+  // Check required functions
   const requiredFunctions = ['Decode', 'decodeUplink'];
   for (const func of requiredFunctions) {
     if (!codecSource.includes(func)) {
@@ -85,15 +85,15 @@ function validateCodecSyntax(codecSource) {
     }
   }
   
-  // 检查可选函数
+  // Check optional functions
   const optionalFunctions = ['Encode', 'encodeDownlink'];
   for (const func of optionalFunctions) {
     if (!codecSource.includes(func)) {
-      warnings.push(`Optional function not found: ${func} (下行控制将不可用)`);
+      warnings.push(`Optional function not found: ${func} (downlink control will be unavailable)`);
     }
   }
   
-  // 尝试在沙箱中执行以检查语法
+  // Try to execute in sandbox to check syntax
   const vm = require('vm');
   try {
     const sandbox = {
@@ -112,7 +112,7 @@ function validateCodecSyntax(codecSource) {
     };
     vm.createContext(sandbox);
     
-    // 使用 vm.Script 来更好地处理语法检查，避免作用域问题
+    // Use vm.Script for better syntax checking, avoiding scope issues
     const script = new vm.Script(codecSource, {
       filename: 'codec.js',
       lineOffset: 0,
@@ -131,9 +131,9 @@ function validateCodecSyntax(codecSource) {
 }
 
 /**
- * 验证文件命名规范
- * @param {string} filePath - 文件路径
- * @returns {object} 验证结果
+ * Validate file naming convention
+ * @param {string} filePath - File path
+ * @returns {object} Validation result
  */
 function validateFileNaming(filePath) {
   const errors = [];
@@ -141,18 +141,18 @@ function validateFileNaming(filePath) {
   
   const filename = path.basename(filePath);
   
-  // 检查文件扩展名
+  // Check file extension
   if (!filename.endsWith('.yaml') && !filename.endsWith('.yml')) {
     errors.push('File must have .yaml or .yml extension');
   }
   
-  // 检查命名格式（应该是 Vendor-Model.yaml）
+  // Check naming format (should be Vendor-Model.yaml)
   const namePattern = /^[A-Za-z0-9]+-[A-Za-z0-9-]+\.(yaml|yml)$/;
   if (!namePattern.test(filename)) {
     warnings.push('Filename should follow format: Vendor-Model.yaml');
   }
   
-  // 检查目录结构（应该在 profiles/Vendor/ 下）
+  // Check directory structure (should be under profiles/Vendor/)
   const parts = filePath.split(/[\/\\]/);
   if (parts.length >= 3) {
     const profilesIndex = parts.indexOf('profiles');
@@ -172,17 +172,17 @@ function validateFileNaming(filePath) {
 }
 
 /**
- * 深度比较两个值是否相等
- * @param {*} actual - 实际值
- * @param {*} expected - 期望值
- * @returns {boolean} 是否相等
+ * Deep comparison of two values for equality
+ * @param {*} actual - Actual value
+ * @param {*} expected - Expected value
+ * @returns {boolean} Whether they are equal
  */
 function deepEqual(actual, expected) {
-  // 处理 null 和 undefined
+  // Handle null and undefined
   if (actual === expected) return true;
   if (actual == null || expected == null) return false;
   
-  // 处理数组
+  // Handle arrays
   if (Array.isArray(actual) && Array.isArray(expected)) {
     if (actual.length !== expected.length) return false;
     for (let i = 0; i < actual.length; i++) {
@@ -191,15 +191,15 @@ function deepEqual(actual, expected) {
     return true;
   }
   
-  // 处理对象
+  // Handle objects
   if (typeof actual === 'object' && typeof expected === 'object') {
     const actualKeys = Object.keys(actual);
     const expectedKeys = Object.keys(expected);
     
-    // 检查键数量
+    // Check key count
     if (actualKeys.length !== expectedKeys.length) return false;
     
-    // 检查每个键和值
+    // Check each key and value
     for (const key of actualKeys) {
       if (!expectedKeys.includes(key)) return false;
       if (!deepEqual(actual[key], expected[key])) return false;
@@ -207,22 +207,22 @@ function deepEqual(actual, expected) {
     return true;
   }
   
-  // 基本类型比较
+  // Primitive type comparison
   return actual === expected;
 }
 
 /**
- * 运行测试数据验证
- * @param {object} profile - Profile 对象
- * @param {string} filePath - Profile 文件路径
- * @returns {object} 验证结果
+ * Run test data validation
+ * @param {object} profile - Profile object
+ * @param {string} filePath - Profile file path
+ * @returns {object} Validation result
  */
 function runTestDataValidation(profile, filePath) {
   const errors = [];
   const warnings = [];
   const results = [];
   
-  // 查找测试数据文件
+  // Find test data files
   const dir = path.dirname(filePath);
   const testDataPath = path.join(dir, 'tests', 'test-data.json');
   const expectedOutputPath = path.join(dir, 'tests', 'expected-output.json');
@@ -237,7 +237,7 @@ function runTestDataValidation(profile, filePath) {
     };
   }
   
-  // 尝试加载期望输出
+  // Try to load expected output
   let expectedOutputData = null;
   if (fs.existsSync(expectedOutputPath)) {
     try {
@@ -257,14 +257,14 @@ function runTestDataValidation(profile, filePath) {
       try {
         const result = testDecode(codec, testCase.fPort, testCase.input);
         
-        // 如果有期望输出，进行比对
+        // If expected output exists, perform comparison
         if (expectedOutputData && expectedOutputData.testCases && expectedOutputData.testCases[i]) {
           const expectedCase = expectedOutputData.testCases[i];
           const expectedOutput = expectedCase.expectedOutput;
           const actualOutput = result.data;
           
           if (expectedOutput) {
-            // 比对实际输出和期望输出
+            // Compare actual output with expected output
             if (deepEqual(actualOutput, expectedOutput)) {
               results.push({
                 name: testCase.name,
@@ -273,7 +273,7 @@ function runTestDataValidation(profile, filePath) {
                 matched: true
               });
             } else {
-              // 输出不匹配
+              // Output mismatch
               errors.push(`Test case '${testCase.name}' output mismatch`);
               results.push({
                 name: testCase.name,
@@ -285,7 +285,7 @@ function runTestDataValidation(profile, filePath) {
               });
             }
           } else {
-            // 没有期望输出，只检查是否成功执行
+            // No expected output, only check if execution succeeded
             results.push({
               name: testCase.name,
               status: 'PASS',
@@ -294,7 +294,7 @@ function runTestDataValidation(profile, filePath) {
             });
           }
         } else {
-          // 没有期望输出文件，只检查是否成功执行
+          // No expected output file, only check if execution succeeded
           results.push({
             name: testCase.name,
             status: 'PASS',
@@ -324,10 +324,10 @@ function runTestDataValidation(profile, filePath) {
 }
 
 /**
- * 完整验证流程
- * @param {string} filePath - Profile YAML 文件路径
- * @param {object} options - 验证选项
- * @returns {object} 完整验证结果
+ * Complete validation process
+ * @param {string} filePath - Profile YAML file path
+ * @param {object} options - Validation options
+ * @returns {object} Complete validation result
  */
 function validateProfile(filePath, options = {}) {
   const report = {
@@ -338,11 +338,11 @@ function validateProfile(filePath, options = {}) {
   };
   
   console.log(`\n${'='.repeat(70)}`);
-  console.log(`${colors.blue}验证 Profile: ${filePath}${colors.reset}`);
+  console.log(`${colors.blue}Validating Profile: ${filePath}${colors.reset}`);
   console.log(`${'='.repeat(70)}\n`);
   
-  // 1. YAML 语法验证
-  console.log('📝 检查 YAML 语法...');
+  // 1. YAML syntax validation
+  console.log('📝 Checking YAML syntax...');
   const yamlCheck = validateYAMLSyntax(filePath);
   report.checks.yamlSyntax = yamlCheck;
   printResult(yamlCheck);
@@ -352,70 +352,70 @@ function validateProfile(filePath, options = {}) {
     return report;
   }
   
-  // 加载 Profile
+  // Load Profile
   const profile = loadYAML(filePath);
   
-  // 2. Schema 验证
-  console.log('\n📋 检查 Profile 结构...');
+  // 2. Schema validation
+  console.log('\n📋 Checking Profile structure...');
   const schemaCheck = validateSchema(profile);
   report.checks.schema = schemaCheck;
   printResult(schemaCheck);
   if (!schemaCheck.valid) report.valid = false;
   
-  // 3. 必需字段验证
-  console.log('\n📦 检查必需字段...');
+  // 3. Required fields validation
+  console.log('\n📦 Checking required fields...');
   const fieldsCheck = validateRequiredFields(profile);
   report.checks.requiredFields = fieldsCheck;
   printResult(fieldsCheck);
   if (!fieldsCheck.valid) report.valid = false;
   
-  // 4. Codec 函数验证
-  console.log('\n🔧 检查 Codec 函数...');
+  // 4. Codec function validation
+  console.log('\n🔧 Checking Codec functions...');
   const codecCheck = validateCodecSyntax(profile.codec);
   report.checks.codec = codecCheck;
   printResult(codecCheck);
   if (!codecCheck.valid) report.valid = false;
   
-  // 5. BACnet 对象验证
-  console.log('\n🏢 检查 BACnet 对象配置...');
+  // 5. BACnet object validation
+  console.log('\n🏢 Checking BACnet object configuration...');
   const bacnetCheck = validateBACnetObjects(profile);
   report.checks.bacnet = bacnetCheck;
   printResult(bacnetCheck);
   if (!bacnetCheck.valid) report.valid = false;
   
-  // 6. 文件命名验证
-  console.log('\n📁 检查文件命名规范...');
+  // 6. File naming validation
+  console.log('\n📁 Checking file naming convention...');
   const namingCheck = validateFileNaming(filePath);
   report.checks.naming = namingCheck;
   printResult(namingCheck);
   
-  // 7. 测试数据验证（完整验证）
+  // 7. Test data validation (complete validation)
   if (options.runTests !== false) {
-    console.log('\n🧪 运行测试数据验证...');
+    console.log('\n🧪 Running test data validation...');
     const testCheck = runTestDataValidation(profile, filePath);
     report.checks.tests = testCheck;
     printResult(testCheck);
     if (!testCheck.valid) report.valid = false;
     
     if (testCheck.results && testCheck.results.length > 0) {
-      console.log('\n测试结果详情:');
+      console.log('\nTest result details:');
       for (const test of testCheck.results) {
         if (test.status === 'PASS') {
           if (test.matched === true) {
-            console.log(`  ${colors.green}✓${colors.reset} ${test.name} ${colors.green}[输出匹配]${colors.reset}`);
+            console.log(`  ${colors.green}✓${colors.reset} ${test.name} ${colors.green}[Output matched]${colors.reset}`);
           } else if (test.matched === null) {
-            console.log(`  ${colors.green}✓${colors.reset} ${test.name} ${colors.yellow}[未验证输出]${colors.reset}`);
+            console.log(`  ${colors.green}✓${colors.reset} ${test.name} ${colors.yellow}[Output not verified]${colors.reset}`);
           } else {
             console.log(`  ${colors.green}✓${colors.reset} ${test.name}`);
           }
         } else {
           console.log(`  ${colors.red}✗${colors.reset} ${test.name}: ${test.error}`);
           
-          // 如果是输出不匹配，显示详细信息
+          // Show detailed information if output mismatch
           if (test.matched === false && test.actualOutput && test.expectedOutput) {
-            console.log(`    ${colors.yellow}期望输出:${colors.reset}`);
+            console.log(`    ${colors.yellow}Expected output:${colors.reset}`);
             console.log(`    ${JSON.stringify(test.expectedOutput, null, 2).split('\n').join('\n    ')}`);
-            console.log(`    ${colors.yellow}实际输出:${colors.reset}`);
+            console.log(`    ${colors.yellow}Actual output:${colors.reset}`);
             console.log(`    ${JSON.stringify(test.actualOutput, null, 2).split('\n').join('\n    ')}`);
           }
         }
@@ -423,12 +423,12 @@ function validateProfile(filePath, options = {}) {
     }
   }
   
-  // 最终结果
+  // Final result
   console.log(`\n${'='.repeat(70)}`);
   if (report.valid) {
-    console.log(`${colors.green}✅ 验证通过${colors.reset}`);
+    console.log(`${colors.green}✅ Validation passed${colors.reset}`);
   } else {
-    console.log(`${colors.red}❌ 验证失败${colors.reset}`);
+    console.log(`${colors.red}❌ Validation failed${colors.reset}`);
   }
   console.log(`${'='.repeat(70)}\n`);
   
@@ -436,14 +436,14 @@ function validateProfile(filePath, options = {}) {
 }
 
 /**
- * 打印验证结果
- * @param {object} result - 验证结果
+ * Print validation result
+ * @param {object} result - Validation result
  */
 function printResult(result) {
   if (result.valid) {
-    console.log(`  ${colors.green}✓ 通过${colors.reset}`);
+    console.log(`  ${colors.green}✓ Pass${colors.reset}`);
   } else {
-    console.log(`  ${colors.red}✗ 失败${colors.reset}`);
+    console.log(`  ${colors.red}✗ Fail${colors.reset}`);
   }
   
   if (result.errors && result.errors.length > 0) {
@@ -460,7 +460,7 @@ function printResult(result) {
 }
 
 /**
- * 命令行接口
+ * Command line interface
  */
 function main() {
   const args = process.argv.slice(2);
@@ -469,15 +469,15 @@ function main() {
     console.log(`
 Profile Validation Tool
 
-用法:
+Usage:
   node validate-profile.js <profile.yaml> [options]
 
-选项:
-  --no-tests              跳过测试数据验证
-  --json                  输出 JSON 格式的报告
-  -h, --help              显示帮助信息
+Options:
+  --no-tests              Skip test data validation
+  --json                  Output JSON format report
+  -h, --help              Show help information
 
-示例:
+Examples:
   node validate-profile.js profiles/Senso8/Senso8-LRS20600.yaml
   node validate-profile.js profiles/Dragino/Dragino-LDS02.yaml --no-tests
   node validate-profile.js profiles/Milesight/Milesight-VS330.yaml --json
@@ -492,12 +492,12 @@ Profile Validation Tool
   };
   
   if (!filePath) {
-    console.error('❌ 错误: 请提供 Profile 文件路径');
+    console.error('❌ Error: Please provide Profile file path');
     process.exit(1);
   }
   
   if (!fs.existsSync(filePath)) {
-    console.error(`❌ 错误: 文件不存在: ${filePath}`);
+    console.error(`❌ Error: File does not exist: ${filePath}`);
     process.exit(1);
   }
   
@@ -510,7 +510,7 @@ Profile Validation Tool
     
     process.exit(report.valid ? 0 : 1);
   } catch (error) {
-    console.error(`\n❌ 验证过程出错: ${error.message}`);
+    console.error(`\n❌ Validation error: ${error.message}`);
     if (error.stack) {
       console.error(error.stack);
     }
@@ -518,12 +518,12 @@ Profile Validation Tool
   }
 }
 
-// 如果作为主模块运行
+// Run as main module
 if (require.main === module) {
   main();
 }
 
-// 导出函数供其他模块使用
+// Export functions for use by other modules
 module.exports = {
   validateProfile,
   validateYAMLSyntax,

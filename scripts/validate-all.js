@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * 批量验证所有 Profile 文件
- * 用于快速检查所有 Profile 的语法和结构
+ * Batch validate all Profile files
+ * For quickly checking syntax and structure of all Profiles
  */
 
 const fs = require('fs');
 const path = require('path');
 const { validateProfile } = require('./validate-profile');
 
-// 递归查找所有 YAML 文件
+// Recursively find all YAML files
 function findYAMLFiles(dir, fileList = []) {
   const files = fs.readdirSync(dir);
   
@@ -18,7 +18,7 @@ function findYAMLFiles(dir, fileList = []) {
     const stat = fs.statSync(filePath);
     
     if (stat.isDirectory()) {
-      // 跳过特殊目录
+      // Skip special directories
       if (file === 'node_modules' || file === '.git' || file === 'tests') {
         continue;
       }
@@ -32,70 +32,71 @@ function findYAMLFiles(dir, fileList = []) {
 }
 
 /**
- * 主函数
+ * Main function
  */
 function main() {
   const args = process.argv.slice(2);
   
-  // 帮助信息
+  // Help information
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`
-批量验证工具
+Batch Validation Tool
 
-用法:
+Usage:
   node scripts/validate-all.js [options] [directory]
 
-选项:
-  --json                  输出 JSON 格式
-  -h, --help              显示帮助信息
+Options:
+  --json                  Output JSON format
+  -h, --help              Show help information
 
-参数:
-  directory               要验证的目录（默认: profiles）
+Arguments:
+  directory               Directory to validate (default: profiles)
 
-说明:
-  默认只进行基础验证（不包含测试数据验证），快速检查所有 Profile 的语法和结构。
+Description:
+  By default, only performs basic validation (excludes test data validation),
+  quickly checking syntax and structure of all Profiles.
 
-示例:
-  # 验证 profiles 目录下所有文件
+Examples:
+  # Validate all files in profiles directory
   node scripts/validate-all.js
   
-  # 验证特定目录
+  # Validate specific directory
   node scripts/validate-all.js profiles/Senso8
   
-  # JSON 格式输出（用于 CI/CD）
+  # JSON format output (for CI/CD)
   node scripts/validate-all.js --json
     `);
     process.exit(0);
   }
   
-  // 解析参数
+  // Parse arguments
   const jsonOutput = args.includes('--json');
   const targetDir = args.find(arg => !arg.startsWith('--')) || 'profiles';
   
-  // 检查目录是否存在
+  // Check if directory exists
   if (!fs.existsSync(targetDir)) {
-    console.error(`❌ 错误: 目录不存在: ${targetDir}`);
+    console.error(`❌ Error: Directory does not exist: ${targetDir}`);
     process.exit(1);
   }
   
-  // 查找所有 YAML 文件
-  console.log(`\n🔍 扫描目录: ${targetDir}\n`);
+  // Find all YAML files
+  console.log(`\n🔍 Scanning directory: ${targetDir}\n`);
   const yamlFiles = findYAMLFiles(targetDir);
   
   if (yamlFiles.length === 0) {
-    console.log('⚠️  未找到 YAML 文件');
+    console.log('⚠️  No YAML files found');
     process.exit(0);
   }
   
-  console.log(`📦 找到 ${yamlFiles.length} 个 Profile 文件\n`);
+  console.log(`📦 Found ${yamlFiles.length} Profile files\n`);
   console.log('='.repeat(70));
   
-  // 验证选项（默认不包含测试数据验证）
+  // Validation options (default excludes test data validation)
   const validateOptions = {
     runTests: false
   };
   
-  // 结果统计
+  // Result statistics
   const results = {
     total: yamlFiles.length,
     passed: 0,
@@ -103,7 +104,7 @@ function main() {
     files: []
   };
   
-  // 逐个验证
+  // Validate one by one
   for (let i = 0; i < yamlFiles.length; i++) {
     const file = yamlFiles[i];
     const relativePath = path.relative(process.cwd(), file);
@@ -125,7 +126,7 @@ function main() {
         });
         
         if (!jsonOutput) {
-          console.log('✅ 通过');
+          console.log('✅ Pass');
         }
       } else {
         results.failed++;
@@ -136,11 +137,11 @@ function main() {
         });
         
         if (!jsonOutput) {
-          console.log('❌ 失败');
-          // 显示错误摘要
+          console.log('❌ Fail');
+          // Show error summary
           for (const [check, result] of Object.entries(report.checks)) {
             if (result.errors && result.errors.length > 0) {
-              console.log(`  ${check}: ${result.errors.length} 个错误`);
+              console.log(`  ${check}: ${result.errors.length} errors`);
             }
           }
         }
@@ -154,25 +155,25 @@ function main() {
       });
       
       if (!jsonOutput) {
-        console.log(`❌ 错误: ${error.message}`);
+        console.log(`❌ Error: ${error.message}`);
       }
     }
   }
   
-  // 输出结果
+  // Output results
   if (jsonOutput) {
     console.log(JSON.stringify(results, null, 2));
   } else {
     console.log('\n' + '='.repeat(70));
-    console.log('\n📊 验证结果汇总:\n');
-    console.log(`  总计: ${results.total}`);
-    console.log(`  通过: ${results.passed} ✅`);
-    console.log(`  失败: ${results.failed} ❌`);
-    console.log(`  成功率: ${((results.passed / results.total) * 100).toFixed(1)}%`);
+    console.log('\n📊 Validation Summary:\n');
+    console.log(`  Total: ${results.total}`);
+    console.log(`  Passed: ${results.passed} ✅`);
+    console.log(`  Failed: ${results.failed} ❌`);
+    console.log(`  Success Rate: ${((results.passed / results.total) * 100).toFixed(1)}%`);
     
-    // 显示失败的文件列表
+    // Show list of failed files
     if (results.failed > 0) {
-      console.log('\n❌ 失败的文件:');
+      console.log('\n❌ Failed files:');
       for (const result of results.files) {
         if (result.status !== 'PASS') {
           console.log(`  - ${result.file}`);
@@ -183,19 +184,19 @@ function main() {
     console.log('\n' + '='.repeat(70));
     
     if (results.failed === 0) {
-      console.log('\n🎉 所有 Profile 验证通过！\n');
+      console.log('\n🎉 All Profile validations passed!\n');
     } else {
-      console.log(`\n⚠️  ${results.failed} 个 Profile 验证失败\n`);
-      console.log('提示: 运行单个文件验证查看详细错误:');
+      console.log(`\n⚠️  ${results.failed} Profile validations failed\n`);
+      console.log('Tip: Run single file validation to see detailed errors:');
       console.log('  node scripts/validate-profile.js <file>\n');
     }
   }
   
-  // 返回退出码
+  // Return exit code
   process.exit(results.failed > 0 ? 1 : 0);
 }
 
-// 运行
+// Run
 if (require.main === module) {
   main();
 }

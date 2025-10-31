@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Codec 函数测试工具
- * 用于测试 Profile 中的编解码函数
+ * Codec Function Testing Tool
+ * For testing encode/decode functions in Profiles
  */
 
 const fs = require('fs');
@@ -11,14 +11,14 @@ const { hexToBytes, bytesToHex, formatHex } = require('./utils/hex-converter');
 const { loadYAML, extractCodec } = require('./utils/yaml-parser');
 
 /**
- * 在沙箱中测试 Codec 函数
- * @param {string} codecSource - Codec JavaScript 源码
+ * Test Codec functions in sandbox
+ * @param {string} codecSource - Codec JavaScript source code
  * @param {number} fPort - LoRaWAN fPort
- * @param {string} uplinkData - 十六进制格式的上行数据
- * @returns {object} 解码结果
+ * @param {string} uplinkData - Uplink data in hexadecimal format
+ * @returns {object} Decode result
  */
 function testDecode(codecSource, fPort, uplinkData) {
-  // 创建沙箱环境
+  // Create sandbox environment
   const sandbox = {
     console: console,
     Uint8Array: Uint8Array,
@@ -34,21 +34,21 @@ function testDecode(codecSource, fPort, uplinkData) {
     Boolean: Boolean
   };
   
-  // 执行 codec 代码
+  // Execute codec code
   try {
     vm.createContext(sandbox);
-    // 直接执行 codec 代码，不包装（因为我们需要在 sandbox 中访问定义的函数）
+    // Execute codec code directly without wrapping (because we need to access defined functions in sandbox)
     vm.runInContext(codecSource, sandbox);
   } catch (error) {
     throw new Error(`Codec syntax error: ${error.message}`);
   }
   
-  // 验证必需的函数是否存在
+  // Verify required functions exist
   if (!sandbox.decodeUplink) {
     throw new Error('decodeUplink function not found in codec');
   }
   
-  // 准备输入数据
+  // Prepare input data
   const bytes = hexToBytes(uplinkData);
   const input = {
     bytes: bytes,
@@ -56,7 +56,7 @@ function testDecode(codecSource, fPort, uplinkData) {
     variables: {}
   };
   
-  // 调用 decodeUplink 函数
+  // Call decodeUplink function
   try {
     const result = sandbox.decodeUplink(input);
     return result;
@@ -66,10 +66,10 @@ function testDecode(codecSource, fPort, uplinkData) {
 }
 
 /**
- * 测试编码功能（下行）
- * @param {string} codecSource - Codec JavaScript 源码
- * @param {object} data - 要编码的数据
- * @returns {object} 编码结果
+ * Test encode function (downlink)
+ * @param {string} codecSource - Codec JavaScript source code
+ * @param {object} data - Data to encode
+ * @returns {object} Encode result
  */
 function testEncode(codecSource, data) {
   const sandbox = {
@@ -89,7 +89,7 @@ function testEncode(codecSource, data) {
   
   try {
     vm.createContext(sandbox);
-    // 直接执行 codec 代码，不包装（因为我们需要在 sandbox 中访问定义的函数）
+    // Execute codec code directly without wrapping (because we need to access defined functions in sandbox)
     vm.runInContext(codecSource, sandbox);
   } catch (error) {
     throw new Error(`Codec syntax error: ${error.message}`);
@@ -108,10 +108,10 @@ function testEncode(codecSource, data) {
 }
 
 /**
- * 批量测试（从测试数据文件）
- * @param {string} profilePath - Profile YAML 文件路径
- * @param {string} testDataPath - 测试数据 JSON 文件路径
- * @returns {object} 测试结果
+ * Batch testing (from test data file)
+ * @param {string} profilePath - Profile YAML file path
+ * @param {string} testDataPath - Test data JSON file path
+ * @returns {object} Test results
  */
 function runBatchTest(profilePath, testDataPath) {
   const profile = loadYAML(profilePath);
@@ -150,7 +150,7 @@ function runBatchTest(profilePath, testDataPath) {
 }
 
 /**
- * 命令行接口
+ * Command line interface
  */
 function main() {
   const args = process.argv.slice(2);
@@ -159,46 +159,46 @@ function main() {
     console.log(`
 Codec Function Testing Tool
 
-用法:
+Usage:
   node test-codec.js --file <profile.yaml> --port <fPort> --uplink <hex_data>
   node test-codec.js -f <profile.yaml> -p <fPort> -u <hex_data>
   node test-codec.js --batch <profile.yaml> <test-data.json>
 
-选项:
-  -f, --file <file>       Profile YAML 文件路径
-  -p, --port <port>       LoRaWAN fPort (默认: 10)
-  -u, --uplink <data>     上行数据 (十六进制格式)
-  -b, --batch             批量测试模式
-  -h, --help              显示帮助信息
+Options:
+  -f, --file <file>       Profile YAML file path
+  -p, --port <port>       LoRaWAN fPort (default: 10)
+  -u, --uplink <data>     Uplink data (hexadecimal format)
+  -b, --batch             Batch test mode
+  -h, --help              Show help information
 
-示例:
-  # 单个测试
+Examples:
+  # Single test
   node test-codec.js -f profiles/Senso8/Senso8-LRS20600.yaml -p 10 -u 040164010000000f41dc
   
-  # 批量测试
+  # Batch test
   node test-codec.js --batch profiles/Senso8/Senso8-LRS20600.yaml examples/minimal-profile/tests/test-data.json
     `);
     process.exit(0);
   }
   
-  // 批量测试模式
+  // Batch test mode
   if (args.includes('--batch') || args.includes('-b')) {
     const profilePath = args[1] || args[2];
     const testDataPath = args[2] || args[3];
     
     if (!profilePath || !testDataPath) {
-      console.error('❌ 批量测试需要提供 Profile 路径和测试数据路径');
+      console.error('❌ Error: Batch test requires Profile path and test data path');
       process.exit(1);
     }
     
     try {
-      console.log('🧪 批量测试开始...\n');
+      console.log('🧪 Starting batch test...\n');
       const results = runBatchTest(profilePath, testDataPath);
       
-      console.log(`📊 测试结果:`);
-      console.log(`   总计: ${results.total}`);
-      console.log(`   通过: ${results.passed} ✅`);
-      console.log(`   失败: ${results.failed} ❌\n`);
+      console.log(`📊 Test Results:`);
+      console.log(`   Total: ${results.total}`);
+      console.log(`   Passed: ${results.passed} ✅`);
+      console.log(`   Failed: ${results.failed} ❌\n`);
       
       for (const test of results.tests) {
         if (test.status === 'PASS') {
@@ -206,7 +206,7 @@ Codec Function Testing Tool
           console.log(JSON.stringify(test.result, null, 2));
         } else {
           console.log(`❌ ${test.name}`);
-          console.log(`   错误: ${test.error}`);
+          console.log(`   Error: ${test.error}`);
         }
         console.log('');
       }
@@ -214,13 +214,13 @@ Codec Function Testing Tool
       process.exit(results.failed > 0 ? 1 : 0);
       
     } catch (error) {
-      console.error(`\n❌ 批量测试失败: ${error.message}`);
+      console.error(`\n❌ Batch test failed: ${error.message}`);
       process.exit(1);
     }
     return;
   }
   
-  // 单个测试模式
+  // Single test mode
   let yamlFile = null;
   let fPort = '10';
   let uplinkData = null;
@@ -236,43 +236,43 @@ Codec Function Testing Tool
   }
   
   if (!yamlFile) {
-    console.error('❌ 错误: 缺少 --file 参数');
+    console.error('❌ Error: Missing --file parameter');
     process.exit(1);
   }
   
   if (!uplinkData) {
-    console.error('❌ 错误: 缺少 --uplink 参数');
+    console.error('❌ Error: Missing --uplink parameter');
     process.exit(1);
   }
   
   try {
-    console.log(`📖 读取 Profile: ${yamlFile}`);
+    console.log(`📖 Reading Profile: ${yamlFile}`);
     const profile = loadYAML(yamlFile);
     const codec = extractCodec(profile);
     
-    console.log(`🧪 测试解码: fPort=${fPort}, data=${formatHex(uplinkData)}`);
+    console.log(`🧪 Testing decode: fPort=${fPort}, data=${formatHex(uplinkData)}`);
     const result = testDecode(codec, fPort, uplinkData);
     
-    console.log('\n✅ 解码成功:');
+    console.log('\n✅ Decode successful:');
     console.log(JSON.stringify(result, null, 2));
     
   } catch (error) {
-    console.error('\n❌ 解码失败:');
+    console.error('\n❌ Decode failed:');
     console.error(`   ${error.message}`);
     if (error.stack) {
-      console.error('\n堆栈跟踪:');
+      console.error('\nStack trace:');
       console.error(error.stack);
     }
     process.exit(1);
   }
 }
 
-// 如果作为主模块运行
+// Run as main module
 if (require.main === module) {
   main();
 }
 
-// 导出函数供其他模块使用
+// Export functions for use by other modules
 module.exports = {
   testDecode,
   testEncode,

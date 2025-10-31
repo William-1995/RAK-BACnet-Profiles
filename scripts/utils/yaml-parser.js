@@ -1,14 +1,14 @@
 /**
- * YAML 解析和 Profile 提取工具
+ * YAML Parsing and Profile Extraction Tools
  */
 
 const fs = require('fs');
 const yaml = require('js-yaml');
 
 /**
- * 读取并解析 YAML 文件
- * @param {string} filePath - YAML 文件路径
- * @returns {object} 解析后的对象
+ * Read and parse YAML file
+ * @param {string} filePath - YAML file path
+ * @returns {object} Parsed object
  */
 function loadYAML(filePath) {
   try {
@@ -20,9 +20,9 @@ function loadYAML(filePath) {
 }
 
 /**
- * 从 Profile 中提取 Codec 函数代码
- * @param {object} profile - Profile 对象
- * @returns {string} Codec JavaScript 代码
+ * Extract Codec function code from Profile
+ * @param {object} profile - Profile object
+ * @returns {string} Codec JavaScript code
  */
 function extractCodec(profile) {
   if (!profile.codec) {
@@ -33,9 +33,9 @@ function extractCodec(profile) {
 }
 
 /**
- * 验证 Profile 必需字段
- * @param {object} profile - Profile 对象
- * @returns {object} 验证结果 {valid: boolean, errors: string[]}
+ * Validate Profile required fields
+ * @param {object} profile - Profile object
+ * @returns {object} Validation result {valid: boolean, errors: string[]}
  */
 function validateRequiredFields(profile) {
   const requiredFields = ['model', 'codec', 'datatype', 'lorawan'];
@@ -47,24 +47,24 @@ function validateRequiredFields(profile) {
     }
   }
   
-  // 验证 codec 字段的内容
+  // Validate codec field content
   if (profile.codec) {
     if (typeof profile.codec !== 'string') {
       errors.push('codec field must be a string');
     } else {
-      // 检查是否包含必需的函数
+      // Check if required functions are included
       if (!profile.codec.includes('decodeUplink')) {
         errors.push('codec must include decodeUplink function');
       }
     }
   }
   
-  // 验证 datatype 字段
+  // Validate datatype field
   if (profile.datatype) {
     if (typeof profile.datatype !== 'object') {
       errors.push('datatype field must be an object');
     } else {
-      // 验证每个 channel 的配置
+      // Validate each channel configuration
       for (const [channel, config] of Object.entries(profile.datatype)) {
         if (!config.name) {
           errors.push(`datatype.${channel}: missing 'name' field`);
@@ -76,7 +76,7 @@ function validateRequiredFields(profile) {
     }
   }
   
-  // 验证 lorawan 字段
+  // Validate lorawan field
   if (profile.lorawan) {
     const lorawanRequired = ['macVersion', 'region', 'supportOTAA'];
     for (const field of lorawanRequired) {
@@ -93,9 +93,9 @@ function validateRequiredFields(profile) {
 }
 
 /**
- * 验证 BACnet 对象类型
- * @param {object} profile - Profile 对象
- * @returns {object} 验证结果
+ * Validate BACnet object types
+ * @param {object} profile - Profile object
+ * @returns {object} Validation result
  */
 function validateBACnetObjects(profile) {
   const supportedTypes = [

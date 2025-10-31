@@ -1,206 +1,205 @@
-# 标准完整 Profile 示例
+# Standard Complete Profile Example
 
-这是一个生产级的完整 Profile 示例，展示了多传感器设备的配置方法。
+This is a production-grade complete Profile example demonstrating the configuration method for multi-sensor devices.
 
-## 📋 示例说明
+## 📋 Example Description
 
-**设备类型：** 温湿度传感器（带电池监测和报警功能）  
-**功能：** 
-- 温度、湿度监测
-- 电池电量监测
-- 高低温报警
-- 高低湿度报警
-- 按钮事件检测
+**Device Type:** Temperature & Humidity Sensor (with battery monitoring and alarm functions)  
+**Functions:** 
+- Temperature and humidity monitoring
+- Battery level monitoring
+- High/low temperature alarms
+- High/low humidity alarms
+- Button event detection
 
-**复杂度：** ⭐⭐⭐ 中等
+**Complexity:** ⭐⭐⭐ Medium
 
-## 🎯 学习目标
+## 🎯 Learning Objectives
 
-通过这个示例，您将学会：
-1. 如何处理多个传感器参数
-2. 如何使用不同的 BACnet 对象类型
-3. 如何处理不同的 fPort 消息
-4. 如何配置 COV 和更新间隔
-5. 如何处理位域数据（Bit Field）
+Through this example, you will learn:
+1. How to handle multiple sensor parameters
+2. How to use different BACnet object types
+3. How to handle different fPort messages
+4. How to configure COV and update intervals
+5. How to handle bit field data
 
-## 📦 文件说明
+## 📦 File Description
 
 ```
 standard-profile/
-├── README.md                           # 本文件
-├── standard-temp-humidity-sensor.yaml  # Profile 配置文件
+├── README.md                           # This file
+├── standard-temp-humidity-sensor.yaml  # Profile configuration file
 └── tests/
-    ├── test-data.json                 # 测试数据
-    └── expected-output.json           # 期望输出
+    ├── test-data.json                 # Test data
+    └── expected-output.json           # Expected output
 ```
 
-## 🔍 关键知识点
+## 🔍 Key Concepts
 
-### 1. 多传感器数据解析
+### 1. Multi-Sensor Data Parsing
 
 ```javascript
-// 同时解析多个参数
-var temperature = view.getInt16(3, false) / 10.0;  // 温度
-var humidity = view.getUint16(5, false) / 10.0;    // 湿度
-var battery = data[2];                              // 电池电量
+// Parse multiple parameters simultaneously
+var temperature = view.getInt16(3, false) / 10.0;  // Temperature
+var humidity = view.getUint16(5, false) / 10.0;    // Humidity
+var battery = data[2];                              // Battery level
 ```
 
-### 2. 位域解析（Bit Field）
+### 2. Bit Field Parsing
 
 ```javascript
-// 从一个字节中提取多个布尔值
+// Extract multiple boolean values from one byte
 var byte0 = data[0];
-var humidityLowAlert = (byte0 >> 5) & 0x01;      // 第5位
-var humidityHighAlert = (byte0 >> 4) & 0x01;     // 第4位
-var temperatureLowAlert = (byte0 >> 3) & 0x01;   // 第3位
-var temperatureHighAlert = (byte0 >> 2) & 0x01;  // 第2位
-var buttonPressed = byte0 & 0x01;                // 第0位
+var humidityLowAlert = (byte0 >> 5) & 0x01;      // Bit 5
+var humidityHighAlert = (byte0 >> 4) & 0x01;     // Bit 4
+var temperatureLowAlert = (byte0 >> 3) & 0x01;   // Bit 3
+var temperatureHighAlert = (byte0 >> 2) & 0x01;  // Bit 2
+var buttonPressed = byte0 & 0x01;                // Bit 0
 ```
 
-### 3. 多种 BACnet 对象类型
+### 3. Multiple BACnet Object Types
 
 ```yaml
 datatype:
   "1":
-    type: AnalogInputObject    # 模拟输入 - 温度传感器
+    type: AnalogInputObject    # Analog input - temperature sensor
   "4":
-    type: BinaryInputObject    # 二值输入 - 报警状态
+    type: BinaryInputObject    # Binary input - alarm status
 ```
 
-### 4. 处理不同的 fPort
+### 4. Handling Different fPorts
 
 ```javascript
 if (fPort == 10) {
-  // 传感器数据
+  // Sensor data
 }
 if (fPort == 12) {
-  // 配置信息
+  // Configuration information
 }
 if (fPort == 13) {
-  // 阈值设置
+  // Threshold settings
 }
 ```
 
-## 📊 数据格式说明
+## 📊 Data Format Description
 
-### fPort 10 - 传感器数据（7字节）
+### fPort 10 - Sensor Data (7 bytes)
 
-| Byte | 说明 | 数据类型 |
-|------|------|---------|
-| 0 | 状态标志位 | 位域 |
-| 1 | 保留 | - |
-| 2 | 电池电量 (%) | uint8 |
-| 3-4 | 温度 (°C * 10) | int16 (大端) |
-| 5-6 | 湿度 (% * 10) | uint16 (大端) |
+| Byte | Description | Data Type |
+|------|-------------|-----------|
+| 0 | Status flags | Bit field |
+| 1 | Reserved | - |
+| 2 | Battery level (%) | uint8 |
+| 3-4 | Temperature (°C * 10) | int16 (big-endian) |
+| 5-6 | Humidity (% * 10) | uint16 (big-endian) |
 
-**状态标志位（Byte 0）：**
+**Status Flags (Byte 0):**
 ```
-Bit 7-6: 保留
-Bit 5: 湿度低报警
-Bit 4: 湿度高报警
-Bit 3: 温度低报警
-Bit 2: 温度高报警
-Bit 1: 保留
-Bit 0: 按钮按下
+Bit 7-6: Reserved
+Bit 5: Humidity low alarm
+Bit 4: Humidity high alarm
+Bit 3: Temperature low alarm
+Bit 2: Temperature high alarm
+Bit 1: Reserved
+Bit 0: Button pressed
 ```
 
-### fPort 12 - 配置信息（3字节）
+### fPort 12 - Configuration Information (3 bytes)
 
-| Byte | 说明 | 数据类型 |
-|------|------|---------|
-| 0 | 命令类型 (0x01) | uint8 |
-| 1-2 | 上报间隔 (秒) | uint16 (大端) |
+| Byte | Description | Data Type |
+|------|-------------|-----------|
+| 0 | Command type (0x01) | uint8 |
+| 1-2 | Report interval (seconds) | uint16 (big-endian) |
 
-### fPort 13 - 阈值配置（6字节）
+### fPort 13 - Threshold Configuration (6 bytes)
 
-| Byte | 说明 | 数据类型 |
-|------|------|---------|
-| 0 | 命令类型 (0x02) | uint8 |
-| 1-2 | 温度高阈值 (°C) | int16 (大端) |
-| 3-4 | 温度低阈值 (°C) | int16 (大端) |
-| 5 | 湿度高阈值 (%) | uint8 |
-| 6 | 湿度低阈值 (%) | uint8 |
+| Byte | Description | Data Type |
+|------|-------------|-----------|
+| 0 | Command type (0x02) | uint8 |
+| 1-2 | High temperature threshold (°C) | int16 (big-endian) |
+| 3-4 | Low temperature threshold (°C) | int16 (big-endian) |
+| 5 | High humidity threshold (%) | uint8 |
+| 6 | Low humidity threshold (%) | uint8 |
 
-## 🧪 测试数据
+## 🧪 Test Data
 
-查看 `tests/` 目录了解完整的测试用例，包括：
-- 正常数据场景
-- 报警触发场景
-- 边界值测试
-- 配置查询响应
+Check the `tests/` directory for complete test cases, including:
+- Normal data scenarios
+- Alarm trigger scenarios
+- Boundary value tests
+- Configuration query responses
 
-## 💡 高级技巧
+## 💡 Advanced Tips
 
-### 1. COV 增量设置
+### 1. COV Increment Settings
 
 ```yaml
-covIncrement: 0.1    # 温度变化 0.1°C 触发通知
-covIncrement: 1.0    # 湿度变化 1% 触发通知
+covIncrement: 0.1    # Temperature change of 0.1°C triggers notification
+covIncrement: 1.0    # Humidity change of 1% triggers notification
 ```
 
-根据传感器精度和实际需求调整。
+Adjust according to sensor precision and actual requirements.
 
-### 2. 更新间隔设置
+### 2. Update Interval Settings
 
 ```yaml
-updateInterval: 600   # 10分钟更新一次
+updateInterval: 600   # Update every 10 minutes
 ```
 
-通常设置为设备的实际上报周期。
+Usually set to the device's actual reporting period.
 
-### 3. 数据验证
+### 3. Data Validation
 
-在 Codec 中添加数据验证逻辑：
+Add data validation logic in Codec:
 ```javascript
-// 温度范围检查
+// Temperature range check
 if (temperature < -40 || temperature > 85) {
-  // 数据异常，可能需要记录或跳过
+  // Abnormal data, may need to log or skip
 }
 ```
 
-## 📝 如何基于此示例创建 Profile
+## 📝 How to Create a Profile Based on This Example
 
-### 步骤 1: 分析您的设备数据格式
-- 获取数据手册
-- 记录每个字节的含义
-- 确认字节序（大端/小端）
+### Step 1: Analyze Your Device Data Format
+- Obtain data manual
+- Record the meaning of each byte
+- Confirm byte order (big-endian/little-endian)
 
-### 步骤 2: 复制并修改
+### Step 2: Copy and Modify
 ```bash
 cp examples/standard-profile/standard-temp-humidity-sensor.yaml profiles/YourVendor/YourVendor-Model.yaml
 ```
 
-### 步骤 3: 修改 Codec 函数
-- 根据实际数据格式调整解析逻辑
-- 添加或删除传感器参数
-- 调整数据换算系数
+### Step 3: Modify Codec Functions
+- Adjust parsing logic based on actual data format
+- Add or remove sensor parameters
+- Adjust data conversion factors
 
-### 步骤 4: 配置 BACnet 对象
-- 为每个参数选择合适的对象类型
-- 设置正确的单位
-- 配置 COV 和更新间隔
+### Step 4: Configure BACnet Objects
+- Select appropriate object type for each parameter
+- Set correct units
+- Configure COV and update intervals
 
-### 步骤 5: 准备测试数据
-- 使用真实设备采集测试数据
-- 创建多种场景的测试用例
-- 验证解码结果的正确性
+### Step 5: Prepare Test Data
+- Collect test data using real devices
+- Create test cases for various scenarios
+- Verify correctness of decode results
 
-## ⚠️ 常见陷阱
+## ⚠️ Common Pitfalls
 
-1. **字节序错误** - 混淆大端和小端
-2. **Channel 重复** - 确保每个 channel 唯一
-3. **单位不匹配** - Codec 中的单位换算要与 BACnet 单位对应
-4. **fPort 遗漏** - 忘记处理某些 fPort 的数据
-5. **位操作错误** - 位移和掩码操作要仔细验证
+1. **Byte Order Error** - Confusing big-endian and little-endian
+2. **Duplicate Channels** - Ensure each channel is unique
+3. **Unit Mismatch** - Unit conversion in Codec must correspond to BACnet units
+4. **Missing fPort** - Forgetting to handle certain fPort data
+5. **Bit Operation Error** - Carefully verify bit shift and mask operations
 
-## 🚀 进阶学习
+## 🚀 Advanced Learning
 
-掌握本示例后，可以：
-1. 查看仓库中真实的 Profile 文件
-2. 学习下行控制命令的实现
-3. 了解更复杂的数据格式（如 TLV、Protocol Buffers）
+After mastering this example, you can:
+1. View actual Profile files in the repository
+2. Learn downlink control command implementation
+3. Understand more complex data formats (e.g., TLV, Protocol Buffers)
 
 ---
 
-**提示**: 建议结合真实设备的数据手册学习本示例，效果更佳！
-
+**Tip**: It's recommended to study this example alongside real device data manuals for better results!

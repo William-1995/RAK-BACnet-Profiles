@@ -1,122 +1,121 @@
-# 最小可行 Profile 示例
+# Minimal Viable Profile Example
 
-这是一个最简单的 Profile 示例，适合初学者快速理解 Profile 的基本结构。
+This is the simplest Profile example, suitable for beginners to quickly understand the basic structure of a Profile.
 
-## 📋 示例说明
+## 📋 Example Description
 
-**设备类型：** 温度传感器  
-**功能：** 定期上报温度数据  
-**复杂度：** ⭐ 简单
+**Device Type:** Temperature Sensor  
+**Function:** Periodically report temperature data  
+**Complexity:** ⭐ Simple
 
-## 🎯 学习目标
+## 🎯 Learning Objectives
 
-通过这个示例，您将学会：
-1. Profile 的基本文件结构
-2. 如何编写简单的解码函数
-3. 如何配置 BACnet 对象映射
-4. 如何配置基础的 LoRaWAN 参数
+Through this example, you will learn:
+1. Basic Profile file structure
+2. How to write simple decode functions
+3. How to configure BACnet object mapping
+4. How to configure basic LoRaWAN parameters
 
-## 📦 文件说明
+## 📦 File Description
 
 ```
 minimal-profile/
-├── README.md                    # 本文件
-├── minimal-sensor.yaml          # Profile 配置文件
+├── README.md                    # This file
+├── minimal-sensor.yaml          # Profile configuration file
 └── tests/
-    ├── test-data.json          # 测试数据
-    └── expected-output.json    # 期望输出
+    ├── test-data.json          # Test data
+    └── expected-output.json    # Expected output
 ```
 
-## 🔍 关键知识点
+## 🔍 Key Concepts
 
-### 1. Codec 函数结构
+### 1. Codec Function Structure
 ```javascript
 function Decode(fPort, data, variables) {
   var values = [];
-  // ... 解析数据
+  // ... Parse data
   values.push({ 
-    name: "Temperature",    // 参数名称
-    channel: 1,            // 通道编号（用于关联 BACnet 对象）
-    value: 25.5,           // 解析后的数值
-    unit: '°C'             // 单位（可选）
+    name: "Temperature",    // Parameter name
+    channel: 1,            // Channel number (used to associate with BACnet object)
+    value: 25.5,           // Parsed value
+    unit: '°C'             // Unit (optional)
   });
   return values;
 }
 ```
 
-### 2. BACnet 对象配置
+### 2. BACnet Object Configuration
 ```yaml
 datatype:
-  "1":                          # 对应 channel: 1
-    name: Temperature           # BACnet 对象名称
-    type: AnalogInputObject     # 对象类型
-    units: degreesCelsius       # BACnet 标准单位
-    covIncrement: 0.1          # 变化检测阈值（0.1°C）
-    updateInterval: 600        # 更新间隔（600秒 = 10分钟）
+  "1":                          # Corresponds to channel: 1
+    name: Temperature           # BACnet object name
+    type: AnalogInputObject     # Object type
+    units: degreesCelsius       # BACnet standard unit
+    covIncrement: 0.1          # Change detection threshold (0.1°C)
+    updateInterval: 600        # Update interval (600 seconds = 10 minutes)
 ```
 
-### 3. 数据解析示例
+### 3. Data Parsing Example
 
-**原始数据：** `01 00 FF`（十六进制）
+**Raw Data:** `01 00 FF` (hexadecimal)
 
-**解析过程：**
+**Parsing Process:**
 ```javascript
-// Byte 0: 0x01 = 版本号（跳过）
-// Byte 1-2: 0x00FF = 温度值（大端序）
+// Byte 0: 0x01 = Version number (skip)
+// Byte 1-2: 0x00FF = Temperature value (big-endian)
 var temperature = view.getInt16(1, false); // = 255
 var temperatureCelsius = temperature / 10.0; // = 25.5°C
 ```
 
-## 🧪 测试数据
+## 🧪 Test Data
 
-查看 `tests/test-data.json` 和 `tests/expected-output.json` 了解如何组织测试数据。
+View `tests/test-data.json` and `tests/expected-output.json` to understand how to organize test data.
 
-### 测试方法
+### Testing Method
 ```javascript
-// 手动测试
+// Manual testing
 var testData = [0x01, 0x00, 0xFF];
 var result = Decode(10, testData, {});
 console.log(result);
-// 期望输出: [{ name: "Temperature", channel: 1, value: 25.5, unit: "°C" }]
+// Expected output: [{ name: "Temperature", channel: 1, value: 25.5, unit: "°C" }]
 ```
 
-## 📝 如何基于此示例创建自己的 Profile
+## 📝 How to Create Your Own Profile Based on This Example
 
-### 步骤 1: 复制文件
+### Step 1: Copy Files
 ```bash
 cp examples/minimal-profile/minimal-sensor.yaml profiles/YourVendor/YourVendor-Model.yaml
 ```
 
-### 步骤 2: 修改设备信息
+### Step 2: Modify Device Information
 ```yaml
 model: YourVendor-YourModel
 vendor: YourVendor
 profileVersion: 1.0.0
 ```
 
-### 步骤 3: 修改 Codec 函数
-根据您设备的数据格式修改解码逻辑。
+### Step 3: Modify Codec Functions
+Modify the decode logic based on your device's data format.
 
-### 步骤 4: 修改 BACnet 对象
-根据您的传感器类型调整对象配置。
+### Step 4: Modify BACnet Objects
+Adjust object configuration based on your sensor type.
 
-### 步骤 5: 准备测试数据
-创建真实的测试数据并验证解码结果。
+### Step 5: Prepare Test Data
+Create real test data and verify decode results.
 
-## ⚠️ 注意事项
+## ⚠️ Important Notes
 
-1. **字节序问题**: 确认您的设备使用大端还是小端
-2. **数据单位**: 原始数据可能需要换算（如 ÷10、÷100）
-3. **fPort**: 确认设备使用的 fPort 编号
-4. **Channel 编号**: 必须从 1 开始，datatype 中用字符串表示
+1. **Byte Order**: Confirm whether your device uses big-endian or little-endian
+2. **Data Units**: Raw data may need conversion (e.g., ÷10, ÷100)
+3. **fPort**: Confirm the fPort number used by the device
+4. **Channel Numbering**: Must start from 1, use strings in datatype
 
-## 🚀 下一步
+## 🚀 Next Steps
 
-掌握了最小示例后，可以学习：
-- [标准完整示例](../standard-profile/) - 多传感器、更复杂的功能
-- 查看仓库中的实际 Profile 文件作为参考
+After mastering the minimal example, you can learn:
+- [Standard Complete Example](../standard-profile/) - Multiple sensors, more complex functionality
+- View actual Profile files in the repository as reference
 
 ---
 
-**提示**: 遇到问题？[提交 Issue](https://github.com/RAKWireless/RAK-BACnet-Profiles/issues) 寻求帮助！
-
+**Tip**: Having issues? [Submit an Issue](https://github.com/RAKWireless/RAK-BACnet-Profiles/issues) for help!

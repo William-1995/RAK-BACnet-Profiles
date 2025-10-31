@@ -1,93 +1,93 @@
-# Profile 测试数据完整指南
+# Complete Guide to Profile Test Data
 
-本指南详细介绍如何为 BACnet Profile 创建测试数据，确保 Codec 函数的正确性。
+This guide provides detailed instructions on how to create test data for BACnet Profiles to ensure the correctness of Codec functions.
 
 ---
 
-## 📂 目录结构
+## 📂 Directory Structure
 
-每个 Profile 可以包含自己的测试数据：
+Each Profile can contain its own test data:
 
 ```
 profiles/
 └── Vendor/
-    ├── Vendor-Model.yaml          # Profile 文件
-    └── tests/                      # 测试数据目录
-        ├── test-data.json          # 测试输入（必需）
-        └── expected-output.json    # 期望输出（可选，推荐）
+    ├── Vendor-Model.yaml          # Profile file
+    └── tests/                      # Test data directory
+        ├── test-data.json          # Test input (required)
+        └── expected-output.json    # Expected output (optional, recommended)
 ```
 
 ---
 
-## 📋 两个测试文件的作用
+## 📋 Purpose of the Two Test Files
 
-### 1. test-data.json（必需）
+### 1. test-data.json (Required)
 
-**用途**: 定义测试输入数据
+**Purpose**: Define test input data
 
-**包含内容**:
-- fPort（LoRaWAN 端口号）
-- input（十六进制上行数据）
-- 测试用例名称和描述
+**Contains**:
+- fPort (LoRaWAN port number)
+- input (hexadecimal uplink data)
+- Test case names and descriptions
 
-**验证行为**: 确保 Codec 函数能成功执行，不抛异常
-
----
-
-### 2. expected-output.json（可选，推荐）
-
-**用途**: 定义期望的解码输出结果
-
-**包含内容**:
-- 每个测试用例期望返回的完整数据结构
-
-**验证行为**: **深度比对**实际输出和期望输出，确保完全匹配
-
-**为什么推荐**:
-- ✅ 确保输出的正确性，而不仅是"没有错误"
-- ✅ 防止回归：代码修改后能立即发现输出变化
-- ✅ 作为文档：清晰展示每个测试数据应该解码成什么
+**Validation Behavior**: Ensures Codec functions execute successfully without throwing exceptions
 
 ---
 
-## 🔧 创建测试数据的步骤
+### 2. expected-output.json (Optional, Recommended)
 
-### 步骤 1: 创建测试目录
+**Purpose**: Define expected decode output results
+
+**Contains**:
+- Complete data structure expected to be returned by each test case
+
+**Validation Behavior**: **Deep comparison** of actual output against expected output, ensuring complete match
+
+**Why Recommended**:
+- ✅ Ensures output correctness, not just "no errors"
+- ✅ Prevents regression: immediately detects output changes after code modifications
+- ✅ Serves as documentation: clearly shows what each test data should decode to
+
+---
+
+## 🔧 Steps to Create Test Data
+
+### Step 1: Create Test Directory
 
 ```bash
 mkdir -p profiles/Vendor/tests
 ```
 
-### 步骤 2: 创建 test-data.json
+### Step 2: Create test-data.json
 
-从真实设备获取上行数据，创建测试输入文件：
+Obtain uplink data from real devices and create the test input file:
 
 ```json
 {
-  "description": "Vendor-Model 测试数据集",
+  "description": "Vendor-Model test data set",
   "testCases": [
     {
-      "name": "正常工作数据",
+      "name": "Normal working data",
       "fPort": 10,
       "input": "040164010000000f41dc",
-      "description": "温度=25°C, 湿度=60%, 电池=100%"
+      "description": "Temperature=25°C, Humidity=60%, Battery=100%"
     },
     {
-      "name": "低温警报",
+      "name": "Low temperature alert",
       "fPort": 10,
       "input": "0801640100000000ffdc",
-      "description": "温度=-5°C, 触发低温报警"
+      "description": "Temperature=-5°C, triggers low temperature alarm"
     }
   ]
 }
 ```
 
-**最佳实践**:
-- ✅ 使用**真实设备数据**，不要编造
-- ✅ 覆盖主要场景：正常、边界、异常
-- ✅ 添加清晰的描述说明数据含义
+**Best Practices**:
+- ✅ Use **real device data**, do not fabricate
+- ✅ Cover main scenarios: normal, boundary, exceptional
+- ✅ Add clear descriptions explaining data meaning
 
-### 步骤 3: 运行解码查看实际输出
+### Step 3: Run Decode to View Actual Output
 
 ```bash
 node scripts/test-codec.js \
@@ -96,7 +96,7 @@ node scripts/test-codec.js \
   -u 040164010000000f41dc
 ```
 
-**输出示例**:
+**Example Output**:
 ```json
 {
   "data": [
@@ -107,16 +107,16 @@ node scripts/test-codec.js \
 }
 ```
 
-### 步骤 4: 创建 expected-output.json
+### Step 4: Create expected-output.json
 
-确认输出正确后，创建期望输出文件：
+After confirming the output is correct, create the expected output file:
 
 ```json
 {
-  "description": "Vendor-Model 期望输出",
+  "description": "Vendor-Model expected output",
   "testCases": [
     {
-      "name": "正常工作数据",
+      "name": "Normal working data",
       "expectedOutput": [
         { "name": "Temperature", "channel": 1, "value": 25.0, "unit": "°C" },
         { "name": "Humidity", "channel": 2, "value": 60.0, "unit": "%" },
@@ -124,7 +124,7 @@ node scripts/test-codec.js \
       ]
     },
     {
-      "name": "低温警报",
+      "name": "Low temperature alert",
       "expectedOutput": [
         { "name": "Temperature", "channel": 1, "value": -5.0, "unit": "°C" },
         { "name": "Humidity", "channel": 2, "value": 60.0, "unit": "%" },
@@ -136,263 +136,262 @@ node scripts/test-codec.js \
 }
 ```
 
-**重要提示**:
-- ⚠️ `expectedOutput` 是**数组**，直接对应 `data` 字段
-- ⚠️ 测试用例顺序必须与 `test-data.json` **完全一致**
-- ⚠️ 包括 `name`、`channel`、`value`、`unit` 所有字段
+**Important Notes**:
+- ⚠️ `expectedOutput` is an **array**, directly corresponding to the `data` field
+- ⚠️ Test case order must **exactly match** `test-data.json`
+- ⚠️ Include all fields: `name`, `channel`, `value`, `unit`
 
-### 步骤 5: 运行完整验证
+### Step 5: Run Complete Validation
 
 ```bash
 node scripts/validate-profile.js profiles/Vendor/Model.yaml
 ```
 
-**成功输出**:
+**Success Output**:
 ```
-🧪 运行测试数据验证...
-  ✓ 通过
+🧪 Running test data validation...
+  ✓ Pass
 
-测试结果详情:
-  ✓ 正常工作数据 [输出匹配]
-  ✓ 低温警报 [输出匹配]
+Test result details:
+  ✓ Normal working data [Output matched]
+  ✓ Low temperature alert [Output matched]
 
 ======================================================================
-✅ 验证通过
+✅ Validation passed
 ======================================================================
 ```
 
 ---
 
-## 📊 验证行为对比
+## 📊 Validation Behavior Comparison
 
-| 测试文件配置 | 验证行为 | 测试结果 | 推荐度 |
-|-------------|---------|---------|--------|
-| 只有 `test-data.json` | 只检查解码成功 | `[未验证输出]` | ⚠️ 基础 |
-| 两个文件都有 | **深度比对输出** | `[输出匹配]` | ✅ 推荐 |
+| Test File Configuration | Validation Behavior | Test Result | Recommendation |
+|------------------------|---------------------|-------------|----------------|
+| Only `test-data.json` | Only checks decode success | `[Output not verified]` | ⚠️ Basic |
+| Both files present | **Deep comparison of output** | `[Output matched]` | ✅ Recommended |
 
 ---
 
-## 🔍 深度比对机制
+## 🔍 Deep Comparison Mechanism
 
-验证脚本会进行**严格的深度比对**：
+The validation script performs **strict deep comparison**:
 
-### 比对内容
-- ✅ 数组长度
-- ✅ 每个对象的所有字段
-- ✅ 字段值的类型和值
-- ✅ null 和 undefined
+### Comparison Content
+- ✅ Array length
+- ✅ All fields in each object
+- ✅ Field value types and values
+- ✅ null and undefined
 
-### 示例
+### Example
 
-**期望输出**:
+**Expected Output**:
 ```json
 [
   { "name": "Temperature", "channel": 1, "value": 25.0, "unit": "°C" }
 ]
 ```
 
-**实际输出**:
+**Actual Output**:
 ```json
 [
   { "name": "Temperature", "channel": 1, "value": 25.1, "unit": "°C" }
 ]
 ```
 
-**结果**: ❌ 验证失败（value 不匹配: 25.0 vs 25.1）
+**Result**: ❌ Validation failed (value mismatch: 25.0 vs 25.1)
 
 ---
 
-## ⚠️ 常见错误和解决方案
+## ⚠️ Common Errors and Solutions
 
-### 错误 1: 输出不匹配 - 字段顺序
+### Error 1: Output Mismatch - Field Order
 
 ```
-❌ 错误: 期望和实际输出字段顺序不同
+❌ Error: Expected and actual output field order differs
 ```
 
-**原因**: JavaScript 对象字段顺序可能不同
+**Cause**: JavaScript object field order may vary
 
-**解决**: 深度比对不关心字段顺序，只关心字段存在性和值。如果报错，检查字段名是否拼写错误。
+**Solution**: Deep comparison doesn't care about field order, only field existence and values. If error occurs, check for field name typos.
 
 ---
 
-### 错误 2: 输出不匹配 - 数值类型
+### Error 2: Output Mismatch - Numeric Types
 
 ```json
-// 期望
+// Expected
 { "value": 25 }
 
-// 实际
+// Actual
 { "value": 25.0 }
 ```
 
-**原因**: JavaScript 中 `25` 和 `25.0` 相等，但某些情况下 JSON 序列化可能不同
+**Cause**: In JavaScript, `25` and `25.0` are equal, but JSON serialization may differ in some cases
 
-**解决**: 统一使用浮点数格式（`25.0`）或整数格式（`25`）
-
----
-
-### 错误 3: 测试用例顺序不一致
-
-```
-❌ 错误: test-data.json 第 1 个用例和 expected-output.json 第 1 个用例不对应
-```
-
-**原因**: 两个文件的测试用例顺序不同
-
-**解决**: 确保两个文件的 `testCases` 数组顺序完全一致
+**Solution**: Consistently use float format (`25.0`) or integer format (`25`)
 
 ---
 
-### 错误 4: expectedOutput 格式错误
+### Error 3: Test Case Order Inconsistent
+
+```
+❌ Error: Test case 1 in test-data.json doesn't match test case 1 in expected-output.json
+```
+
+**Cause**: Test case order differs between the two files
+
+**Solution**: Ensure the `testCases` array order is exactly the same in both files
+
+---
+
+### Error 4: expectedOutput Format Error
 
 ```json
-// ❌ 错误格式
+// ❌ Incorrect format
 {
   "expectedOutput": {
     "data": [...]
   }
 }
 
-// ✅ 正确格式
+// ✅ Correct format
 {
   "expectedOutput": [...]
 }
 ```
 
-**原因**: `expectedOutput` 应该直接是数组，不需要包装在 `data` 对象中
+**Cause**: `expectedOutput` should be a direct array, not wrapped in a `data` object
 
-**解决**: `expectedOutput` 直接对应 `decodeUplink` 返回的 `data` 字段
+**Solution**: `expectedOutput` directly corresponds to the `data` field returned by `decodeUplink`
 
 ---
 
-## 🎯 测试数据最佳实践
+## 🎯 Test Data Best Practices
 
-### 1. 覆盖主要场景
+### 1. Cover Main Scenarios
 
 ```json
 {
   "testCases": [
-    { "name": "正常工作数据", ... },
-    { "name": "边界值 - 最高温度", ... },
-    { "name": "边界值 - 最低温度", ... },
-    { "name": "报警触发", ... },
-    { "name": "低电量", ... },
-    { "name": "传感器断线", ... }
+    { "name": "Normal working data", ... },
+    { "name": "Boundary value - Maximum temperature", ... },
+    { "name": "Boundary value - Minimum temperature", ... },
+    { "name": "Alarm triggered", ... },
+    { "name": "Low battery", ... },
+    { "name": "Sensor disconnected", ... }
   ]
 }
 ```
 
-### 2. 使用清晰的命名
+### 2. Use Clear Naming
 
-✅ **好的命名**:
-- "正常温湿度数据 - 25°C, 60%"
-- "温度传感器断线报警"
-- "低电量警告 - 电池 10%"
+✅ **Good Naming**:
+- "Normal temperature humidity data - 25°C, 60%"
+- "Temperature sensor disconnect alarm"
+- "Low battery warning - Battery 10%"
 
-❌ **不好的命名**:
-- "测试1"
+❌ **Poor Naming**:
+- "Test1"
 - "test"
-- "数据"
+- "data"
 
-### 3. 添加详细描述
+### 3. Add Detailed Descriptions
 
 ```json
 {
-  "name": "高温报警",
+  "name": "High temperature alarm",
   "fPort": 10,
   "input": "0801E40308009C0000640A",
-  "description": "温度=45°C, 触发高温报警（阈值40°C）, 湿度=50%, 电池=100%"
+  "description": "Temperature=45°C, triggers high temperature alarm (threshold 40°C), Humidity=50%, Battery=100%"
 }
 ```
 
-### 4. 使用真实数据
+### 4. Use Real Data
 
 ```bash
-# 从 RAK 网关获取真实上行数据
-# ChirpStack 日志示例:
+# Obtain real uplink data from RAK gateway
+# ChirpStack log example:
 # Uplink: {"data":"040164010000000f41dc","fPort":10}
 ```
 
-### 5. 保持期望输出准确
+### 5. Keep Expected Output Accurate
 
-定期运行测试，确保期望输出与实际行为一致：
+Run tests regularly to ensure expected output matches actual behavior:
 
 ```bash
-# 每次修改 Codec 后运行
+# Run after each Codec modification
 node scripts/validate-profile.js profiles/Vendor/Model.yaml
 ```
 
 ---
 
-## 🛠️ 调试技巧
+## 🛠️ Debugging Tips
 
-### 技巧 1: 查看详细差异
+### Tip 1: View Detailed Differences
 
-验证失败时会自动显示差异：
+Validation failures automatically display differences:
 
 ```
-✗ 正常数据: Output does not match expected result
-  期望输出:
+✗ Normal data: Output does not match expected result
+  Expected output:
   [
     { "name": "Temperature", "value": 25.0 }
   ]
-  实际输出:
+  Actual output:
   [
     { "name": "Temperature", "value": 25.1 }
   ]
 ```
 
-### 技巧 2: 逐个添加测试
+### Tip 2: Add Tests Incrementally
 
-从简单到复杂，逐步添加：
+Progress from simple to complex:
 
 ```json
-// 第一步：最简单的用例
+// Step 1: Simplest case
 { "testCases": [
-  { "name": "基本数据", ... }
+  { "name": "Basic data", ... }
 ]}
 
-// 第二步：添加边界情况
+// Step 2: Add boundary cases
 { "testCases": [
-  { "name": "基本数据", ... },
-  { "name": "最大值", ... },
-  { "name": "最小值", ... }
+  { "name": "Basic data", ... },
+  { "name": "Maximum value", ... },
+  { "name": "Minimum value", ... }
 ]}
 ```
 
-### 技巧 3: 使用 JSON 工具验证格式
+### Tip 3: Use JSON Tools to Validate Format
 
 ```bash
-# 验证 JSON 格式正确
+# Validate JSON format is correct
 cat profiles/Vendor/tests/test-data.json | jq .
 cat profiles/Vendor/tests/expected-output.json | jq .
 ```
 
 ---
 
-## 📚 完整示例
+## 📚 Complete Examples
 
-查看项目中的示例：
+View examples in the project:
 
-- `examples/minimal-profile/tests/` - 最小示例
-- `examples/standard-profile/tests/` - 完整示例
-
----
-
-## ✅ 检查清单
-
-提交 Profile 前确认：
-
-- [ ] 创建了 `tests/test-data.json`
-- [ ] 创建了 `tests/expected-output.json`
-- [ ] 至少包含 2-3 个测试用例
-- [ ] 测试数据来自真实设备
-- [ ] 两个文件的测试用例顺序一致
-- [ ] 运行 `validate-profile.js` 全部通过
-- [ ] 所有测试显示 `[输出匹配]`
+- `examples/minimal-profile/tests/` - Minimal example
+- `examples/standard-profile/tests/` - Complete example
 
 ---
 
-**最后更新**: 2025-10-23
+## ✅ Checklist
 
+Confirm before submitting Profile:
+
+- [ ] Created `tests/test-data.json`
+- [ ] Created `tests/expected-output.json`
+- [ ] Contains at least 2-3 test cases
+- [ ] Test data comes from real devices
+- [ ] Test case order is consistent in both files
+- [ ] All tests pass when running `validate-profile.js`
+- [ ] All tests show `[Output matched]`
+
+---
+
+**Last Updated**: 2025-10-23
