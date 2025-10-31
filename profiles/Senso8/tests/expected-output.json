@@ -1,0 +1,111 @@
+{
+    "description": "期望输出",
+    "testCases": [
+      {
+        "name": "测试用例名称1",
+        "expectedOutput": [
+            {
+              "name": "Temperature",
+              "channel": 1,
+              "value": 23.3,
+              "unit": "°C"
+            },
+            {
+              "name": "Humidity",
+              "channel": 2,
+              "value": 49.5,
+              "unit": "%"
+            },
+            {
+              "name": "Battery",
+              "channel": 3,
+              "value": 100,
+              "unit": "%"
+            },
+            {
+              "name": "HumidityLowAlart",
+              "channel": 4,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "HumidityHighAlart",
+              "channel": 5,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "TemperatureLowAlart",
+              "channel": 6,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "TemperatureHighAlart",
+              "channel": 7,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "ButtonPressed",
+              "channel": 8,
+              "value": 1,
+              "unit": null
+            }
+          ]
+      },
+      {
+        "name": "测试用例名称1",
+        "expectedOutput": [
+            {
+              "name": "Temperature",
+              "channel": 1,
+              "value": 23.4,
+              "unit": "°C"
+            },
+            {
+              "name": "Humidity",
+              "channel": 2,
+              "value": 49.5,
+              "unit": "%"
+            },
+            {
+              "name": "Battery",
+              "channel": 3,
+              "value": 100,
+              "unit": "%"
+            },
+            {
+              "name": "HumidityLowAlart",
+              "channel": 4,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "HumidityHighAlart",
+              "channel": 5,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "TemperatureLowAlart",
+              "channel": 6,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "TemperatureHighAlart",
+              "channel": 7,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "ButtonPressed",
+              "channel": 8,
+              "value": 1,
+              "unit": null
+            }
+          ]
+      }
+    ]
+  }
