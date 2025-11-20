@@ -25,7 +25,7 @@ codec: |
     var soilTemperature = sign ? (tempRaw - 0xFFFF) / 100 : tempRaw / 100;
     var ecRaw = (bytes[8] << 8) | bytes[9];
 
-    values.push({ name: "BatteryVoltage", channel: 1, value: battery });
+    values.push({ name: "BatteryVoltage", channel: 1, value: battery / 1000 });
     values.push({ name: "SoilMoisture", channel: 2, value: soilMoisture });
     values.push({ name: "SoilTemperature", channel: 3, value: soilTemperature });
     values.push({ name: "SoilConductivity", channel: 4, value: ecRaw });
@@ -52,7 +52,7 @@ datatype:
   "1":
     name: Battery Voltage
     type: AnalogInputObject
-    units: millivolts
+    units: volts
   "2":
     name: Soil Moisture
     type: AnalogInputObject

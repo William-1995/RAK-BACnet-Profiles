@@ -1,36 +1,123 @@
 codec: |
   function Decode(fPort, data, variables) {
     var values = [];
+    var bytes = data;
     
     if (fPort === 2) {
-      for (var i = 0; i < data.length; i++) {
-        if (i + 2 < data.length && data[i] === 0x05) {
-          var humidityRaw = (data[i+1] << 8) | data[i+2];
-          var humidity = humidityRaw / 10.0;
-          values.push({ name: "Humidity", channel: 1, value: humidity});
-          i += 2;
+      var direction = { 0: "N", 1: "NNE", 2: "NE", 3: "ENE", 4: "E", 5: "ESE", 6: "SE", 7: "SSE", 8: "S", 9: "SSW", 10: "SW", 11: "WSW", 12: "W", 13: "WNW", 14: "NW", 15: "NNW" };
+      var sen = ["wind_speed", "wind_direction_angle", "illumination",
+        "rain_snow", "WSS-CO2", "TEM", "HUM", "pressure",
+        "rain_gauge", "PM2_5", "PM10", "PAR", "TSR"];
+      var sensor_diy = ["A1", "A2", "A3", "A4"];
+      var algorithm = [0x03, 0x01, 0x11,
+        0x20, 0x20, 0x01, 0x01, 0x01,
+        0x01, 0x20, 0x20, 0x20, 0x01];
+      
+      // Battery Voltage
+      var batV = ((bytes[0] << 8 | bytes[1]) & 0x3FFF) / 1000;
+      values.push({ name: "BatteryVoltage", channel: 1, value: batV });
+      
+      // Temperature DS18B20
+      var tempValue = bytes[7] << 8 | bytes[8];
+      if (bytes[7] & 0x80) { tempValue |= 0xFFFF0000; }
+      var temp_DS18B20 = parseFloat((tempValue / 10).toFixed(2));
+      values.push({ name: "Temperature", channel: 2, value: temp_DS18B20 });
+      
+      var i = 11;
+      // Humidity and Pressure (only when payload version == 1)
+      if (bytes[2] == 1) {
+        // Humidity
+        var humidity = ((bytes[23] << 8 | bytes[24]) / 10);
+        values.push({ name: "Humidity", channel: 3, value: parseFloat(humidity.toFixed(1)) });
+        
+        // Pressure
+        var pressure = ((bytes[33] << 8 | bytes[34]) / 10);
+        values.push({ name: "Pressure", channel: 4, value: parseFloat(pressure.toFixed(1)) });
+
+        // Temperature
+        var temperature = ((bytes[25] << 8 | bytes[26]) / 10);
+        values.push({ name: "Temperature", channel: 5, value: parseFloat(temperature.toFixed(1)) });
+        
+        i = 39;
+      }
+      
+      // Parse additional sensors
+      for (i; i < bytes.length;) {
+        var len = bytes[i + 1];
+        if (bytes[i] < 0xA1) {
+          var sensor_type = bytes[i];
+          var operation = algorithm[sensor_type] >> 4;
+          var count = algorithm[sensor_type] & 0x0F;
+          var sensorValue = 0;
+          
+          if (operation === 0) {
+            if (sensor_type === 0x05) { // TEM
+              if (bytes[i + 2] & 0x80)
+                sensorValue = (((bytes[i + 2] << 8) | bytes[i + 3]) - 0xFFFF) / (count * 10.0);
+              else
+                sensorValue = ((bytes[i + 2] << 8) | bytes[i + 3]) / (count * 10.0);
+            } else {
+              sensorValue = ((bytes[i + 2] << 8) | bytes[i + 3]) / (count * 10.0);
+            }
+          } else if (operation === 1) {
+            sensorValue = ((bytes[i + 2] << 8) | bytes[i + 3]) * (count * 10);
+          } else {
+            if (sensor_type === 0x03) { // RAIN_SNOW
+              sensorValue = bytes[i + 2];
+            } else {
+              sensorValue = (bytes[i + 2] << 8) | bytes[i + 3];
+            }
+          }
+          
+          // Update sensor values for TEM(0x05), HUM(0x06), pressure(0x07)
+          if (sensor_type === 0x05 || sensor_type === 0x06 || sensor_type === 0x07) {
+            var channelNum = 2; // default
+            var sensorName = "Temperature";
+            var finalValue = sensorValue;
+            
+            if (sen[sensor_type] === "HUM") {
+              channelNum = 3;
+              sensorName = "Humidity";
+            } else if (sen[sensor_type] === "pressure") {
+              channelNum = 4;
+              sensorName = "Pressure";
+              finalValue = (sensorValue / 10).toFixed(1); // Pressure needs to be divided by 10
+            } else if (sen[sensor_type] === "TEM") {
+              channelNum = 2;
+              sensorName = "Temperature";
+            }
+            
+            // Find and replace existing value in array
+            var found = false;
+            for (var j = 0; j < values.length; j++) {
+              if (values[j].channel === channelNum) {
+                values[j].value = finalValue;
+                found = true;
+                break;
+              }
+            }
+            
+            // If not found, push new value
+            if (!found) {
+              values.push({ name: sensorName, channel: channelNum, value: finalValue });
+            }
+          }
+          
+          if (sensor_type === 0x00) {
+            var wsMax = ((bytes[i + 4] << 8) | bytes[i + 5]) / 10.0;
+            var wsAvg = ((bytes[i + 6] << 8) | bytes[i + 7]) / 10.0;
+            var wsLevel = bytes[i + 8];
+          } else if (sensor_type === 0x01) {
+            var dirValue = bytes[i + 4];
+            var windDir = direction[dirValue];
+          }
+        } else {
+          var diyValue = (bytes[i + 2] << 8) | bytes[i + 3];
         }
-        else if (i + 2 < data.length && data[i] === 0x06) {
-          var tempRaw = (data[i+1] << 8) | data[i+2];
-          var temperature = tempRaw > 32767 ? (tempRaw - 65536) / 10.0 : tempRaw / 10.0;
-          values.push({ name: "Temperature", channel: 2, value: temperature});
-          i += 2;
-        }
-        else if (i + 2 < data.length && data[i] === 0x0A) {
-          var pressureRaw = (data[i+1] << 8) | data[i+2];
-          var pressure = pressureRaw / 10.0;
-          values.push({ name: "Pressure", channel: 3, value: pressure});
-          i += 2;
-        }
+        
+        i = i + 2 + len;
       }
     }
-
-    if (fPort === 5 ) {
-      var batRaw = (data[5] << 8) | data[6];
-      values.push({ name: "BatteryVoltage", channel: 4, value: batRaw});
-    }
-
-
     return values;
   }
 
@@ -53,21 +140,21 @@ codec: |
 
 datatype:
   "1":
-    name: Humidity
+    name: Battery Voltage
     type: AnalogInputObject
-    units: percent
+    units: volts
   "2":
     name: Temperature
     type: AnalogInputObject
     units: degreesCelsius
   "3":
+    name: Humidity
+    type: AnalogInputObject
+    units: percent
+  "4":
     name: Pressure
     type: AnalogInputObject
     units: kilopascals
-  "4":
-    name: Battery Voltage
-    type: AnalogInputObject
-    units: millivolts
 
 lorawan:
   adrAlgorithm: LoRa Only
