@@ -66,14 +66,13 @@ datatype:
     type: AnalogInputObject
 
 lorawan:
-  adrAlgorithm: LoRa Only
-  classCDownlinkTimeout: 5
+  adrAlgorithm: LoRa Only # Optional Default: LoRa Only
+  classCDownlinkTimeout: 5 # Optional Default: 5
   macVersion: LORAWAN_1_0_3
   region: AS923
   regionalParametersRevision: A
   supportClassB: false
   supportClassC: false
-  supportOTAA: true
 model: Dragino-LSE01
 profileVersion: 1.0.0
 name: LSE01

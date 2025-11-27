@@ -603,15 +603,14 @@ datatype:
     updateInterval: 600
     units: null
 lorawan:
+  adrAlgorithm: LoRa Only # Optional Default: LoRa Only
+  classCDownlinkTimeout: 0 # Optional Default: 5
   region: AS923
   macVersion: LORAWAN_1_0_3
   regionalParametersRevision: RP002_1_0_3
-  adrAlgorithm: LoRA Only
   supportClassB: false
   supportClassC: false
-  supportOTAA: true
-  classCDownlinkTimeout: 0
-profileVersion: 1.0.0
 model: Senso8-LRS30100
+profileVersion: 1.0.0
 name: LRS30100
 vendor: Senso8

@@ -68,14 +68,13 @@ datatype:
 
 # ==================== LoRaWAN 配置 ====================
 lorawan:
-  adrAlgorithm: LoRa Only            # ADR 算法：仅使用 LoRa
-  classCDownlinkTimeout: 5           # Class C 下行超时时间（秒）
+  adrAlgorithm: LoRa Only            # ADR 算法：仅使用 LoRa Only Optional Default: LoRa Only
+  classCDownlinkTimeout: 5           # Class C 下行超时时间（秒） Optional Default: 5
   macVersion: LORAWAN_1_0_3          # LoRaWAN MAC 版本
   region: AS923                      # 区域频段：AS923（亚太地区）
   regionalParametersRevision: A      # 区域参数修订版本
   supportClassB: false               # 不支持 Class B
   supportClassC: false               # 不支持 Class C（仅支持 Class A）
-  supportOTAA: true                  # 支持 OTAA 入网方式
 
 # ==================== 设备信息 ====================
 model: Example-MinimalSensor         # 设备型号
