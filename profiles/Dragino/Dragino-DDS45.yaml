@@ -69,6 +69,7 @@ lorawan:
   regionalParametersRevision: A
   supportClassB: false
   supportClassC: false
+  supportOTAA: true # Optional Default: true
 
 model: Dragino-DDS45
 profileVersion: 1.0.0

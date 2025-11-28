@@ -64,6 +64,7 @@ lorawan:
   regionalParametersRevision: A
   supportClassB: false
   supportClassC: false
+  supportOTAA: true # Optional Default: true
 model: Dragino-LDS02
 profileVersion: 1.0.0
 name: LDS02

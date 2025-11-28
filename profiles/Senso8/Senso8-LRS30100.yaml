@@ -610,6 +610,7 @@ lorawan:
   regionalParametersRevision: RP002_1_0_3
   supportClassB: false
   supportClassC: false
+  supportOTAA: true # Optional Default: true
 model: Senso8-LRS30100
 profileVersion: 1.0.0
 name: LRS30100

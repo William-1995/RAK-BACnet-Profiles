@@ -74,7 +74,8 @@ lorawan:
   region: AS923                      # 区域频段：AS923（亚太地区）
   regionalParametersRevision: A      # 区域参数修订版本
   supportClassB: false               # 不支持 Class B
-  supportClassC: false               # 不支持 Class C（仅支持 Class A）
+  supportClassC: false               # 不支持 Class C
+  supportOTAA: true                  # Optional Default: true               
 
 # ==================== 设备信息 ====================
 model: Example-MinimalSensor         # 设备型号

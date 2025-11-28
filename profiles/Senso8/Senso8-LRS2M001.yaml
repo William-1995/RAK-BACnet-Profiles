@@ -87,5 +87,6 @@ lorawan:
   regionalParametersRevision: A
   supportClassB: false
   supportClassC: false
+  supportOTAA: true # Optional Default: true
 model: Senso8-LRS2M001
 profileVersion: 1.0.0

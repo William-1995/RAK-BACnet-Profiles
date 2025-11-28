@@ -81,13 +81,13 @@ datatype:
 
 # LoRaWAN 配置
 lorawan:
-  adrAlgorithm: LoRa Only
-  classCDownlinkTimeout: 5
+  adrAlgorithm: LoRa Only # Optional Default: LoRa Only
+  classCDownlinkTimeout: 5 # Optional Default: 5
   macVersion: LORAWAN_1_0_3
   region: AS923
   supportClassB: false
   supportClassC: false
-  supportOTAA: true
+  supportOTAA: true # Optional Default: true
 
 # 设备信息
 model: Vendor-Model

@@ -196,6 +196,7 @@ lorawan:
   regionalParametersRevision: A
   supportClassB: false
   supportClassC: false
+  supportOTAA: true # Optional Default: true
 
 # ==================== 设备信息 ====================
 model: Example-StandardSensor

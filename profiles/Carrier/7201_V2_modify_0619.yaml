@@ -70,6 +70,7 @@ lorawan:
   regionalParametersRevision: RP002_1_0_3
   supportClassB: false
   supportClassC: false
+  supportOTAA: true # Optional Default: true
   
 profileVersion: 1.0.0
 model: RAK-7201_V2

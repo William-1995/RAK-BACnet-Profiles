@@ -61,6 +61,7 @@ lorawan:
   regionalParametersRevision: A
   supportClassB: false
   supportClassC: false
+  supportOTAA: true # Optional Default: true
 
 model: Milesight-VS330
 profileVersion: 1.0.0

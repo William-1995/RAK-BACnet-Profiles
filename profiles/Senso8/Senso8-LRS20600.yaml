@@ -109,6 +109,7 @@ lorawan:
   regionalParametersRevision: A
   supportClassB: false
   supportClassC: false
+  supportOTAA: true # Optional Default: true
 model: Senso8-LRS20600
 profileVersion: 1.0.0
 name: LRS20600
