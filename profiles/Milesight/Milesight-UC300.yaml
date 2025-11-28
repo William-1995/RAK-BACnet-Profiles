@@ -1,0 +1,114 @@
+codec: |
+  function Decode(fPort, data, variables) {
+    var values = [];
+    
+    // Decode data from fPort 86 (RS485 device data via Milesight UC300)
+    // Data format: Single byte containing status flags
+    // 0x30: occupied=false, fall=false, longOccupied=false
+    // 0x31: occupied=true, fall=false, longOccupied=false
+    // 0x32: occupied=true, fall=true, longOccupied=false
+    // 0x34: occupied=true, fall=false, longOccupied=true
+    var occupied = false;
+    var fall = false;
+    var longOccupied = false;
+    
+    var evt = 0; // Sensor Flag: 0x00: No Sensor; 0x01: Detect Sensor
+    
+    if (fPort === 86 && data.length >= 1) {
+      var byte = data[0];
+      
+      if (byte === 0x30) {
+        occupied = false;
+        fall = false;
+        longOccupied = false;
+      } else if (byte === 0x31) {
+        occupied = true;
+        fall = false;
+        longOccupied = false;
+      } else if (byte === 0x32) {
+        occupied = false;
+        fall = true;
+        longOccupied = false;
+      } else if (byte === 0x34) {
+        occupied = true;
+        fall = false;
+        longOccupied = true;
+      } else {
+        occupied = false;
+        fall = false;
+        longOccupied = false;
+        evt = 1; // Invalid data, no sensor detected
+      }
+    } else if (data.length >= 1) {
+      // Handle other fPorts
+      if (data[0] === 1) {
+        occupied = true;
+        
+      } else {
+        occupied = false;
+      }
+      fall = false;
+      longOccupied = false;
+      evt = 1;
+    }
+    
+    // Map to BACnet objects
+    // OCCUPANCY: 00:Vacant; 01:Occupied
+    values.push({ name: "OCCUPANCY", channel: 1, value: occupied ? 1 : 0 });
+    
+    // FALL: 00:Normal; 01:Fall
+    values.push({ name: "FALL", channel: 2, value: fall ? 1 : 0 });
+    
+    // EVT: Sensor Flag (0x00: No Sensor; 0x01: Detect Sensor)
+    values.push({ name: "EVT", channel: 3, value: evt });
+    
+    return values;
+  }
+
+  function Encode(data, variables) {
+    var bytes = [];
+    return bytes;
+  }
+
+  function decodeUplink(input) {
+    return {
+      data: Decode(input.fPort, input.bytes, input.variables)
+    };
+  }
+
+  function encodeDownlink(input) {
+    return {
+      bytes: Encode(input.data, input.variables)
+    };
+  }
+
+datatype:
+  "1":
+    name: Occupancy
+    type: AnalogInputObject
+    # 00: Vacant; 01: Occupied
+  "2":
+    name: Fall
+    type: BinaryInputObject
+    # 00: Normal; 01: Fall
+  "3":
+    name: EVT
+    type: AnalogInputObject
+    # 0x00: No Sensor; 0x01: Detect Sensor
+
+lorawan:
+  adrAlgorithm: LoRa Only # Optional Default: LoRa Only
+  classCDownlinkTimeout: 5 # Optional Default: 5
+  macVersion: LORAWAN_1_0_3
+  region: AS923
+  regionalParametersRevision: A
+  supportClassB: false
+  supportClassC: false
+  supportOTAA: true # Optional Default: true
+
+model: Milesight-UC300
+profileVersion: 1.0.0
+name: UC300
+vendor: Milesight
+id: 7b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e
+
