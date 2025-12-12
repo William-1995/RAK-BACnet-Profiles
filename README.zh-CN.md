@@ -105,7 +105,6 @@ lorawan:
   adrAlgorithm: LoRa Only           # ADR 算法
   classCDownlinkTimeout: 5          # Class C 下行超时
   macVersion: LORAWAN_1_0_3         # LoRaWAN MAC 版本
-  region: AS923                      # 区域频段
   regionalParametersRevision: A      # 区域参数版本
   supportClassB: false              # 是否支持 Class B
   supportClassC: false              # 是否支持 Class C

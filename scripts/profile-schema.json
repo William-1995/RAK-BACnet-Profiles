@@ -76,7 +76,7 @@
     },
     "lorawan": {
       "type": "object",
-      "required": ["macVersion", "region", "regionalParametersRevision","supportClassB","supportClassC"],
+      "required": ["macVersion","supportClassB","supportClassC"],
       "properties": {
         "adrAlgorithm": {
           "type": "string",
@@ -94,11 +94,6 @@
             "LORAWAN_1_0_4"
           ],
           "description": "LoRaWAN MAC version"
-        },
-        "region": {
-          "type": "string",
-          "enum": ["AS923", "AU915", "CN470", "EU868", "IN865", "KR920", "RU864", "US915"],
-          "description": "LoRaWAN region"
         },
         "regionalParametersRevision": {
           "type": "string",

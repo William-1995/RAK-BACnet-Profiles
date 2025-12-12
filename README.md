@@ -105,7 +105,6 @@ lorawan:
   adrAlgorithm: LoRa Only           # ADR algorithm
   classCDownlinkTimeout: 5          # Class C downlink timeout
   macVersion: LORAWAN_1_0_3         # LoRaWAN MAC version
-  region: AS923                      # Regional frequency band
   regionalParametersRevision: A      # Regional parameters revision
   supportClassB: false              # Class B support
   supportClassC: false              # Class C support

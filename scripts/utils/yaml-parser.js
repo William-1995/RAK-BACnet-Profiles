@@ -78,7 +78,7 @@ function validateRequiredFields(profile) {
   
   // Validate lorawan field
   if (profile.lorawan) {
-    const lorawanRequired = ['macVersion', 'region', 'supportOTAA'];
+    const lorawanRequired = ['macVersion', 'supportClassB', 'supportClassC'];
     for (const field of lorawanRequired) {
       if (profile.lorawan[field] === undefined) {
         errors.push(`lorawan.${field} is required`);

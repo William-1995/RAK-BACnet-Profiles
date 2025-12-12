@@ -119,11 +119,11 @@ body:
       label: Environment Information
       description: Information about the usage environment
       placeholder: |
-        - Device Firmware Version: v2.3.0 b30
-        - Region: AS923
+        - WisGateOS Version: v2.3.0 b30
+        - BACnet Version: 1.1.0 b11
       value: |
-        - Device Firmware Version: 
-        - Region: 
+        - WisGateOS Version: 
+        - BACnet Version: 
     validations:
       required: true
       
