@@ -107,7 +107,7 @@ datatype:
     type: BinaryInputObject
     updateInterval: 600
   '8':
-    name: 'Button Pressed '
+    name: Button Pressed
     type: BinaryInputObject
     updateInterval: 600
 lorawan:
