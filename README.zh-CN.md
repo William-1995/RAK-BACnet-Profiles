@@ -44,7 +44,52 @@ RAK-BACnet-Profiles/
 │   └── utils/                 # 工具函数
 ├── docs/                      # 文档
 ├── .github/                   # GitHub 模板
+├── registry.json              # Profile 注册表 🆕
+├── registry-schema.json       # 注册表 Schema
 └── README.md
+```
+
+## 📚 Profile 注册表
+
+项目包含一个自动生成的 `registry.json` 文件，提供所有可用 Profile 的索引和统计信息。
+
+### 注册表内容
+
+```json
+{
+  "version": "1.0.0",
+  "lastUpdate": "2026-01-16",
+  "totalProfiles": 19,
+  "profiles": [
+    {
+      "id": "senso8-lrs20310",
+      "vendor": "Senso8",
+      "model": "LRS20310",
+      "version": "1.0.0",
+      "path": "profiles/Senso8/Senso8-LRS20310.yaml",
+      "verified": true,
+      "hasTests": true,
+      "description": "Senso8 LRS20310 Water Leak Detection Sensor",
+      "deviceType": "Water Leak Sensor",
+      "lorawanClass": ["A"],
+      "lastUpdate": "2026-01-16"
+    }
+  ],
+  "statistics": {
+    "byVendor": { "Senso8": 9, "Dragino": 4, "Carrier": 2, ... },
+    "withTests": 10,
+    "withoutTests": 9
+  }
+}
+```
+
+### 更新注册表
+
+添加或修改 Profile 后，运行以下命令更新注册表：
+
+```bash
+cd scripts
+node update-registry.js
 ```
 
 ## 📝 配置文件格式

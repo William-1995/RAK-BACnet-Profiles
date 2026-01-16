@@ -212,6 +212,18 @@ function deepEqual(actual, expected) {
 }
 
 /**
+ * Extract model name from file path
+ * @param {string} filePath - Profile YAML file path
+ * @returns {string|null} Model name (e.g., "LRS20100")
+ */
+function extractModelFromPath(filePath) {
+  const filename = path.basename(filePath, path.extname(filePath));
+  // Match pattern: Vendor-Model (e.g., Senso8-LRS20100)
+  const match = filename.match(/^[^-]+-(.+)$/);
+  return match ? match[1] : null;
+}
+
+/**
  * Run test data validation
  * @param {object} profile - Profile object
  * @param {string} filePath - Profile file path
@@ -221,6 +233,9 @@ function runTestDataValidation(profile, filePath) {
   const errors = [];
   const warnings = [];
   const results = [];
+  
+  // Extract model from file path
+  const currentModel = extractModelFromPath(filePath);
   
   // Find test data files
   const dir = path.dirname(filePath);
@@ -251,52 +266,71 @@ function runTestDataValidation(profile, filePath) {
     const testData = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));
     const codec = profile.codec;
     
-    for (let i = 0; i < (testData.testCases || []).length; i++) {
-      const testCase = testData.testCases[i];
+    // Filter test cases by model
+    const allTestCases = testData.testCases || [];
+    const filteredTestCases = allTestCases.filter(tc => {
+      // If test case has no model field, it applies to all models
+      if (!tc.model) return true;
+      // If we can't extract model from filename, run all tests
+      if (!currentModel) return true;
+      // Only run tests matching current model
+      return tc.model === currentModel;
+    });
+    
+    if (currentModel) {
+      console.log(`  Model detected: ${currentModel}`);
+      console.log(`  Running ${filteredTestCases.length} of ${allTestCases.length} test cases`);
+    }
+    
+    for (let i = 0; i < filteredTestCases.length; i++) {
+      const testCase = filteredTestCases[i];
+      const originalIndex = allTestCases.indexOf(testCase);
       
       try {
         const result = testDecode(codec, testCase.fPort, testCase.input);
         
-        // If expected output exists, perform comparison
-        if (expectedOutputData && expectedOutputData.testCases && expectedOutputData.testCases[i]) {
-          const expectedCase = expectedOutputData.testCases[i];
-          const expectedOutput = expectedCase.expectedOutput;
-          const actualOutput = result.data;
-          
-          if (expectedOutput) {
-            // Compare actual output with expected output
-            if (deepEqual(actualOutput, expectedOutput)) {
-              results.push({
-                name: testCase.name,
-                status: 'PASS',
-                result: result,
-                matched: true
-              });
-            } else {
-              // Output mismatch
-              errors.push(`Test case '${testCase.name}' output mismatch`);
-              results.push({
-                name: testCase.name,
-                status: 'FAIL',
-                error: 'Output does not match expected result',
-                actualOutput: actualOutput,
-                expectedOutput: expectedOutput,
-                matched: false
-              });
-            }
-          } else {
-            // No expected output, only check if execution succeeded
+        // Find matching expected output by name and model
+        let expectedOutput = null;
+        if (expectedOutputData && expectedOutputData.testCases) {
+          const expectedCase = expectedOutputData.testCases.find(ec => 
+            ec.name === testCase.name && 
+            (!ec.model || !testCase.model || ec.model === testCase.model)
+          );
+          if (expectedCase) {
+            expectedOutput = expectedCase.expectedOutput;
+          }
+        }
+        
+        const actualOutput = result.data;
+        
+        if (expectedOutput) {
+          // Compare actual output with expected output
+          if (deepEqual(actualOutput, expectedOutput)) {
             results.push({
               name: testCase.name,
+              model: testCase.model,
               status: 'PASS',
               result: result,
-              matched: null
+              matched: true
+            });
+          } else {
+            // Output mismatch
+            errors.push(`Test case '${testCase.name}' output mismatch`);
+            results.push({
+              name: testCase.name,
+              model: testCase.model,
+              status: 'FAIL',
+              error: 'Output does not match expected result',
+              actualOutput: actualOutput,
+              expectedOutput: expectedOutput,
+              matched: false
             });
           }
         } else {
-          // No expected output file, only check if execution succeeded
+          // No expected output, only check if execution succeeded
           results.push({
             name: testCase.name,
+            model: testCase.model,
             status: 'PASS',
             result: result,
             matched: null
@@ -306,6 +340,7 @@ function runTestDataValidation(profile, filePath) {
         errors.push(`Test case '${testCase.name}' failed: ${error.message}`);
         results.push({
           name: testCase.name,
+          model: testCase.model,
           status: 'FAIL',
           error: error.message
         });
@@ -319,7 +354,8 @@ function runTestDataValidation(profile, filePath) {
     valid: errors.length === 0,
     errors,
     warnings,
-    results
+    results,
+    currentModel
   };
 }
 
@@ -400,16 +436,17 @@ function validateProfile(filePath, options = {}) {
     if (testCheck.results && testCheck.results.length > 0) {
       console.log('\nTest result details:');
       for (const test of testCheck.results) {
+        const modelLabel = test.model ? ` [${test.model}]` : '';
         if (test.status === 'PASS') {
           if (test.matched === true) {
-            console.log(`  ${colors.green}✓${colors.reset} ${test.name} ${colors.green}[Output matched]${colors.reset}`);
+            console.log(`  ${colors.green}✓${colors.reset} ${test.name}${modelLabel} ${colors.green}[Output matched]${colors.reset}`);
           } else if (test.matched === null) {
-            console.log(`  ${colors.green}✓${colors.reset} ${test.name} ${colors.yellow}[Output not verified]${colors.reset}`);
+            console.log(`  ${colors.green}✓${colors.reset} ${test.name}${modelLabel} ${colors.yellow}[Output not verified]${colors.reset}`);
           } else {
-            console.log(`  ${colors.green}✓${colors.reset} ${test.name}`);
+            console.log(`  ${colors.green}✓${colors.reset} ${test.name}${modelLabel}`);
           }
         } else {
-          console.log(`  ${colors.red}✗${colors.reset} ${test.name}: ${test.error}`);
+          console.log(`  ${colors.red}✗${colors.reset} ${test.name}${modelLabel}: ${test.error}`);
           
           // Show detailed information if output mismatch
           if (test.matched === false && test.actualOutput && test.expectedOutput) {

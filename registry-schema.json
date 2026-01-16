@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/RAKWireless/RAK-BACnet-Profiles/main/registry-schema.json",
+  "title": "RAK BACnet Profile Registry Schema",
+  "description": "Schema for the RAK BACnet Profile Registry",
+  "type": "object",
+  "required": ["version", "lastUpdate", "totalProfiles", "profiles"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Registry version in semver format"
+    },
+    "lastUpdate": {
+      "type": "string",
+      "format": "date",
+      "description": "Last update date in YYYY-MM-DD format"
+    },
+    "totalProfiles": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of profiles in the registry"
+    },
+    "profiles": {
+      "type": "array",
+      "description": "Array of device profiles",
+      "items": {
+        "type": "object",
+        "required": ["id", "vendor", "model", "version", "path", "verified", "hasTests"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Unique identifier for the profile (lowercase, hyphen-separated)"
+          },
+          "vendor": {
+            "type": "string",
+            "description": "Device vendor/manufacturer name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Device model number or name"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "Profile version in semver format"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^profiles/[^/]+/[^/]+\\.yaml$",
+            "description": "Relative path to the profile YAML file"
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "Whether the profile has been verified and tested"
+          },
+          "hasTests": {
+            "type": "boolean",
+            "description": "Whether the profile includes test data"
+          },
+          "description": {
+            "type": "string",
+            "description": "Brief description of the device"
+          },
+          "deviceType": {
+            "type": "string",
+            "description": "Type or category of the device"
+          },
+          "lorawanClass": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["A", "B", "C"]
+            },
+            "description": "Supported LoRaWAN device classes"
+          },
+          "lastUpdate": {
+            "type": "string",
+            "format": "date",
+            "description": "Last update date for this profile"
+          },
+          "downloads": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of times this profile has been downloaded (optional)"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Additional tags for categorization (optional)"
+          }
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Statistical information about the registry",
+      "required": ["byVendor", "withTests", "withoutTests"],
+      "properties": {
+        "byVendor": {
+          "type": "object",
+          "description": "Profile counts grouped by vendor",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "withTests": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of profiles with test data"
+        },
+        "withoutTests": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of profiles without test data"
+        }
+      }
+    }
+  }
+}

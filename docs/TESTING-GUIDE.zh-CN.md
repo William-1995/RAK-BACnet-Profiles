@@ -68,12 +68,14 @@ mkdir -p profiles/Vendor/tests
   "testCases": [
     {
       "name": "正常工作数据",
+      "model": "LRS20100",
       "fPort": 10,
       "input": "040164010000000f41dc",
       "description": "温度=25°C, 湿度=60%, 电池=100%"
     },
     {
       "name": "低温警报",
+      "model": "LRS20100",
       "fPort": 10,
       "input": "0801640100000000ffdc",
       "description": "温度=-5°C, 触发低温报警"
@@ -82,10 +84,21 @@ mkdir -p profiles/Vendor/tests
 }
 ```
 
+**字段说明**:
+- `name` (必需): 测试用例名称
+- `model` (可选): 设备型号，用于区分不同型号的测试用例
+  - 如果指定了 `model`，该测试用例只在验证对应型号的 Profile 时运行
+  - 如果不指定 `model`，该测试用例适用于所有型号（通用测试）
+  - 型号名称会从 Profile 文件名中自动提取（如 `Senso8-LRS20100.yaml` → `LRS20100`）
+- `fPort` (必需): LoRaWAN 端口号
+- `input` (必需): 十六进制格式的上行数据
+- `description` (可选): 测试用例描述
+
 **最佳实践**:
 - ✅ 使用**真实设备数据**，不要编造
 - ✅ 覆盖主要场景：正常、边界、异常
 - ✅ 添加清晰的描述说明数据含义
+- ✅ 对于多型号场景，使用 `model` 字段区分测试用例
 
 ### 步骤 3: 运行解码查看实际输出
 
@@ -263,6 +276,242 @@ node scripts/validate-profile.js profiles/Vendor/Model.yaml
 **原因**: `expectedOutput` 应该直接是数组，不需要包装在 `data` 对象中
 
 **解决**: `expectedOutput` 直接对应 `decodeUplink` 返回的 `data` 字段
+
+---
+
+## 🏢 多型号测试用例管理
+
+当同一厂商目录下有多个型号的 Profile 时，可以使用 `model` 字段来区分和过滤测试用例。
+
+### 使用场景
+
+适用于以下情况：
+- 同一厂商有多个产品型号
+- 不同型号使用相同的协议但数据格式不同
+- 需要在一个 `tests` 目录中管理所有型号的测试用例
+
+### 目录结构示例
+
+```
+profiles/Senso8/
+├── Senso8-LRS20100.yaml      # 温湿度传感器
+├── Senso8-LRS20200.yaml      # 温度传感器
+├── Senso8-LRS20310.yaml      # CO2 传感器
+├── Senso8-LRS20600.yaml      # 门磁传感器
+└── tests/
+    ├── test-data.json         # 所有型号的测试输入
+    └── expected-output.json   # 所有型号的期望输出
+```
+
+### 配置示例
+
+**test-data.json**:
+```json
+{
+  "description": "Senso8 系列测试用例",
+  "testCases": [
+    {
+      "name": "LRS20100 温湿度测试",
+      "model": "LRS20100",
+      "fPort": 10,
+      "input": "01016400e901ef00000000"
+    },
+    {
+      "name": "LRS20200 温度测试",
+      "model": "LRS20200",
+      "fPort": 10,
+      "input": "01010064000000000000"
+    },
+    {
+      "name": "通用电池测试",
+      "fPort": 10,
+      "input": "010164006400640000"
+    }
+  ]
+}
+```
+
+**expected-output.json**:
+```json
+{
+  "description": "期望输出",
+  "testCases": [
+    {
+      "name": "LRS20100 温湿度测试",
+      "model": "LRS20100",
+      "expectedOutput": [
+        {
+          "name": "Temperature",
+          "channel": 1,
+          "value": 23.3,
+          "unit": "°C"
+        },
+        {
+          "name": "Humidity",
+          "channel": 2,
+          "value": 49.5,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "name": "LRS20200 温度测试",
+      "model": "LRS20200",
+      "expectedOutput": [
+        {
+          "name": "Temperature",
+          "channel": 1,
+          "value": 10.0,
+          "unit": "°C"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 验证行为
+
+#### 型号自动识别
+
+验证脚本会从文件名中自动提取型号：
+
+- `Senso8-LRS20100.yaml` → Model: `LRS20100`
+- `Senso8-LRS20200.yaml` → Model: `LRS20200`
+- `Dragino-LDS02.yaml` → Model: `LDS02`
+
+#### 测试用例过滤规则
+
+验证特定 Profile 时：
+
+1. **匹配型号的测试** - 运行 `model` 字段与当前型号相同的测试用例
+2. **通用测试** - 运行没有 `model` 字段的测试用例
+3. **跳过其他型号** - 跳过 `model` 字段为其他型号的测试用例
+
+#### 验证结果示例
+
+假设有以下测试用例：
+
+```json
+{
+  "testCases": [
+    { "name": "Test A", "model": "LRS20100", ... },
+    { "name": "Test B", "model": "LRS20200", ... },
+    { "name": "Test C", ... }  // 无 model 字段
+  ]
+}
+```
+
+| 验证的 Profile | 运行的测试用例 |
+|--------------|--------------|
+| `Senso8-LRS20100.yaml` | Test A, Test C |
+| `Senso8-LRS20200.yaml` | Test B, Test C |
+| `Senso8-LRS20600.yaml` | Test C |
+
+### 命令行输出
+
+```bash
+node scripts/validate-profile.js profiles/Senso8/Senso8-LRS20100.yaml
+```
+
+输出示例：
+```
+🧪 Running test data validation...
+  Model detected: LRS20100
+  Running 2 of 5 test cases
+  ✓ Pass
+
+Test result details:
+  ✓ LRS20100 温湿度测试 [LRS20100] [Output matched]
+  ✓ 通用电池测试 [Output not verified]
+```
+
+**说明**：
+- `Model detected: LRS20100` - 自动识别的型号
+- `Running 2 of 5 test cases` - 运行了 2 个测试（共 5 个）
+- `[LRS20100]` - 显示测试用例所属型号
+
+### 最佳实践
+
+#### 1. 命名规范
+
+测试用例名称建议包含型号信息：
+
+```json
+{
+  "name": "LRS20100 温湿度正常值测试",
+  "model": "LRS20100",
+  ...
+}
+```
+
+#### 2. 通用测试用例
+
+对于所有型号都适用的功能（如电池电量、按钮），不要指定 `model` 字段：
+
+```json
+{
+  "name": "电池电量测试",
+  // 不指定 model，适用于所有型号
+  "fPort": 10,
+  "input": "..."
+}
+```
+
+#### 3. 按功能分组
+
+```json
+{
+  "testCases": [
+    // 基本功能测试
+    { "name": "LRS20100 基本数据上报", "model": "LRS20100", ... },
+    { "name": "LRS20200 基本数据上报", "model": "LRS20200", ... },
+    
+    // 告警测试
+    { "name": "LRS20100 温度高告警", "model": "LRS20100", ... },
+    { "name": "LRS20100 温度低告警", "model": "LRS20100", ... },
+    
+    // 通用测试
+    { "name": "通用电池电量测试", ... },
+    { "name": "通用按钮测试", ... }
+  ]
+}
+```
+
+### 故障排查
+
+#### 问题：测试用例没有被运行
+
+**原因**：
+- `model` 字段拼写错误
+- 文件名格式不符合 `Vendor-Model.yaml` 规范
+
+**解决**：
+1. 检查 `model` 字段是否与文件名中的型号一致
+2. 确保文件名格式为 `Vendor-Model.yaml`
+
+#### 问题：所有测试都被跳过
+
+**原因**：
+- 所有测试用例都指定了 `model`，但与当前型号不匹配
+
+**解决**：
+- 检查测试用例的 `model` 字段
+- 或者移除 `model` 字段使其成为通用测试
+
+#### 问题：无法识别型号
+
+验证脚本输出：
+```
+Model detected: null
+Running 5 of 5 test cases
+```
+
+**原因**：
+- 文件名不符合 `Vendor-Model.yaml` 格式
+
+**解决**：
+- 重命名文件为标准格式，如 `Senso8-LRS20100.yaml`
 
 ---
 

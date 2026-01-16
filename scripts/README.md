@@ -11,7 +11,99 @@ npm install
 
 ## 🛠️ Tool List
 
-### 1. validate-all.js - Batch Validation Tool ⭐
+### 1. update-registry.js - Registry Update Tool 🆕
+
+**Purpose**: Automatically scan the profiles directory and generate or update the `registry.json` registry file.
+
+**Usage**:
+```bash
+# Scan all Profiles and update registry.json
+node scripts/update-registry.js
+```
+
+**Features**:
+- ✅ Automatically scan all YAML files in vendor directories
+- ✅ Extract device information (vendor, model, version)
+- ✅ Detect test data existence
+- ✅ Automatically identify device types
+- ✅ Generate statistics (grouped by vendor, device type)
+- ✅ Sort by vendor and model
+- ✅ Generate JSON Schema compliant registry
+
+**Output Example**:
+```
+🔍 Scanning profiles directory...
+✅ Found 20 profiles
+📝 Registry updated: D:\work\rak\RAK-BACnet-Profiles\registry.json
+
+📊 Statistics:
+   Total Profiles: 20
+   With Tests: 10 | Without Tests: 10
+
+📦 By Vendor:
+   Carrier: 2
+   Dragino: 4
+   Milesight: 2
+   MOKOSMART: 1
+   Sensedge: 1
+   Senso8: 9
+
+✨ Done!
+```
+
+**When to Run**:
+- ✨ After adding new Profile files
+- ✨ After modifying existing Profile information
+- ✨ After adding test data to Profiles
+- ✨ When statistics need updating
+
+---
+
+### 2. validate-registry.js - Registry Validation Tool
+
+**Purpose**: Validate that `registry.json` complies with JSON Schema and check consistency and file integrity.
+
+**Usage**:
+```bash
+# Validate registry.json
+node scripts/validate-registry.js
+```
+
+**Validation Content**:
+- ✅ JSON format validity
+- ✅ Schema compliance (conforms to registry-schema.json)
+- ✅ Data consistency (statistics match actual counts)
+- ✅ File path validity (all referenced files exist)
+
+**Output Example**:
+```
+🔍 Validating registry.json...
+
+✅ Registry JSON parsed successfully
+✅ Schema JSON parsed successfully
+
+✅ Registry validation PASSED
+
+📊 Registry Statistics:
+   Version: 1.0.0
+   Last Update: 2026-01-16
+   Total Profiles: 19
+   With Tests: 10 | Without Tests: 9
+
+🔍 Checking consistency...
+✅ Profile count is consistent
+✅ Vendor statistics are consistent
+✅ Test data statistics are consistent
+
+🔍 Checking file paths...
+✅ All profile files exist
+
+✨ Validation complete!
+```
+
+---
+
+### 3. validate-all.js - Batch Validation Tool ⭐
 
 **Purpose**: Validate all Profile files at once, quickly check the entire project (excludes test data validation).
 
@@ -71,13 +163,18 @@ node scripts/validate-all.js --json
 
 ---
 
-### 2. validate-profile.js - Single File Validation Tool
+### 4. validate-profile.js - Single File Validation Tool
 
 **Purpose**: Comprehensive validation of a single Profile, including syntax, structure, Codec functions, and test data.
 
 **Usage**:
 ```bash
+# Validate a single Profile
 node scripts/validate-profile.js profiles/Senso8/Senso8-LRS20600.yaml
+
+# Validate specific model (automatically filters test cases)
+node scripts/validate-profile.js profiles/Senso8/Senso8-LRS20100.yaml
+# Only runs test cases with model: "LRS20100" and generic test cases
 ```
 
 **Validation Items**:
@@ -100,7 +197,7 @@ node scripts/validate-profile.js profiles/xxx.yaml --json
 
 ---
 
-### 3. test-codec.js - Codec Function Testing
+### 5. test-codec.js - Codec Function Testing
 
 **Purpose**: Test Profile encode/decode functions independently.
 
@@ -258,6 +355,7 @@ Define test input data:
   "testCases": [
     {
       "name": "Test case name",
+      "model": "LRS20100",
       "fPort": 10,
       "input": "040164010000000f41dc",
       "description": "Case description (optional)"
@@ -265,6 +363,16 @@ Define test input data:
   ]
 }
 ```
+
+**Field Descriptions**:
+- `name` (Required): Test case name
+- `model` (Optional): Device model, used to filter test cases
+  - If `model` is specified, the test case will only run when validating the corresponding model Profile
+  - If `model` is not specified, the test case applies to all models
+  - Model name is automatically extracted from the Profile filename (e.g., `Senso8-LRS20100.yaml` → `LRS20100`)
+- `fPort` (Required): LoRaWAN port number
+- `input` (Required): Uplink data in hexadecimal format
+- `description` (Optional): Test case description
 
 ### 2. expected-output.json (Optional, Recommended)
 
@@ -276,6 +384,7 @@ Define expected output results for **automatic output correctness validation**:
   "testCases": [
     {
       "name": "Test case name",
+      "model": "LRS20100",
       "expectedOutput": [
         {
           "name": "Temperature",
@@ -294,6 +403,56 @@ Define expected output results for **automatic output correctness validation**:
   ]
 }
 ```
+
+**Field Descriptions**:
+- `name` (Required): Test case name, must match the name in `test-data.json`
+- `model` (Optional): Device model, should match the `model` field in `test-data.json`
+- `expectedOutput` (Required): Expected output array
+
+### 3. Multi-Model Test Case Management
+
+When multiple model Profiles exist under the same vendor directory, you can manage test cases for all models in a single `tests` directory:
+
+```
+profiles/Senso8/
+├── Senso8-LRS20100.yaml      # Temperature & Humidity Sensor
+├── Senso8-LRS20200.yaml      # Temperature Sensor
+├── Senso8-LRS20600.yaml      # Door Sensor
+└── tests/
+    ├── test-data.json
+    └── expected-output.json
+```
+
+`test-data.json` example:
+```json
+{
+  "description": "Senso8 Series Test Cases",
+  "testCases": [
+    {
+      "name": "LRS20100 Temperature & Humidity Test",
+      "model": "LRS20100",
+      "fPort": 10,
+      "input": "01016400e901ef00000000"
+    },
+    {
+      "name": "LRS20200 Temperature Test",
+      "model": "LRS20200",
+      "fPort": 10,
+      "input": "01010064000000000000"
+    },
+    {
+      "name": "Generic Battery Test",
+      "fPort": 10,
+      "input": "010164006400640000"
+    }
+  ]
+}
+```
+
+Validation behavior:
+- Validate `Senso8-LRS20100.yaml` → Only runs test cases with `model: "LRS20100"` and tests without `model` field
+- Validate `Senso8-LRS20200.yaml` → Only runs test cases with `model: "LRS20200"` and tests without `model` field
+- Validate `Senso8-LRS20600.yaml` → Only runs test cases without `model` field (generic tests)
 
 **Important Notes**:
 - ✅ `expectedOutput` is an **array** corresponding to the `data` field returned by `decodeUplink`
@@ -375,16 +534,23 @@ Validating Profile: profiles/Senso8/Senso8-LRS20600.yaml
   ✓ Pass
 
 🧪 Running test data validation...
+  Model detected: LRS20600
+  Running 2 of 5 test cases
   ✓ Pass
 
 Test result details:
-  ✓ Normal temperature data [Output matched]
-  ✓ Negative temperature data [Output matched]
+  ✓ Normal temperature data [LRS20600] [Output matched]
+  ✓ Negative temperature data [LRS20600] [Output matched]
 
 ======================================================================
 ✅ Validation passed
 ======================================================================
 ```
+
+**Description**:
+- `Model detected: LRS20600` - Model automatically extracted from filename `Senso8-LRS20600.yaml`
+- `Running 2 of 5 test cases` - Indicates 2 test cases were run out of 5 total matching this model
+- `[LRS20600]` - Displays the model this test case belongs to
 
 ### JSON Output
 

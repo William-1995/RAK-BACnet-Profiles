@@ -2,14 +2,22 @@
     "description": "测试数据集说明",
     "testCases": [
       {
-        "name": "测试用例名称1",
+        "name": "LRS20100 测试用例1",
+        "model": "LRS20100",
         "fPort": 10,
         "input": "01016400e901ef00000000"
       },
       {
-        "name": "测试用例名称2",
+        "name": "LRS20100 测试用例2",
+        "model": "LRS20100",
         "fPort": 10,
         "input": "01016400ea01ef00000000"
+      },
+      {
+        "name": "LRS20200 测试用例1",
+        "model": "LRS20200",
+        "fPort": 10,
+        "input": "01010064000000000000"
       }
     ]
   }

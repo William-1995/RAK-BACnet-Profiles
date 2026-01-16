@@ -2,7 +2,8 @@
     "description": "期望输出",
     "testCases": [
       {
-        "name": "测试用例名称1",
+        "name": "LRS20100 测试用例1",
+        "model": "LRS20100",
         "expectedOutput": [
             {
               "name": "Temperature",
@@ -55,7 +56,8 @@
           ]
       },
       {
-        "name": "测试用例名称1",
+        "name": "LRS20100 测试用例2",
+        "model": "LRS20100",
         "expectedOutput": [
             {
               "name": "Temperature",
@@ -102,6 +104,42 @@
             {
               "name": "ButtonPressed",
               "channel": 8,
+              "value": 1,
+              "unit": null
+            }
+          ]
+      },
+      {
+        "name": "LRS20200 测试用例1",
+        "model": "LRS20200",
+        "expectedOutput": [
+            {
+              "name": "Temperature",
+              "channel": 1,
+              "value": 10.0,
+              "unit": "°C"
+            },
+            {
+              "name": "Battery",
+              "channel": 2,
+              "value": 100,
+              "unit": "%"
+            },
+            {
+              "name": "LowTemperatureAlarm",
+              "channel": 3,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "HighTemperatureAlarm",
+              "channel": 4,
+              "value": 0,
+              "unit": null
+            },
+            {
+              "name": "ButtonPressed",
+              "channel": 5,
               "value": 1,
               "unit": null
             }

@@ -68,12 +68,14 @@ Obtain uplink data from real devices and create the test input file:
   "testCases": [
     {
       "name": "Normal working data",
+      "model": "LRS20100",
       "fPort": 10,
       "input": "040164010000000f41dc",
       "description": "Temperature=25°C, Humidity=60%, Battery=100%"
     },
     {
       "name": "Low temperature alert",
+      "model": "LRS20100",
       "fPort": 10,
       "input": "0801640100000000ffdc",
       "description": "Temperature=-5°C, triggers low temperature alarm"
@@ -82,10 +84,21 @@ Obtain uplink data from real devices and create the test input file:
 }
 ```
 
+**Field Descriptions**:
+- `name` (Required): Test case name
+- `model` (Optional): Device model, used to distinguish test cases for different models
+  - If `model` is specified, the test case will only run when validating the corresponding model Profile
+  - If `model` is not specified, the test case applies to all models (generic test)
+  - Model name is automatically extracted from the Profile filename (e.g., `Senso8-LRS20100.yaml` → `LRS20100`)
+- `fPort` (Required): LoRaWAN port number
+- `input` (Required): Uplink data in hexadecimal format
+- `description` (Optional): Test case description
+
 **Best Practices**:
 - ✅ Use **real device data**, do not fabricate
 - ✅ Cover main scenarios: normal, boundary, exceptional
 - ✅ Add clear descriptions explaining data meaning
+- ✅ For multi-model scenarios, use `model` field to distinguish test cases
 
 ### Step 3: Run Decode to View Actual Output
 
@@ -263,6 +276,242 @@ The validation script performs **strict deep comparison**:
 **Cause**: `expectedOutput` should be a direct array, not wrapped in a `data` object
 
 **Solution**: `expectedOutput` directly corresponds to the `data` field returned by `decodeUplink`
+
+---
+
+## 🏢 Multi-Model Test Case Management
+
+When multiple model Profiles exist under the same vendor directory, you can use the `model` field to distinguish and filter test cases.
+
+### Use Cases
+
+Suitable for situations where:
+- A vendor has multiple product models
+- Different models use the same protocol but different data formats
+- You need to manage test cases for all models in a single `tests` directory
+
+### Directory Structure Example
+
+```
+profiles/Senso8/
+├── Senso8-LRS20100.yaml      # Temperature & Humidity Sensor
+├── Senso8-LRS20200.yaml      # Temperature Sensor
+├── Senso8-LRS20310.yaml      # CO2 Sensor
+├── Senso8-LRS20600.yaml      # Door Sensor
+└── tests/
+    ├── test-data.json         # Test inputs for all models
+    └── expected-output.json   # Expected outputs for all models
+```
+
+### Configuration Example
+
+**test-data.json**:
+```json
+{
+  "description": "Senso8 Series Test Cases",
+  "testCases": [
+    {
+      "name": "LRS20100 Temperature & Humidity Test",
+      "model": "LRS20100",
+      "fPort": 10,
+      "input": "01016400e901ef00000000"
+    },
+    {
+      "name": "LRS20200 Temperature Test",
+      "model": "LRS20200",
+      "fPort": 10,
+      "input": "01010064000000000000"
+    },
+    {
+      "name": "Generic Battery Test",
+      "fPort": 10,
+      "input": "010164006400640000"
+    }
+  ]
+}
+```
+
+**expected-output.json**:
+```json
+{
+  "description": "Expected Outputs",
+  "testCases": [
+    {
+      "name": "LRS20100 Temperature & Humidity Test",
+      "model": "LRS20100",
+      "expectedOutput": [
+        {
+          "name": "Temperature",
+          "channel": 1,
+          "value": 23.3,
+          "unit": "°C"
+        },
+        {
+          "name": "Humidity",
+          "channel": 2,
+          "value": 49.5,
+          "unit": "%"
+        }
+      ]
+    },
+    {
+      "name": "LRS20200 Temperature Test",
+      "model": "LRS20200",
+      "expectedOutput": [
+        {
+          "name": "Temperature",
+          "channel": 1,
+          "value": 10.0,
+          "unit": "°C"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Validation Behavior
+
+#### Automatic Model Detection
+
+The validation script automatically extracts the model from the filename:
+
+- `Senso8-LRS20100.yaml` → Model: `LRS20100`
+- `Senso8-LRS20200.yaml` → Model: `LRS20200`
+- `Dragino-LDS02.yaml` → Model: `LDS02`
+
+#### Test Case Filtering Rules
+
+When validating a specific Profile:
+
+1. **Matching Model Tests** - Run test cases where `model` field matches the current model
+2. **Generic Tests** - Run test cases without a `model` field
+3. **Skip Other Models** - Skip test cases with `model` field for other models
+
+#### Validation Results Example
+
+Given the following test cases:
+
+```json
+{
+  "testCases": [
+    { "name": "Test A", "model": "LRS20100", ... },
+    { "name": "Test B", "model": "LRS20200", ... },
+    { "name": "Test C", ... }  // No model field
+  ]
+}
+```
+
+| Profile Being Validated | Test Cases Run |
+|------------------------|----------------|
+| `Senso8-LRS20100.yaml` | Test A, Test C |
+| `Senso8-LRS20200.yaml` | Test B, Test C |
+| `Senso8-LRS20600.yaml` | Test C |
+
+### Command Line Output
+
+```bash
+node scripts/validate-profile.js profiles/Senso8/Senso8-LRS20100.yaml
+```
+
+Output example:
+```
+🧪 Running test data validation...
+  Model detected: LRS20100
+  Running 2 of 5 test cases
+  ✓ Pass
+
+Test result details:
+  ✓ LRS20100 Temperature & Humidity Test [LRS20100] [Output matched]
+  ✓ Generic Battery Test [Output not verified]
+```
+
+**Description**:
+- `Model detected: LRS20100` - Automatically detected model
+- `Running 2 of 5 test cases` - Ran 2 tests out of 5 total
+- `[LRS20100]` - Displays the model this test case belongs to
+
+### Best Practices
+
+#### 1. Naming Convention
+
+Include model information in test case names:
+
+```json
+{
+  "name": "LRS20100 Normal Temperature & Humidity Test",
+  "model": "LRS20100",
+  ...
+}
+```
+
+#### 2. Generic Test Cases
+
+For functionality applicable to all models (like battery level, button), don't specify the `model` field:
+
+```json
+{
+  "name": "Battery Level Test",
+  // No model field, applies to all models
+  "fPort": 10,
+  "input": "..."
+}
+```
+
+#### 3. Group by Functionality
+
+```json
+{
+  "testCases": [
+    // Basic functionality tests
+    { "name": "LRS20100 Basic Data Report", "model": "LRS20100", ... },
+    { "name": "LRS20200 Basic Data Report", "model": "LRS20200", ... },
+    
+    // Alarm tests
+    { "name": "LRS20100 High Temperature Alarm", "model": "LRS20100", ... },
+    { "name": "LRS20100 Low Temperature Alarm", "model": "LRS20100", ... },
+    
+    // Generic tests
+    { "name": "Generic Battery Level Test", ... },
+    { "name": "Generic Button Test", ... }
+  ]
+}
+```
+
+### Troubleshooting
+
+#### Issue: Test cases are not being run
+
+**Cause**:
+- Typo in `model` field
+- Filename doesn't follow `Vendor-Model.yaml` format
+
+**Solution**:
+1. Check if `model` field matches the model in filename
+2. Ensure filename format is `Vendor-Model.yaml`
+
+#### Issue: All tests are skipped
+
+**Cause**:
+- All test cases have `model` specified, but none match the current model
+
+**Solution**:
+- Check the `model` field of test cases
+- Or remove `model` field to make them generic tests
+
+#### Issue: Cannot detect model
+
+Validation script outputs:
+```
+Model detected: null
+Running 5 of 5 test cases
+```
+
+**Cause**:
+- Filename doesn't follow `Vendor-Model.yaml` format
+
+**Solution**:
+- Rename file to standard format, e.g., `Senso8-LRS20100.yaml`
 
 ---
 

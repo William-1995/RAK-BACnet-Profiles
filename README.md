@@ -44,7 +44,52 @@ RAK-BACnet-Profiles/
 │   └── utils/                 # Utilities
 ├── docs/                      # Documentation
 ├── .github/                   # GitHub templates
+├── registry.json              # Profile registry 🆕
+├── registry-schema.json       # Registry schema
 └── README.md
+```
+
+## 📚 Profile Registry
+
+The project includes an auto-generated `registry.json` file that provides an index and statistics for all available Profiles.
+
+### Registry Content
+
+```json
+{
+  "version": "1.0.0",
+  "lastUpdate": "2026-01-16",
+  "totalProfiles": 19,
+  "profiles": [
+    {
+      "id": "senso8-lrs20310",
+      "vendor": "Senso8",
+      "model": "LRS20310",
+      "version": "1.0.0",
+      "path": "profiles/Senso8/Senso8-LRS20310.yaml",
+      "verified": true,
+      "hasTests": true,
+      "description": "Senso8 LRS20310 Water Leak Detection Sensor",
+      "deviceType": "Water Leak Sensor",
+      "lorawanClass": ["A"],
+      "lastUpdate": "2026-01-16"
+    }
+  ],
+  "statistics": {
+    "byVendor": { "Senso8": 9, "Dragino": 4, "Carrier": 2, ... },
+    "withTests": 10,
+    "withoutTests": 9
+  }
+}
+```
+
+### Updating the Registry
+
+After adding or modifying Profiles, run the following command to update the registry:
+
+```bash
+cd scripts
+node update-registry.js
 ```
 
 ## 📝 Profile Format

@@ -11,7 +11,99 @@ npm install
 
 ## 🛠️ 工具列表
 
-### 1. validate-all.js - 批量验证工具 ⭐
+### 1. update-registry.js - Registry 更新工具 🆕
+
+**用途**: 自动扫描 profiles 目录，生成或更新 `registry.json` 注册表文件。
+
+**使用方法**:
+```bash
+# 扫描所有 Profile 并更新 registry.json
+node scripts/update-registry.js
+```
+
+**功能特性**:
+- ✅ 自动扫描所有厂商目录下的 YAML 文件
+- ✅ 提取设备信息（厂商、型号、版本）
+- ✅ 检测测试数据是否存在
+- ✅ 自动识别设备类型
+- ✅ 生成统计信息（按厂商、设备类型分类）
+- ✅ 按厂商和型号排序
+- ✅ 生成符合 JSON Schema 的注册表
+
+**输出示例**:
+```
+🔍 Scanning profiles directory...
+✅ Found 20 profiles
+📝 Registry updated: D:\work\rak\RAK-BACnet-Profiles\registry.json
+
+📊 Statistics:
+   Total Profiles: 20
+   With Tests: 10 | Without Tests: 10
+
+📦 By Vendor:
+   Carrier: 2
+   Dragino: 4
+   Milesight: 2
+   MOKOSMART: 1
+   Sensedge: 1
+   Senso8: 9
+
+✨ Done!
+```
+
+**何时运行**:
+- ✨ 添加新的 Profile 文件后
+- ✨ 修改现有 Profile 信息后
+- ✨ 为 Profile 添加测试数据后
+- ✨ 需要更新统计信息时
+
+---
+
+### 2. validate-registry.js - Registry 验证工具
+
+**用途**: 验证 `registry.json` 是否符合 JSON Schema，并检查一致性和文件完整性。
+
+**使用方法**:
+```bash
+# 验证 registry.json
+node scripts/validate-registry.js
+```
+
+**验证内容**:
+- ✅ JSON 格式合法性
+- ✅ Schema 合规性（符合 registry-schema.json）
+- ✅ 数据一致性（统计数字与实际匹配）
+- ✅ 文件路径有效性（所有引用的文件存在）
+
+**输出示例**:
+```
+🔍 Validating registry.json...
+
+✅ Registry JSON parsed successfully
+✅ Schema JSON parsed successfully
+
+✅ Registry validation PASSED
+
+📊 Registry Statistics:
+   Version: 1.0.0
+   Last Update: 2026-01-16
+   Total Profiles: 19
+   With Tests: 10 | Without Tests: 9
+
+🔍 Checking consistency...
+✅ Profile count is consistent
+✅ Vendor statistics are consistent
+✅ Test data statistics are consistent
+
+🔍 Checking file paths...
+✅ All profile files exist
+
+✨ Validation complete!
+```
+
+---
+
+### 3. validate-all.js - 批量验证工具 ⭐
 
 **用途**: 一次验证所有 Profile 文件，快速检查整个项目（不包含测试数据验证）。
 
@@ -71,13 +163,18 @@ node scripts/validate-all.js --json
 
 ---
 
-### 2. validate-profile.js - 单文件验证工具
+### 4. validate-profile.js - 单文件验证工具
 
 **用途**: 对单个 Profile 进行全面验证，包括语法、结构、Codec 函数和测试数据。
 
 **使用方法**:
 ```bash
+# 验证单个 Profile
 node scripts/validate-profile.js profiles/Senso8/Senso8-LRS20600.yaml
+
+# 验证特定型号（自动过滤测试用例）
+node scripts/validate-profile.js profiles/Senso8/Senso8-LRS20100.yaml
+# 只会运行 model: "LRS20100" 和通用测试用例
 ```
 
 **验证项目**:
@@ -100,7 +197,7 @@ node scripts/validate-profile.js profiles/xxx.yaml --json
 
 ---
 
-### 3. test-codec.js - Codec 函数测试
+### 5. test-codec.js - Codec 函数测试
 
 **用途**: 单独测试 Profile 的编解码函数。
 
@@ -258,6 +355,7 @@ profiles/Vendor/
   "testCases": [
     {
       "name": "测试用例名称",
+      "model": "LRS20100",
       "fPort": 10,
       "input": "040164010000000f41dc",
       "description": "用例说明（可选）"
@@ -265,6 +363,16 @@ profiles/Vendor/
   ]
 }
 ```
+
+**字段说明**：
+- `name` (必需): 测试用例名称
+- `model` (可选): 设备型号，用于过滤测试用例
+  - 如果指定了 `model`，则只有在验证对应型号的 Profile 时才会运行该测试用例
+  - 如果不指定 `model`，则该测试用例适用于所有型号
+  - 型号名称会从 Profile 文件名中自动提取（如 `Senso8-LRS20100.yaml` → `LRS20100`）
+- `fPort` (必需): LoRaWAN 端口号
+- `input` (必需): 十六进制格式的上行数据
+- `description` (可选): 测试用例描述
 
 ### 2. expected-output.json（可选，推荐）
 
@@ -276,6 +384,7 @@ profiles/Vendor/
   "testCases": [
     {
       "name": "测试用例名称",
+      "model": "LRS20100",
       "expectedOutput": [
         {
           "name": "Temperature",
@@ -294,6 +403,56 @@ profiles/Vendor/
   ]
 }
 ```
+
+**字段说明**：
+- `name` (必需): 测试用例名称，必须与 `test-data.json` 中的名称匹配
+- `model` (可选): 设备型号，应与 `test-data.json` 中的 `model` 字段保持一致
+- `expectedOutput` (必需): 期望输出数组
+
+### 3. 多型号测试用例管理
+
+当同一厂商目录下有多个型号的 Profile 时，可以在同一个 `tests` 目录中管理所有型号的测试用例：
+
+```
+profiles/Senso8/
+├── Senso8-LRS20100.yaml      # 温湿度传感器
+├── Senso8-LRS20200.yaml      # 温度传感器
+├── Senso8-LRS20600.yaml      # 门磁传感器
+└── tests/
+    ├── test-data.json
+    └── expected-output.json
+```
+
+`test-data.json` 示例：
+```json
+{
+  "description": "Senso8 系列测试用例",
+  "testCases": [
+    {
+      "name": "LRS20100 温湿度测试",
+      "model": "LRS20100",
+      "fPort": 10,
+      "input": "01016400e901ef00000000"
+    },
+    {
+      "name": "LRS20200 温度测试",
+      "model": "LRS20200",
+      "fPort": 10,
+      "input": "01010064000000000000"
+    },
+    {
+      "name": "通用电池测试",
+      "fPort": 10,
+      "input": "010164006400640000"
+    }
+  ]
+}
+```
+
+验证行为：
+- 验证 `Senso8-LRS20100.yaml` → 只运行 `model: "LRS20100"` 和没有 `model` 字段的测试用例
+- 验证 `Senso8-LRS20200.yaml` → 只运行 `model: "LRS20200"` 和没有 `model` 字段的测试用例
+- 验证 `Senso8-LRS20600.yaml` → 只运行没有 `model` 字段的测试用例（通用测试）
 
 **重要说明**:
 - ✅ `expectedOutput` 是一个**数组**，对应 `decodeUplink` 返回的 `data` 字段
@@ -375,16 +534,23 @@ done
   ✓ 通过
 
 🧪 运行测试数据验证...
+  Model detected: LRS20600
+  Running 2 of 5 test cases
   ✓ 通过
 
 测试结果详情:
-  ✓ 正常温度数据 [输出匹配]
-  ✓ 负温度数据 [输出匹配]
+  ✓ 正常温度数据 [LRS20600] [输出匹配]
+  ✓ 负温度数据 [LRS20600] [输出匹配]
 
 ======================================================================
 ✅ 验证通过
 ======================================================================
 ```
+
+**说明**：
+- `Model detected: LRS20600` - 从文件名 `Senso8-LRS20600.yaml` 中自动提取型号
+- `Running 2 of 5 test cases` - 表示总共有5个测试用例，但只运行了2个匹配该型号的用例
+- `[LRS20600]` - 显示该测试用例所属的型号
 
 ### JSON 输出
 
