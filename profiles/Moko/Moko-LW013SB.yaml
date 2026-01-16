@@ -2,7 +2,6 @@
 # Device: LW013-SB Smart Button with multiple event types
 # Vendor: MOKOSMART
 
-# ==================== Codec 编解码函数 ====================
 codec: |
   function Decode(fPort, data, variables) {
     var values = [];
@@ -158,7 +157,6 @@ codec: |
     };
   }
 
-# ==================== BACnet 对象映射 ====================
 datatype:
   # Common fields (all message types)
   "1":
@@ -283,7 +281,6 @@ datatype:
     name: Battery Percent
     type: AnalogInputObject
 
-# ==================== LoRaWAN 配置 ====================
 lorawan:
   adrAlgorithm: LoRa Only
   classCDownlinkTimeout: 5
@@ -293,7 +290,6 @@ lorawan:
   supportClassC: false
   supportOTAA: true
 
-# ==================== 设备信息 ====================
 model: Moko-LW013SB
 profileVersion: 1.0.0
 name: LW013-SB
