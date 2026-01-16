@@ -1,0 +1,300 @@
+# Moko LW013-SB Smart Button LoRaWAN Profile
+# Device: LW013-SB Smart Button with multiple event types
+# Vendor: MOKOSMART
+
+# ==================== Codec 编解码函数 ====================
+codec: |
+  function Decode(fPort, data, variables) {
+    var values = [];
+    
+    function getUint32BE(bytes, start) {
+      return (bytes[start] << 24) | (bytes[start+1] << 16) | (bytes[start+2] << 8) | bytes[start+3];
+    }
+    
+    function getInt8(bytes, pos) {
+      var v = bytes[pos];
+      return (v & 0x80) ? v - 256 : v;
+    }
+    
+    function getUint16BE(bytes, pos) {
+      return (bytes[pos] << 8) | bytes[pos+1];
+    }
+    
+    function parseFirmwareVersion(byte) {
+      return {
+        major: (byte >> 6) & 0x03,
+        minor: (byte >> 4) & 0x03,
+        patch: byte & 0x0F
+      };
+    }
+    
+    function parseHardwareVersion(byte) {
+      return {
+        major: (byte >> 4) & 0x0F,
+        patch: byte & 0x0F
+      };
+    }
+    
+    // Common fields for fPort 1-5
+    if (fPort >= 1 && fPort <= 5) {
+      if (data.length < 8) {
+        return values;
+      }
+      
+      // Timestamp (4 bytes, UNIX epoch seconds)
+      var timestamp = getUint32BE(data, 0);
+      
+      // Timezone (1 byte, signed)
+      var timezone = getInt8(data, 4);
+      
+      // Temperature (1 byte, signed, degrees Celsius)
+      var temperature = getInt8(data, 5);
+      
+      // Voltage (2 bytes, millivolts)
+      var voltage = getUint16BE(data, 6);
+      
+      values.push({ name: "Timestamp", channel: 1, value: timestamp, unit: null });
+      values.push({ name: "Timezone", channel: 2, value: timezone, unit: null });
+      values.push({ name: "Temperature", channel: 3, value: temperature, unit: '°C' });
+      values.push({ name: "Voltage", channel: 4, value: voltage, unit: 'mV' });
+      
+      // fPort 1: Heartbeat
+      if (fPort == 1 && data.length >= 11) {
+        var fwByte = data[8];
+        var hwByte = data[9];
+        var eventType = data[10];
+        
+        var fw = parseFirmwareVersion(fwByte);
+        var hw = parseHardwareVersion(hwByte);
+        
+        values.push({ name: "FirmwareMajor", channel: 5, value: fw.major, unit: null });
+        values.push({ name: "FirmwareMinor", channel: 6, value: fw.minor, unit: null });
+        values.push({ name: "FirmwarePatch", channel: 7, value: fw.patch, unit: null });
+        values.push({ name: "HardwareMajor", channel: 8, value: hw.major, unit: null });
+        values.push({ name: "HardwarePatch", channel: 9, value: hw.patch, unit: null });
+        values.push({ name: "EventType", channel: 10, value: eventType, unit: null });
+      }
+      
+      // fPort 2: Alarm
+      if (fPort == 2 && data.length >= 9) {
+        var eventType = data[8];
+        values.push({ name: "EventType", channel: 10, value: eventType, unit: null });
+      }
+
+      // fPort 3: Low Power
+      if (fPort == 3 && data.length >= 9) {
+        var batteryPercent = data[8];
+        values.push({ name: "BatteryPercent", channel: 28, value: batteryPercent, unit: null });
+      }
+      
+      
+      // fPort 4: Shutdown
+      if (fPort == 4 && data.length >= 9) {
+        var shutdownType = data[8];
+        values.push({ name: "ShutdownType", channel: 11, value: shutdownType, unit: null });
+      }
+
+      // fPort 5: Event (Downlink triggered)
+      if (fPort == 4 && data.length >= 9) {
+        var eventType = data[8];
+        values.push({ name: "EventType", channel: 29, value: eventType, unit: null });
+      }
+    }
+    
+    // fPort 6: Power Consumption Statistics
+    if (fPort == 6 && data.length >= 64) {
+      var deviceWorkTime = getUint32BE(data, 0);
+      var bleBroadcastTimes = getUint32BE(data, 4);
+      var ledRedTime = getUint32BE(data, 8);
+      var ledGreenTime = getUint32BE(data, 12);
+      var ledBlueTime = getUint32BE(data, 16);
+      var buzzerNormalTime = getUint32BE(data, 20);
+      var buzzerAlarmTime = getUint32BE(data, 24);
+      var event1TriggerTimes = getUint32BE(data, 28);
+      var event1ReportTimes = getUint32BE(data, 32);
+      var event2TriggerTimes = getUint32BE(data, 36);
+      var event2ReportTimes = getUint32BE(data, 40);
+      var event3TriggerTimes = getUint32BE(data, 44);
+      var event3ReportTimes = getUint32BE(data, 48);
+      var loraSendTimes = getUint32BE(data, 52);
+      var loraPower = getUint32BE(data, 56);
+      var batteryConsumption = getUint32BE(data, 60);
+      
+      values.push({ name: "DeviceWorkTime", channel: 12, value: deviceWorkTime, unit: 's' });
+      values.push({ name: "BLEBroadcastTimes", channel: 13, value: bleBroadcastTimes, unit: null });
+      values.push({ name: "LEDRedTime", channel: 14, value: ledRedTime, unit: 's' });
+      values.push({ name: "LEDGreenTime", channel: 15, value: ledGreenTime, unit: 's' });
+      values.push({ name: "LEDBlueTime", channel: 16, value: ledBlueTime, unit: 's' });
+      values.push({ name: "BuzzerNormalTime", channel: 17, value: buzzerNormalTime, unit: 's' });
+      values.push({ name: "BuzzerAlarmTime", channel: 18, value: buzzerAlarmTime, unit: 's' });
+      values.push({ name: "Event1TriggerTimes", channel: 19, value: event1TriggerTimes, unit: null });
+      values.push({ name: "Event1ReportTimes", channel: 20, value: event1ReportTimes, unit: null });
+      values.push({ name: "Event2TriggerTimes", channel: 21, value: event2TriggerTimes, unit: null });
+      values.push({ name: "Event2ReportTimes", channel: 22, value: event2ReportTimes, unit: null });
+      values.push({ name: "Event3TriggerTimes", channel: 23, value: event3TriggerTimes, unit: null });
+      values.push({ name: "Event3ReportTimes", channel: 24, value: event3ReportTimes, unit: null });
+      values.push({ name: "LoRaSendTimes", channel: 25, value: loraSendTimes, unit: null });
+      values.push({ name: "LoRaPower", channel: 26, value: loraPower, unit: null });
+      values.push({ name: "BatteryConsumption", channel: 27, value: batteryConsumption, unit: null });
+    }
+    
+    return values;
+  }
+
+  function Encode(data, variables) {
+    var bytes = [];
+    return bytes;
+  }
+
+  function decodeUplink(input) {
+    return {
+      data: Decode(input.fPort, input.bytes, input.variables)
+    };
+  }
+
+  function encodeDownlink(input) {
+    return {
+      bytes: Encode(input.data, input.variables)
+    };
+  }
+
+# ==================== BACnet 对象映射 ====================
+datatype:
+  # Common fields (all message types)
+  "1":
+    name: Timestamp
+    type: AnalogInputObject
+    
+  "2":
+    name: Timezone
+    type: AnalogInputObject
+    
+  "3":
+    name: Temperature
+    type: AnalogInputObject
+    units: degreesCelsius
+    
+  "4":
+    name: Voltage
+    type: AnalogInputObject
+    units: millivolts
+    
+  # Heartbeat specific fields (fPort 1)
+  "5":
+    name: Firmware Major Version
+    type: AnalogInputObject
+    
+  "6":
+    name: Firmware Minor Version
+    type: AnalogInputObject
+    
+  "7":
+    name: Firmware Patch Version
+    type: AnalogInputObject
+    
+  "8":
+    name: Hardware Major Version
+    type: AnalogInputObject
+    
+  "9":
+    name: Hardware Patch Version
+    type: AnalogInputObject
+    
+  "10":
+    name: Event Type
+    type: AnalogInputObject
+    
+  # Shutdown specific fields (fPort 4)
+  "11":
+    name: Shutdown Type
+    type: AnalogInputObject
+    
+  # Power Consumption Statistics (fPort 6)
+  "12":
+    name: Device Work Time
+    type: AnalogInputObject
+    units: seconds
+    
+  "13":
+    name: BLE Broadcast Times
+    type: AnalogInputObject
+    
+  "14":
+    name: LED Red Time
+    type: AnalogInputObject
+    units: seconds
+    
+  "15":
+    name: LED Green Time
+    type: AnalogInputObject
+    units: seconds
+    
+  "16":
+    name: LED Blue Time
+    type: AnalogInputObject
+    units: seconds
+    
+  "17":
+    name: Buzzer Normal Time
+    type: AnalogInputObject
+    units: seconds
+    
+  "18":
+    name: Buzzer Alarm Time
+    type: AnalogInputObject
+    units: seconds
+    
+  "19":
+    name: Event 1 Trigger Times
+    type: AnalogInputObject
+    
+  "20":
+    name: Event 1 Report Times
+    type: AnalogInputObject
+    
+  "21":
+    name: Event 2 Trigger Times
+    type: AnalogInputObject
+    
+  "22":
+    name: Event 2 Report Times
+    type: AnalogInputObject
+    
+  "23":
+    name: Event 3 Trigger Times
+    type: AnalogInputObject
+    
+  "24":
+    name: Event 3 Report Times
+    type: AnalogInputObject
+    
+  "25":
+    name: LoRa Send Times
+    type: AnalogInputObject
+    
+  "26":
+    name: LoRa Power
+    type: AnalogInputObject
+    
+  "27":
+    name: Battery Consumption
+    type: AnalogInputObject
+  "28":
+    name: Battery Percent
+    type: AnalogInputObject
+
+# ==================== LoRaWAN 配置 ====================
+lorawan:
+  adrAlgorithm: LoRa Only
+  classCDownlinkTimeout: 5
+  macVersion: LORAWAN_1_0_3
+  regionalParametersRevision: A
+  supportClassB: false
+  supportClassC: false
+  supportOTAA: true
+
+# ==================== 设备信息 ====================
+model: Moko-LW013SB
+profileVersion: 1.0.0
+name: LW013-SB
+vendor: MOKOSMART

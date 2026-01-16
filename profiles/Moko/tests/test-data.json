@@ -1,0 +1,23 @@
+{
+  "description": "Moko LW013-SB Smart Button 测试数据集",
+  "testCases": [
+    {
+      "name": "LW013SB Heartbeat message with event type 0",
+      "model": "LW013SB",
+      "fPort": 1,
+      "input": "6968977710190dbe450200"
+    },
+    {
+      "name": "LW013SB Alarm message with event type 1",
+      "model": "LW013SB",
+      "fPort": 2,
+      "input": "6968ae8010180dbc01"
+    },
+    {
+      "name": "LW013SB Alarm message with event type 1 (second sample)",
+      "model": "LW013SB",
+      "fPort": 2,
+      "input": "696897a810190dd401"
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "description": "Moko LW013-SB Smart Button 期望输出",
+  "testCases": [
+    {
+      "name": "LW013SB Heartbeat message with event type 0",
+      "model": "LW013SB",
+      "expectedOutput": [
+        {
+          "name": "Timestamp",
+          "channel": 1,
+          "value": 1768462199,
+          "unit": null
+        },
+        {
+          "name": "Timezone",
+          "channel": 2,
+          "value": 16,
+          "unit": null
+        },
+        {
+          "name": "Temperature",
+          "channel": 3,
+          "value": 25,
+          "unit": "°C"
+        },
+        {
+          "name": "Voltage",
+          "channel": 4,
+          "value": 3518,
+          "unit": "mV"
+        },
+        {
+          "name": "FirmwareMajor",
+          "channel": 5,
+          "value": 1,
+          "unit": null
+        },
+        {
+          "name": "FirmwareMinor",
+          "channel": 6,
+          "value": 0,
+          "unit": null
+        },
+        {
+          "name": "FirmwarePatch",
+          "channel": 7,
+          "value": 5,
+          "unit": null
+        },
+        {
+          "name": "HardwareMajor",
+          "channel": 8,
+          "value": 0,
+          "unit": null
+        },
+        {
+          "name": "HardwarePatch",
+          "channel": 9,
+          "value": 2,
+          "unit": null
+        },
+        {
+          "name": "EventType",
+          "channel": 10,
+          "value": 0,
+          "unit": null
+        }
+      ]
+    },
+    {
+      "name": "LW013SB Alarm message with event type 1",
+      "model": "LW013SB",
+      "expectedOutput": [
+        {
+          "name": "Timestamp",
+          "channel": 1,
+          "value": 1768468096,
+          "unit": null
+        },
+        {
+          "name": "Timezone",
+          "channel": 2,
+          "value": 16,
+          "unit": null
+        },
+        {
+          "name": "Temperature",
+          "channel": 3,
+          "value": 24,
+          "unit": "°C"
+        },
+        {
+          "name": "Voltage",
+          "channel": 4,
+          "value": 3516,
+          "unit": "mV"
+        },
+        {
+          "name": "EventType",
+          "channel": 10,
+          "value": 1,
+          "unit": null
+        }
+      ]
+    },
+    {
+      "name": "LW013SB Alarm message with event type 1 (second sample)",
+      "model": "LW013SB",
+      "expectedOutput": [
+        {
+          "name": "Timestamp",
+          "channel": 1,
+          "value": 1768462248,
+          "unit": null
+        },
+        {
+          "name": "Timezone",
+          "channel": 2,
+          "value": 16,
+          "unit": null
+        },
+        {
+          "name": "Temperature",
+          "channel": 3,
+          "value": 25,
+          "unit": "°C"
+        },
+        {
+          "name": "Voltage",
+          "channel": 4,
+          "value": 3540,
+          "unit": "mV"
+        },
+        {
+          "name": "EventType",
+          "channel": 10,
+          "value": 1,
+          "unit": null
+        }
+      ]
+    }
+  ]
+}
