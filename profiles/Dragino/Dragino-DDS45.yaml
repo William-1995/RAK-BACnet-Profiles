@@ -18,7 +18,7 @@ codec: |
         distanceValue = distanceRaw;
       }
 
-      values.push({ name: "BatteryVoltage", channel: 1, value: batteryRaw / 1000 });
+      values.push({ name: "BatteryVoltage", channel: 1, value: batteryRaw });
       values.push({ name: "Distance", channel: 2, value: distanceValue});
       values.push({ name: "InterruptPin", channel: 3, value: interruptPin });
       values.push({ name: "SensorFlag", channel: 4, value: sensorFlag });
@@ -48,7 +48,7 @@ datatype:
   "1":
     name: Battery Voltage
     type: AnalogInputObject
-    units: volts
+    units: millivolts
 
   "2":
     name: Distance

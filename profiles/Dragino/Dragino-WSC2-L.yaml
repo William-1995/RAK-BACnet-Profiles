@@ -14,7 +14,7 @@ codec: |
         0x01, 0x20, 0x20, 0x20, 0x01];
       
       // Battery Voltage
-      var batV = ((bytes[0] << 8 | bytes[1]) & 0x3FFF) / 1000;
+      var batV = ((bytes[0] << 8 | bytes[1]) & 0x3FFF);
       values.push({ name: "BatteryVoltage", channel: 1, value: batV });
       
       // Temperature DS18B20
@@ -142,7 +142,7 @@ datatype:
   "1":
     name: Battery Voltage
     type: AnalogInputObject
-    units: volts
+    units: millivolts
   "2":
     name: Temperature
     type: AnalogInputObject
