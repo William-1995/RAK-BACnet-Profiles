@@ -78,6 +78,25 @@ body:
     validations:
       required: true
       
+  - type: textarea
+    id: decode-function
+    attributes:
+      label: Decode Function (Optional)
+      description: |
+        If you have a payload decoding function, providing it can significantly speed up profile creation.
+        Supported formats: JavaScript, Python, or any other language with clear logic.
+      placeholder: |
+        function decodeUplink(input) {
+          var bytes = input.bytes;
+          var data = {};
+          data.temperature = (bytes[0] << 8 | bytes[1]) / 100;
+          data.humidity = (bytes[2] << 8 | bytes[3]) / 100;
+          data.battery = bytes[4];
+          return { data: data };
+        }
+      render: code
+    validations:
+      required: false
 
   - type: textarea
     id: bacnet-mapping

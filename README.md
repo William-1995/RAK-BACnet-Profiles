@@ -1,4 +1,4 @@
-# RAK BACnet Profiles
+# RAK7437 BACnet Profiles
 
 [English](README.md) | [中文](README.zh-CN.md)
 

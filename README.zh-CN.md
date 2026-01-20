@@ -1,4 +1,4 @@
-# RAK BACnet 配置文件
+# RAK7437 BACnet 配置文件
 
 [English](README.md) | [中文](README.zh-CN.md)
 
