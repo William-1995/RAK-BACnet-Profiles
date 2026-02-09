@@ -44,7 +44,7 @@ datatype:
     units: millivolts
   "2":
     name: Door Status
-    type: AnalogInputObject
+    type: BinaryInputObject
   "3":
     name: Total Door Open Events
     type: AnalogInputObject
@@ -54,7 +54,7 @@ datatype:
     units: minutes
   "5":
     name: Alarm Status
-    type: AnalogInputObject
+    type: BinaryInputObject
 
 lorawan:
   adrAlgorithm: LoRa Only # Optional Default: LoRa Only

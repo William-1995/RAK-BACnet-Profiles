@@ -266,7 +266,7 @@ datatype:
   # Channel 6: PIR (Passive Infrared Sensor)
   "6":
     name: PIR
-    type: AnalogInputObject
+    type: BinaryInputObject
 
   # Channel 7: Red Light
   "7":

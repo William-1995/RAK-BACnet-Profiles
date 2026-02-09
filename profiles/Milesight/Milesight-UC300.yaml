@@ -85,7 +85,7 @@ codec: |
 datatype:
   "1":
     name: Occupancy
-    type: AnalogInputObject
+    type: BinaryInputObject
     # 00: Vacant; 01: Occupied
   "2":
     name: Fall
@@ -93,7 +93,7 @@ datatype:
     # 00: Normal; 01: Fall
   "3":
     name: EVT
-    type: AnalogInputObject
+    type: BinaryInputObject
     # 0x00: No Sensor; 0x01: Detect Sensor
 
 lorawan:

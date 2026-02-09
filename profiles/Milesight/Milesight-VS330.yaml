@@ -50,7 +50,7 @@ datatype:
     channel: 2
   "3":
     name: Occupancy Status
-    type: AnalogInputObject
+    type: BinaryInputObject
     channel: 3
 
 lorawan:
