@@ -56,10 +56,10 @@ datatype:
     units: millimeters
   "3":
     name: Interrupt Pin
-    type: AnalogInputObject
+    type: BinaryInputObject
   "4":
     name: Sensor Flag
-    type: AnalogInputObject
+    type: BinaryInputObject
 
 lorawan:
   adrAlgorithm: LoRa Only # Optional Default: LoRa Only
