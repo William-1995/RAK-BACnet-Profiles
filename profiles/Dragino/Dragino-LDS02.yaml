@@ -10,11 +10,11 @@ codec: |
       var lastOpenDuration = (data[6] << 16) | (data[7] << 8) | data[8];
       var alarmStatus = data[9] & 0x01; 
       
-      values.push({ name: "BatteryVoltage", channel: 1, value: batteryVoltage });
-      values.push({ name: "DoorStatus", channel: 2, value: doorStatus });
-      values.push({ name: "TotalDoorOpenEvents", channel: 3, value: totalOpenEvents });
-      values.push({ name: "LastDoorOpenDuration", channel: 4, value: lastOpenDuration });
-      values.push({ name: "AlarmStatus", channel: 5, value: alarmStatus });
+      values.push({ name: "BatteryVoltage", channel: 1, value: batteryVoltage, unit: "mV" });
+      values.push({ name: "DoorStatus", channel: 2, value: doorStatus, unit: null });
+      values.push({ name: "TotalDoorOpenEvents", channel: 3, value: totalOpenEvents, unit: null });
+      values.push({ name: "LastDoorOpenDuration", channel: 4, value: lastOpenDuration, unit: "minutes" });
+      values.push({ name: "AlarmStatus", channel: 5, value: alarmStatus, unit: null });
     }
     
     return values;

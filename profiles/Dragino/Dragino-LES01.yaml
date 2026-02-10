@@ -25,10 +25,10 @@ codec: |
     var soilTemperature = sign ? (tempRaw - 0xFFFF) / 100 : tempRaw / 100;
     var ecRaw = (bytes[8] << 8) | bytes[9];
 
-    values.push({ name: "BatteryVoltage", channel: 1, value: battery });
-    values.push({ name: "SoilMoisture", channel: 2, value: soilMoisture });
-    values.push({ name: "SoilTemperature", channel: 3, value: soilTemperature });
-    values.push({ name: "SoilConductivity", channel: 4, value: ecRaw });
+    values.push({ name: "BatteryVoltage", channel: 1, value: battery, unit: "mV" });
+    values.push({ name: "SoilMoisture", channel: 2, value: soilMoisture, unit: "%" });
+    values.push({ name: "SoilTemperature", channel: 3, value: soilTemperature, unit: "°C" });
+    values.push({ name: "SoilConductivity", channel: 4, value: ecRaw, unit: null });
     return values;
   }
 

@@ -54,13 +54,13 @@ codec: |
     
     // Map to BACnet objects
     // OCCUPANCY: 00:Vacant; 01:Occupied
-    values.push({ name: "OCCUPANCY", channel: 1, value: occupied ? 1 : 0 });
+    values.push({ name: "OCCUPANCY", channel: 1, value: occupied ? 1 : 0, unit: null });
     
     // FALL: 00:Normal; 01:Fall
-    values.push({ name: "FALL", channel: 2, value: fall ? 1 : 0 });
+    values.push({ name: "FALL", channel: 2, value: fall ? 1 : 0, unit: null });
     
     // EVT: Sensor Flag (0x00: No Sensor; 0x01: Detect Sensor)
-    values.push({ name: "EVT", channel: 3, value: evt });
+    values.push({ name: "EVT", channel: 3, value: evt, unit: null });
     
     return values;
   }

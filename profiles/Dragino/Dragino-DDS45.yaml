@@ -18,10 +18,10 @@ codec: |
         distanceValue = distanceRaw;
       }
 
-      values.push({ name: "BatteryVoltage", channel: 1, value: batteryRaw });
-      values.push({ name: "Distance", channel: 2, value: distanceValue});
-      values.push({ name: "InterruptPin", channel: 3, value: interruptPin });
-      values.push({ name: "SensorFlag", channel: 4, value: sensorFlag });
+      values.push({ name: "BatteryVoltage", channel: 1, value: batteryRaw, unit: "mV" });
+      values.push({ name: "Distance", channel: 2, value: distanceValue, unit: "mm" });
+      values.push({ name: "InterruptPin", channel: 3, value: interruptPin, unit: null });
+      values.push({ name: "SensorFlag", channel: 4, value: sensorFlag, unit: null });
     }
     
     return values;

@@ -15,28 +15,28 @@ codec: |
       
       // Battery Voltage
       var batV = ((bytes[0] << 8 | bytes[1]) & 0x3FFF);
-      values.push({ name: "BatteryVoltage", channel: 1, value: batV });
+      values.push({ name: "BatteryVoltage", channel: 1, value: batV, unit: "mV" });
       
       // Temperature DS18B20
       var tempValue = bytes[7] << 8 | bytes[8];
       if (bytes[7] & 0x80) { tempValue |= 0xFFFF0000; }
       var temp_DS18B20 = parseFloat((tempValue / 10).toFixed(2));
-      values.push({ name: "Temperature", channel: 2, value: temp_DS18B20 });
+      values.push({ name: "Temperature", channel: 2, value: temp_DS18B20, unit: "°C" });
       
       var i = 11;
       // Humidity and Pressure (only when payload version == 1)
       if (bytes[2] == 1) {
         // Humidity
         var humidity = ((bytes[23] << 8 | bytes[24]) / 10);
-        values.push({ name: "Humidity", channel: 3, value: parseFloat(humidity.toFixed(1)) });
+        values.push({ name: "Humidity", channel: 3, value: parseFloat(humidity.toFixed(1)), unit: "%" });
         
         // Pressure
         var pressure = ((bytes[33] << 8 | bytes[34]) / 10);
-        values.push({ name: "Pressure", channel: 4, value: parseFloat(pressure.toFixed(1)) });
+        values.push({ name: "Pressure", channel: 4, value: parseFloat(pressure.toFixed(1)), unit: "kPa" });
 
         // Temperature
         var temperature = ((bytes[25] << 8 | bytes[26]) / 10);
-        values.push({ name: "Temperature", channel: 5, value: parseFloat(temperature.toFixed(1)) });
+        values.push({ name: "Temperature", channel: 5, value: parseFloat(temperature.toFixed(1)), unit: "°C" });
         
         i = 39;
       }
@@ -99,7 +99,7 @@ codec: |
             
             // If not found, push new value
             if (!found) {
-              values.push({ name: sensorName, channel: channelNum, value: finalValue });
+              values.push({ name: sensorName, channel: channelNum, value: finalValue, unit: null });
             }
           }
           

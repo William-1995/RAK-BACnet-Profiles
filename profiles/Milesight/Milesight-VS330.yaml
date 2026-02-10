@@ -4,17 +4,17 @@ codec: |
 
     if (data.length >= 3 && data[0] === 0x01 && data[1] === 0x75) {
       var batteryLevel = data[2] & 0xff;
-      values.push({ name: "BatteryLevel", channel: 1, value: batteryLevel });
+      values.push({ name: "BatteryLevel", channel: 1, value: batteryLevel, unit: "%" });
     }
     
     if (data.length >= 6 && data[3] === 0x02 && data[4] === 0x82) {
       var distance = ((data[6] << 8) | data[5]) & 0xffff;
-      values.push({ name: "Distance", channel: 2, value: distance});
+      values.push({ name: "Distance", channel: 2, value: distance, unit: "mm" });
     }
     
     if (data.length >= 9 && data[7] === 0x03 && data[8] === 0x8e) {
       var occupancyStatus = data[9];
-      values.push({ name: "OccupancyStatus", channel: 3, value: occupancyStatus });
+      values.push({ name: "OccupancyStatus", channel: 3, value: occupancyStatus, unit: null });
     }
     
     return values;
