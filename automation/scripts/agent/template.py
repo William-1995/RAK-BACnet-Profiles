@@ -210,9 +210,34 @@ def extract_hex_bytes(text: str) -> str:
     Raises:
         ValueError: If no hex byte sequence found in text.
     """
-    match = re.search(r"([0-9a-fA-F]{2}(?:\s+[0-9a-fA-F]{2})+)", text or "")
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    logger.info(
+        f"Extracting hex from text (first 200 chars): {repr(text[:200] if text else '')}"
+    )
+
+    # Clean text by removing markdown code block markers (```) and language identifiers
+    # This allows users to put hex data in code blocks for better formatting
+    clean_text = re.sub(r"```[\w]*\n?", "", text or "")
+    clean_text = re.sub(r"```", "", clean_text)  # Remove closing code block marker
+
+    # Replace newlines with spaces to handle multiline code blocks
+    # This allows hex data spread across multiple lines to be matched as one sequence
+    clean_text = re.sub(r"\n+", " ", clean_text)
+
+    logger.info(f"After cleaning (first 200 chars): {repr(clean_text[:200])}")
+
+    # Match hex byte sequences: two hex chars optionally followed by more space-separated hex chars
+    # Example: "01 64 00 C8" or "01 01 64 00 e9 01 ef"
+    # The \s+ matches spaces, tabs, and newlines (after we converted them to spaces)
+    match = re.search(r"([0-9a-fA-F]{2}(?:\s+[0-9a-fA-F]{2})+)", clean_text)
     if match:
+        logger.info(f"Found hex sequence: {match.group(1)}")
         return match.group(1)
+
+    logger.error(f"No hex sequence found in cleaned text: {repr(clean_text[:500])}")
     raise ValueError(
         "No hex byte sequence found in issue text. Please provide example uplink data like '01 64 00 C8'"
     )
