@@ -78,6 +78,8 @@ def _run_workflow(
 ) -> dict:
     """Execute the workflow."""
     issue_body = Path(issue_body_file).read_text(encoding="utf-8")
+    logger.info(f"[_run_workflow] Read issue body: {len(issue_body)} chars")
+    logger.info(f"[_run_workflow] FULL issue_body:\n{issue_body}\n{'=' * 50}")
     initial_state = _create_initial_state(issue_body, issue_number)
 
     node_functions = {
@@ -99,6 +101,8 @@ def _run_workflow(
 
 def _create_initial_state(issue_body: str, issue_number: int) -> dict:
     """Create initial workflow state."""
+    logger.info(f"[_create_initial_state] issue_body length: {len(issue_body)}")
+    logger.info(f"[_create_initial_state] issue_number: {issue_number}")
     return {
         "issue_body": issue_body,
         "issue_number": issue_number,
