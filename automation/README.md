@@ -27,21 +27,39 @@ pip install -r requirements.txt
 
 ### Run Locally
 
+For local development and testing, use the provided test file:
+
 ```bash
 python scripts/run-agent.py \
   --issue-body-file test/test-issue-body.txt \
-  --issue-number 1
+  --issue-number 999
 ```
+
+**Local Testing:**
+- Uses `test/test-issue-body.txt` as input (sample device profile request)
+- Issue number can be any value (e.g., `999`) for local testing
+- Results saved to `temp/run-{issue-number}-{timestamp}/`
+- **Purpose**: Develop and debug without creating real GitHub Issues
 
 **Parameters:**
 - `--issue-body-file`: Path to the file containing the GitHub Issue body
-- `--issue-number`: GitHub Issue number (used for:
-  - Creating unique temp directory: `temp/run-{issue-number}-{timestamp}/`
-  - Naming result files: `agent-result-{issue-number}.json`
-  - Logging: identifying which issue this run is for
-  - Example: `1`, `42`, `999` - any unique number works for local testing)
+- `--issue-number`: Identifier for this run (used in logs and output files)
 
 ## GitHub Actions Integration
+
+### Trigger Methods
+
+**1. Automatic Trigger (Production)**
+- Create a GitHub Issue with the label `new-device`
+- Workflow automatically runs and generates profile
+- Results posted as PR and Issue comment
+
+**2. Local Testing vs GitHub Actions**
+
+| Scenario | Trigger | Input Source | Output |
+|----------|---------|--------------|--------|
+| Local Dev | Manual command | `test/test-issue-body.txt` | Local files in `temp/` |
+| Production | GitHub Issue created | Real Issue body | PR + Issue comment |
 
 ### Automatic Profile Generation
 
