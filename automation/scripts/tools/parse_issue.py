@@ -13,16 +13,26 @@ logger = logging.getLogger(__name__)
 
 def _extract_content(content: str) -> str:
     """Extract content, handling markdown code blocks."""
+    print(f"[_extract_content] Input raw: {repr(content[:200])}", file=sys.stderr)
     content = content.strip()
-
+    
     # If content is wrapped in code block, extract inner content
     if content.startswith("```"):
+        print(f"[_extract_content] Code block detected!", file=sys.stderr)
         lines = content.split("\n")
+        print(f"[_extract_content] Total lines: {len(lines)}", file=sys.stderr)
         # Remove first line (```text or ```) and last line (```)
         if len(lines) >= 3:
             content = "\n".join(lines[1:-1])
-    logger.info(f"_extract_content: {content.strip()}")
-    return content.strip()
+            print(f"[_extract_content] Extracted inner content: {repr(content[:200])}", file=sys.stderr)
+        else:
+            print(f"[_extract_content] Not enough lines in code block", file=sys.stderr)
+    else:
+        print(f"[_extract_content] No code block detected", file=sys.stderr)
+    
+    result = content.strip()
+    print(f"[_extract_content] Returning: {repr(result[:200])}", file=sys.stderr)
+    return result
 
 
 def parse_issue_body(body: str):
@@ -30,6 +40,9 @@ def parse_issue_body(body: str):
     Parses the GitHub Issue body into a structured JSON.
     Uses regex to find sections based on markdown headers.
     """
+    print(f"[parse_issue_body] Body length: {len(body)}", file=sys.stderr)
+    print(f"[parse_issue_body] Body preview: {repr(body[:500])}", file=sys.stderr)
+    
     sections = {
         "Device Vendor": "vendor",
         "设备厂商": "vendor",
@@ -53,14 +66,23 @@ def parse_issue_body(body: str):
     # Looks for ### Header and captures everything until the next ### or end of file
     pattern = r"###\s*(.*?)\n(.*?)(?=###|$)"
     matches = re.findall(pattern, body, re.DOTALL)
+    print(f"[parse_issue_body] Found {len(matches)} sections", file=sys.stderr)
+    
+    for i, (header, content) in enumerate(matches):
+        header_stripped = header.strip()
+        print(f"[parse_issue_body] Section {i+1}: '{header_stripped}' (raw content length: {len(content)})", file=sys.stderr)
+        content_clean = _extract_content(content)
+        print(f"[parse_issue_body] Section {i+1} cleaned content: {repr(content_clean[:100])}", file=sys.stderr)
 
-    for header, content in matches:
-        header = header.strip()
-        content = _extract_content(content)  # 使用新的提取函数处理代码块
-
-        field = sections.get(header)
+        field = sections.get(header_stripped)
         if field:
-            data[field] = content
+            data[field] = content_clean
+            print(f"[parse_issue_body] Mapped '{header_stripped}' -> '{field}'", file=sys.stderr)
+        else:
+            print(f"[parse_issue_body] Unmapped section: '{header_stripped}'", file=sys.stderr)
+
+    print(f"[parse_issue_body] Extracted data keys: {list(data.keys())}", file=sys.stderr)
+    print(f"[parse_issue_body] uplinkData: {repr(data.get('uplinkData', 'NOT FOUND'))}", file=sys.stderr)
 
     # Handle multiple devices if vendor/model contains separators
     vendors = [
@@ -76,26 +98,30 @@ def parse_issue_body(body: str):
         vendor = (
             vendors[i] if i < len(vendors) else (vendors[0] if vendors else "Unknown")
         )
-        devices.append(
-            {
-                "vendor": vendor,
-                "model": model,
-                "uplinkData": data.get("uplinkData", ""),
-                "bacnetMapping": data.get("bacnetMapping", ""),
-                "lorawanClass": data.get("lorawanClass", ""),
-                "lorawanVersion": data.get("lorawanVersion", ""),
-                "datasheet": data.get("datasheet", ""),
-            }
-        )
+        device = {
+            "vendor": vendor,
+            "model": model,
+            "uplinkData": data.get("uplinkData", ""),
+            "bacnetMapping": data.get("bacnetMapping", ""),
+            "lorawanClass": data.get("lorawanClass", ""),
+            "lorawanVersion": data.get("lorawanVersion", ""),
+            "datasheet": data.get("datasheet", ""),
+        }
+        devices.append(device)
+        print(f"[parse_issue_body] Device {i+1}: {vendor}-{model}, uplinkData length: {len(device['uplinkData'])}", file=sys.stderr)
 
     # Language detection
     zh_count = len(re.findall(r"[\u4e00-\u9fff]", body))
     lang = "zh" if zh_count / (len(body) + 1) > 0.1 else "en"
 
-    return {"language": lang, "devices": devices}
+    result = {"language": lang, "devices": devices}
+    print(f"[parse_issue_body] Returning {len(devices)} devices", file=sys.stderr)
+    return result
 
 
 def main():
+    print(f"[main] Called with args: {sys.argv}", file=sys.stderr)
+    
     if len(sys.argv) < 2:
         logger.error("Usage: python parse_issue.py <issue_body_file> [output_file]")
         sys.exit(1)
@@ -103,12 +129,24 @@ def main():
     input_file = Path(sys.argv[1])
     output_file = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("parsed-issue.json")
 
+    print(f"[main] Input file: {input_file}", file=sys.stderr)
+    print(f"[main] Output file: {output_file}", file=sys.stderr)
+
     if not input_file.exists():
         logger.error(f"Input file not found: {input_file}")
         sys.exit(1)
 
     body = input_file.read_text(encoding="utf-8")
+    print(f"[main] Read body: {len(body)} chars", file=sys.stderr)
+    
     result = parse_issue_body(body)
+
+    print(f"[main] Parsed result:", file=sys.stderr)
+    print(f"[main]   Language: {result['language']}", file=sys.stderr)
+    print(f"[main]   Devices: {len(result['devices'])}", file=sys.stderr)
+    for i, device in enumerate(result['devices']):
+        print(f"[main]   Device {i+1}: {device['vendor']}-{device['model']}", file=sys.stderr)
+        print(f"[main]     uplinkData: {repr(device['uplinkData'][:100]) if device['uplinkData'] else 'EMPTY'}", file=sys.stderr)
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
