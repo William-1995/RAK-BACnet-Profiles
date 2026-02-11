@@ -215,8 +215,13 @@ def extract_hex_bytes(text: str) -> str:
     clean_text = re.sub(r"```[\w]*\n?", "", text or "")
     clean_text = re.sub(r"```", "", clean_text)  # Remove closing code block marker
 
+    # Replace newlines with spaces to handle multiline code blocks
+    # This allows hex data spread across multiple lines to be matched as one sequence
+    clean_text = re.sub(r"\n+", " ", clean_text)
+
     # Match hex byte sequences: two hex chars optionally followed by more space-separated hex chars
     # Example: "01 64 00 C8" or "01 01 64 00 e9 01 ef"
+    # The \s+ matches spaces, tabs, and newlines (after we converted them to spaces)
     match = re.search(r"([0-9a-fA-F]{2}(?:\s+[0-9a-fA-F]{2})+)", clean_text)
     if match:
         return match.group(1)
