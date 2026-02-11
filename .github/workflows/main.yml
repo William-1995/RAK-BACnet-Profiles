@@ -32,7 +32,9 @@ jobs:
       - name: Save issue body to file
         run: |
           mkdir -p automation/temp
-          echo "${{ github.event.issue.body }}" > automation/temp/issue-body.txt
+          cat > automation/temp/issue-body.txt << 'EOF'
+          ${{ github.event.issue.body }}
+          EOF
 
       - name: Debug GitHub event
         run: |
