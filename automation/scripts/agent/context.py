@@ -35,7 +35,7 @@ class WorkflowContext:
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         self.run_dir = TEMP_ROOT_DIR / f"run-{issue_number}-{timestamp}"
         self.run_dir.mkdir(parents=True, exist_ok=True)
-        self.generated_files_list = self.run_dir / "generated-files-list.txt"
+        self.generated_files_list = TEMP_ROOT_DIR / "generated-files-list.txt"
 
         self._clear_generated_files_list()
 
