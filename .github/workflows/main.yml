@@ -34,6 +34,13 @@ jobs:
           mkdir -p automation/temp
           echo "${{ github.event.issue.body }}" > automation/temp/issue-body.txt
 
+      - name: Debug issue body
+        run: |
+          echo "=== Issue Body Content ==="
+          cat automation/temp/issue-body.txt
+          echo ""
+          echo "=== End of Issue Body ==="
+    
       - name: Run Agent
         env:
           QWEN_API_KEY: ${{ secrets.QWEN_API_KEY }}
