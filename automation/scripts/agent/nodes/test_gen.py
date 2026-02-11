@@ -58,6 +58,11 @@ def _build_test_data(device: DeviceProfile) -> dict:
     """Build test data structure from device info."""
     device_name = device["device_name"]
     uplink_data = device["device_info"].get("uplinkData", "")
+    logger.info(f"[_build_test_data] device_name: {device_name}")
+    logger.info(f"[_build_test_data] uplink_data: {repr(uplink_data)}")
+    logger.info(
+        f"[_build_test_data] device_info keys: {list(device['device_info'].keys())}"
+    )
 
     return {
         "device": device_name,
