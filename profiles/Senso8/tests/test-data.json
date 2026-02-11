@@ -1,23 +1,11 @@
 {
-    "description": "测试数据集说明",
-    "testCases": [
-      {
-        "name": "LRS20100 测试用例1",
-        "model": "LRS20100",
-        "fPort": 10,
-        "input": "01016400e901ef00000000"
-      },
-      {
-        "name": "LRS20100 测试用例2",
-        "model": "LRS20100",
-        "fPort": 10,
-        "input": "01016400ea01ef00000000"
-      },
-      {
-        "name": "LRS20200 测试用例1",
-        "model": "LRS20200",
-        "fPort": 10,
-        "input": "01010064000000000000"
-      }
-    ]
-  }
+  "device": "Senso8-LRS20100",
+  "testCases": [
+    {
+      "name": "Issue example",
+      "model": "Senso8-LRS20100",
+      "fPort": 2,
+      "input": "01 02 64 00 C8 01 90 00"
+    }
+  ]
+}
