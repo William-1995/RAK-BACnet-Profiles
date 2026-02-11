@@ -207,37 +207,33 @@ def _calculate_lorawan_class_score(device_info: dict, profile: dict) -> float:
 def extract_hex_bytes(text: str) -> str:
     """Extract hex byte sequence from text.
 
+    Handles both space-separated ("01 64 00 C8") and continuous ("01016400C8") formats.
+    Returns space-separated hex bytes.
+
     Raises:
         ValueError: If no hex byte sequence found in text.
     """
-    import logging
+    text = text or ""
 
-    logger = logging.getLogger(__name__)
-
-    logger.info(
-        f"Extracting hex from text (first 200 chars): {repr(text[:200] if text else '')}"
-    )
-
-    # Clean text by removing markdown code block markers (```) and language identifiers
-    # This allows users to put hex data in code blocks for better formatting
-    clean_text = re.sub(r"```[\w]*\n?", "", text or "")
-    clean_text = re.sub(r"```", "", clean_text)  # Remove closing code block marker
-
-    # Replace newlines with spaces to handle multiline code blocks
-    # This allows hex data spread across multiple lines to be matched as one sequence
-    clean_text = re.sub(r"\n+", " ", clean_text)
-
-    logger.info(f"After cleaning (first 200 chars): {repr(clean_text[:200])}")
-
-    # Match hex byte sequences: two hex chars optionally followed by more space-separated hex chars
-    # Example: "01 64 00 C8" or "01 01 64 00 e9 01 ef"
-    # The \s+ matches spaces, tabs, and newlines (after we converted them to spaces)
-    match = re.search(r"([0-9a-fA-F]{2}(?:\s+[0-9a-fA-F]{2})+)", clean_text)
+    # First try space-separated hex bytes
+    match = re.search(r"([0-9a-fA-F]{2}(?:\s+[0-9a-fA-F]{2})+)", text)
     if match:
-        logger.info(f"Found hex sequence: {match.group(1)}")
         return match.group(1)
 
-    logger.error(f"No hex sequence found in cleaned text: {repr(clean_text[:500])}")
+    # Try continuous hex string (at least 4 bytes = 8 hex chars)
+    # Match sequences that look like port data (fPort XX:) or standalone hex
+    match = re.search(r":\s*([0-9a-fA-F]{8,})", text)
+    if match:
+        hex_str = match.group(1)
+        # Insert spaces between every 2 characters
+        return " ".join(hex_str[i : i + 2] for i in range(0, len(hex_str), 2))
+
+    # Last resort: find any long hex string
+    match = re.search(r"\b([0-9a-fA-F]{8,})\b", text)
+    if match:
+        hex_str = match.group(1)
+        return " ".join(hex_str[i : i + 2] for i in range(0, len(hex_str), 2))
+
     raise ValueError(
         "No hex byte sequence found in issue text. Please provide example uplink data like '01 64 00 C8'"
     )
