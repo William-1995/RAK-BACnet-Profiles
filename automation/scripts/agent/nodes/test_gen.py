@@ -56,12 +56,15 @@ def _save_test_data(
 
 def _build_test_data(device: DeviceProfile) -> dict:
     """Build test data structure from device info."""
+    import sys
+
     device_name = device["device_name"]
     uplink_data = device["device_info"].get("uplinkData", "")
-    logger.info(f"[_build_test_data] device_name: {device_name}")
-    logger.info(f"[_build_test_data] uplink_data: {repr(uplink_data)}")
-    logger.info(
-        f"[_build_test_data] device_info keys: {list(device['device_info'].keys())}"
+    print(f"[TEST_DEBUG] device_name: {device_name}", file=sys.stderr)
+    print(f"[TEST_DEBUG] uplink_data: {repr(uplink_data)}", file=sys.stderr)
+    print(
+        f"[TEST_DEBUG] device_info keys: {list(device['device_info'].keys())}",
+        file=sys.stderr,
     )
 
     return {

@@ -40,11 +40,12 @@ def parse_issue_body(body: str):
     pattern = r"###\s*(.*?)\n(.*?) (?=###|$)"
     matches = re.findall(pattern, body, re.DOTALL)
 
-    logger.info(f"[parse_issue] Body length: {len(body)}")
-    logger.info(f"[parse_issue] Found {len(matches)} sections")
+    print(f"[PARSE_DEBUG] Body length: {len(body)}", file=sys.stderr)
+    print(f"[PARSE_DEBUG] Found {len(matches)} sections", file=sys.stderr)
     for header, content in matches:
-        logger.info(
-            f"[parse_issue] Section: '{header.strip()}' -> {len(content.strip())} chars"
+        print(
+            f"[PARSE_DEBUG] Section: '{header.strip()}' -> {len(content.strip())} chars",
+            file=sys.stderr,
         )
 
     for header, content in matches:
@@ -54,13 +55,14 @@ def parse_issue_body(body: str):
         field = sections.get(header)
         if field:
             data[field] = content
-            logger.info(
-                f"[parse_issue] Mapped '{header}' -> '{field}': {repr(content[:100])}..."
+            print(
+                f"[PARSE_DEBUG] Mapped '{header}' -> '{field}': {repr(content[:100])}...",
+                file=sys.stderr,
             )
         else:
-            logger.info(f"[parse_issue] Unmapped section: '{header}'")
+            print(f"[PARSE_DEBUG] Unmapped section: '{header}'", file=sys.stderr)
 
-    logger.info(f"[parse_issue] Extracted data keys: {list(data.keys())}")
+    print(f"[PARSE_DEBUG] Extracted data keys: {list(data.keys())}", file=sys.stderr)
 
     # Handle multiple devices if vendor/model contains separators
     vendors = [
