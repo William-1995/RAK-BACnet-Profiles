@@ -210,7 +210,14 @@ def extract_hex_bytes(text: str) -> str:
     Raises:
         ValueError: If no hex byte sequence found in text.
     """
-    match = re.search(r"([0-9a-fA-F]{2}(?:\s+[0-9a-fA-F]{2})+)", text or "")
+    # Clean text by removing markdown code block markers (```) and language identifiers
+    # This allows users to put hex data in code blocks for better formatting
+    clean_text = re.sub(r"```[\w]*\n?", "", text or "")
+    clean_text = re.sub(r"```", "", clean_text)  # Remove closing code block marker
+
+    # Match hex byte sequences: two hex chars optionally followed by more space-separated hex chars
+    # Example: "01 64 00 C8" or "01 01 64 00 e9 01 ef"
+    match = re.search(r"([0-9a-fA-F]{2}(?:\s+[0-9a-fA-F]{2})+)", clean_text)
     if match:
         return match.group(1)
     raise ValueError(
