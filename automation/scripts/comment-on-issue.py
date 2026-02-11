@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 def find_latest_result(temp_dir: Path) -> dict:
     """Find and read the latest agent result file."""
     result_files = sorted(
-        [f for f in temp_dir.iterdir() if f.name.startswith("agent-result-")],
+        [f for f in temp_dir.rglob("agent-result-*.json")],
         key=lambda f: f.stat().st_mtime,
         reverse=True,
     )
@@ -43,7 +43,7 @@ def find_latest_result(temp_dir: Path) -> dict:
             "errors": ["No result file found"],
         }
 
-    logger.info("Found result file: %s", result_files[0].name)
+    logger.info("Found result file: %s", result_files[0])
     return json.loads(result_files[0].read_text(encoding="utf-8"))
 
 

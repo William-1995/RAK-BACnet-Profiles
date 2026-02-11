@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 def parse_issue_node(state: OverallState, ctx: WorkflowContext) -> dict:
     """Parse GitHub Issue and generate all profiles sequentially."""
     logger.info("Node: Parse issue")
+    issue_body = state.get("issue_body", "")
+    logger.info(
+        f"[parse_issue_node] FULL issue_body from state:\n{issue_body}\n{'=' * 50}"
+    )
 
     parsed_data = _parse_issue_body(state, ctx)
     if not parsed_data:
@@ -41,6 +45,8 @@ def _save_issue_body(issue_body: str, ctx: WorkflowContext) -> None:
         raise RuntimeError("Context not initialized. Call setup() first.")
     issue_file = ctx.run_dir / "current-issue-body.txt"
     issue_file.write_text(issue_body, encoding="utf-8")
+    logger.info(f"[_save_issue_body] Saved to {issue_file}")
+    logger.info(f"[_save_issue_body] FULL content:\n{issue_body}\n{'=' * 50}")
 
 
 def _run_parse_script(ctx: WorkflowContext) -> dict | None:
