@@ -11,6 +11,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _extract_content(content: str) -> str:
+    """Extract content, handling markdown code blocks."""
+    content = content.strip()
+
+    # If content is wrapped in code block, extract inner content
+    if content.startswith("```"):
+        lines = content.split("\n")
+        # Remove first line (```text or ```) and last line (```)
+        if len(lines) >= 3:
+            content = "\n".join(lines[1:-1])
+
+    return content.strip()
+
+
 def parse_issue_body(body: str):
     """
     Parses the GitHub Issue body into a structured JSON.
@@ -37,32 +51,16 @@ def parse_issue_body(body: str):
 
     # Simple markdown section parser
     # Looks for ### Header and captures everything until the next ### or end of file
-    pattern = r"###\s*(.*?)\n(.*?) (?=###|$)"
+    pattern = r"###\s*(.*?)\n(.*?)(?=###|$)"
     matches = re.findall(pattern, body, re.DOTALL)
-
-    print(f"[PARSE_DEBUG] Body length: {len(body)}", file=sys.stderr)
-    print(f"[PARSE_DEBUG] Found {len(matches)} sections", file=sys.stderr)
-    for header, content in matches:
-        print(
-            f"[PARSE_DEBUG] Section: '{header.strip()}' -> {len(content.strip())} chars",
-            file=sys.stderr,
-        )
 
     for header, content in matches:
         header = header.strip()
-        content = content.strip()
+        content = _extract_content(content)  # 使用新的提取函数处理代码块
 
         field = sections.get(header)
         if field:
             data[field] = content
-            print(
-                f"[PARSE_DEBUG] Mapped '{header}' -> '{field}': {repr(content[:100])}...",
-                file=sys.stderr,
-            )
-        else:
-            print(f"[PARSE_DEBUG] Unmapped section: '{header}'", file=sys.stderr)
-
-    print(f"[PARSE_DEBUG] Extracted data keys: {list(data.keys())}", file=sys.stderr)
 
     # Handle multiple devices if vendor/model contains separators
     vendors = [
@@ -93,12 +91,6 @@ def parse_issue_body(body: str):
     # Language detection
     zh_count = len(re.findall(r"[\u4e00-\u9fff]", body))
     lang = "zh" if zh_count / (len(body) + 1) > 0.1 else "en"
-
-    logger.info(f"[parse_issue] Created {len(devices)} devices")
-    for i, device in enumerate(devices):
-        logger.info(
-            f"[parse_issue] Device {i}: vendor={device['vendor']}, model={device['model']}, uplinkData length={len(device['uplinkData'])}"
-        )
 
     return {"language": lang, "devices": devices}
 
