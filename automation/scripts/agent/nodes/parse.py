@@ -55,7 +55,21 @@ def _run_parse_script(ctx: WorkflowContext) -> dict | None:
         logger.error(f"Parse script failed: {output}")
         return None
 
-    return json.loads(parsed_file.read_text(encoding="utf-8"))
+    parsed_data = json.loads(parsed_file.read_text(encoding="utf-8"))
+
+    # DEBUG: Print parsed data
+    logger.info(
+        f"[_run_parse_script] Parsed {len(parsed_data.get('devices', []))} devices"
+    )
+    for i, device in enumerate(parsed_data.get("devices", [])):
+        logger.info(
+            f"[_run_parse_script] Device {i + 1}: {device.get('vendor')}-{device.get('model')}"
+        )
+        logger.info(
+            f"[_run_parse_script]   uplinkData: {repr(device.get('uplinkData', 'EMPTY'))}"
+        )
+
+    return parsed_data
 
 
 def _generate_profiles_for_devices(
