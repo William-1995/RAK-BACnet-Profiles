@@ -21,7 +21,7 @@ def _extract_content(content: str) -> str:
         # Remove first line (```text or ```) and last line (```)
         if len(lines) >= 3:
             content = "\n".join(lines[1:-1])
-
+    print(f"_extract_content: {content.strip()}")
     return content.strip()
 
 
