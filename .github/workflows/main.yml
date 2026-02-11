@@ -34,12 +34,14 @@ jobs:
           mkdir -p automation/temp
           echo "${{ github.event.issue.body }}" > automation/temp/issue-body.txt
 
-      - name: Debug issue body
+      - name: Debug GitHub event
         run: |
-          echo "=== Issue Body Content ==="
-          cat automation/temp/issue-body.txt
+          echo "Issue Number: ${{ github.event.issue.number }}"
+          echo "Issue Title: ${{ github.event.issue.title }}"
           echo ""
-          echo "=== End of Issue Body ==="
+          echo "=== Raw Issue Body ==="
+          echo '${{ github.event.issue.body }}'
+          echo "=== End Raw Body ==="
     
       - name: Run Agent
         env:
