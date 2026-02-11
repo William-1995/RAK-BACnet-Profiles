@@ -37,8 +37,15 @@ def parse_issue_body(body: str):
 
     # Simple markdown section parser
     # Looks for ### Header and captures everything until the next ### or end of file
-    pattern = r"###\s*(.*?)\n(.*?)(?=###|$)"
+    pattern = r"###\s*(.*?)\n(.*?) (?=###|$)"
     matches = re.findall(pattern, body, re.DOTALL)
+
+    logger.info(f"[parse_issue] Body length: {len(body)}")
+    logger.info(f"[parse_issue] Found {len(matches)} sections")
+    for header, content in matches:
+        logger.info(
+            f"[parse_issue] Section: '{header.strip()}' -> {len(content.strip())} chars"
+        )
 
     for header, content in matches:
         header = header.strip()
@@ -47,6 +54,13 @@ def parse_issue_body(body: str):
         field = sections.get(header)
         if field:
             data[field] = content
+            logger.info(
+                f"[parse_issue] Mapped '{header}' -> '{field}': {repr(content[:100])}..."
+            )
+        else:
+            logger.info(f"[parse_issue] Unmapped section: '{header}'")
+
+    logger.info(f"[parse_issue] Extracted data keys: {list(data.keys())}")
 
     # Handle multiple devices if vendor/model contains separators
     vendors = [
@@ -77,6 +91,12 @@ def parse_issue_body(body: str):
     # Language detection
     zh_count = len(re.findall(r"[\u4e00-\u9fff]", body))
     lang = "zh" if zh_count / (len(body) + 1) > 0.1 else "en"
+
+    logger.info(f"[parse_issue] Created {len(devices)} devices")
+    for i, device in enumerate(devices):
+        logger.info(
+            f"[parse_issue] Device {i}: vendor={device['vendor']}, model={device['model']}, uplinkData length={len(device['uplinkData'])}"
+        )
 
     return {"language": lang, "devices": devices}
 
