@@ -217,37 +217,38 @@ def extract_hex_bytes(text: str) -> str:
         ValueError: If no hex byte sequence found in text.
     """
     text = text or ""
-    logger.info(f"[extract_hex_bytes] Input text: {repr(text)}")
+    logger.info(f"Input text: {repr(text)}")
 
     # First try space-separated hex bytes
     match = re.search(r"([0-9a-fA-F]{2}(?:\s+[0-9a-fA-F]{2})+)", text)
-    logger.info(f"[extract_hex_bytes] Regex 1 (space-separated) match: {match}")
+    logger.info(f"Regex 1 (space-separated) match: {match}")
     if match:
         result = match.group(1)
-        logger.info(f"[extract_hex_bytes] Returning space-separated: {result}")
+        logger.info(f"[Returning space-separated: {result}")
         return result
 
     # Try continuous hex string (at least 4 bytes = 8 hex chars)
     # Match sequences that look like port data (fPort XX:) or standalone hex
     match = re.search(r":\s*([0-9a-fA-F]{8,})", text)
-    logger.info(f"[extract_hex_bytes] Regex 2 (fPort format) match: {match}")
+    logger.info(f"Regex 2 (fPort format) match: {match}")
+
     if match:
         hex_str = match.group(1)
         result = " ".join(hex_str[i : i + 2] for i in range(0, len(hex_str), 2))
-        logger.info(f"[extract_hex_bytes] Returning fPort format: {result}")
+        logger.info(f"Returning fPort format: {result}")
         return result
 
     # Last resort: find any long hex string
     match = re.search(r"\b([0-9a-fA-F]{8,})\b", text)
-    logger.info(f"[extract_hex_bytes] Regex 3 (standalone hex) match: {match}")
+    logger.info(f"Regex 3 (standalone hex) match: {match}")
     if match:
         hex_str = match.group(1)
         result = " ".join(hex_str[i : i + 2] for i in range(0, len(hex_str), 2))
-        logger.info(f"[extract_hex_bytes] Returning standalone hex: {result}")
+        logger.info(f"Returning standalone hex: {result}")
         return result
 
     logger.error(
-        f"[extract_hex_bytes] All regex patterns failed for text: {repr(text)}"
+        f"All regex patterns failed for text: {repr(text)}"
     )
     raise ValueError(
         "No hex byte sequence found in issue text. Please provide example uplink data like '01 64 00 C8'"

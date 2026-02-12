@@ -140,8 +140,6 @@ automation/
 ├── scripts/
 │   ├── run-agent.py              # Main entry point - workflow orchestration
 │   ├── comment-on-issue.py       # GitHub API - post comments to issues
-│   ├── validate-profiles.py      # Profile validation tool
-│   ├── test-all-profiles.py      # Batch testing tool
 │   ├── agent/                    # Core business logic (Clean Code)
 │   │   ├── __init__.py
 │   │   ├── config.py             # Configuration constants
@@ -162,6 +160,9 @@ automation/
 │   └── tools/
 │       ├── __init__.py
 │       └── parse_issue.py        # Standalone issue parser
+├── tests/                        # Testing and validation tools
+│   ├── validate-profiles.py      # Profile validation tool
+│   └── test-all-profiles.py      # Batch testing tool
 ├── skills/                       # AI prompt templates
 │   ├── parse-issue/
 │   ├── generate-profile/
@@ -193,7 +194,7 @@ automation/
 python scripts/run-agent.py --issue-body-file test/test-issue-body.txt --issue-number 1
 
 # Validate profiles
-python scripts/validate-profiles.py --all
+python tests/validate-profiles.py --all
 ```
 
 ## Configuration

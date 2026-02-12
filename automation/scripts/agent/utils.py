@@ -47,7 +47,6 @@ def _parse_result(result: subprocess.CompletedProcess) -> tuple[bool, str]:
     stdout = result.stdout or ""
     stderr = result.stderr or ""
 
-    # DEBUG: Always log stderr for troubleshooting
     if stderr.strip():
         print(f"[DEBUG] Script stderr: {stderr}", file=sys.stderr)
 

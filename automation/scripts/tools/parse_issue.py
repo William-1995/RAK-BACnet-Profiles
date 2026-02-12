@@ -56,7 +56,7 @@ def parse_issue_body(body: str):
 
     for header, content in matches:
         header = header.strip()
-        content = _extract_content(content)  # 使用新的提取函数处理代码块
+        content = _extract_content(content)
 
         field = sections.get(header)
         if field:
@@ -115,7 +115,6 @@ def main():
         json.dump(result, f, indent=2, ensure_ascii=False)
 
     logger.info(f"Successfully parsed issue into: {output_file}")
-
 
 if __name__ == "__main__":
     main()

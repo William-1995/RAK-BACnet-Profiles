@@ -56,7 +56,7 @@ def _collect_generated(generated_list: Path) -> list[Path]:
 
 
 def main() -> int:
-    root = Path(__file__).resolve().parents[2]
+    root = Path(__file__).resolve().parents[3]
     validator = root / "scripts" / "validate-profile.js"
     profiles_root = root / "profiles"
     generated_list = root / "automation" / "temp" / "generated-files-list.txt"
