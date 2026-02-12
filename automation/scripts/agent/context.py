@@ -9,11 +9,6 @@ Context:
     - Used by: All node functions (passed as parameter)
     - Purpose: Dependency injection, testability, no global state
     - Lifecycle: Created in main.py → passed to all nodes → persists for one run
-
-Why not global variables?
-    - Global state makes testing hard
-    - Can't run multiple workflows concurrently
-    - Hidden dependencies between functions
 """
 
 import time
@@ -24,7 +19,7 @@ from agent.state import DeviceProfile
 
 
 class WorkflowContext:
-    """Encapsulates workflow state and utilities to avoid global variables."""
+    """Encapsulates workflow state and utilities."""
 
     def __init__(self):
         self.run_dir: Path | None = None

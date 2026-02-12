@@ -8,8 +8,6 @@ import json
 import logging
 import sys
 from pathlib import Path
-
-from agent.config import TEMP_ROOT_DIR
 from agent.context import WorkflowContext
 from agent.nodes.parse import parse_issue_node
 from agent.nodes.validate import validate_profile_node
@@ -119,19 +117,13 @@ def _extract_result(final_state: dict) -> dict:
     success = len(final_state.get("errors", [])) == 0
     generated_files = final_state.get("all_generated_files", [])
 
-    logger.info(f"Workflow completed - Generated {len(generated_files)} files")
-
-    for file_path in generated_files:
-        logger.info(f"  - {file_path}")
-
-    if final_state.get("errors"):
-        logger.warning(f"Errors: {len(final_state['errors'])}")
-
-    return {
+    result = {
         "success": success,
         "generated_files": generated_files,
         "errors": final_state.get("errors", []),
     }
+    logger.info(f"Workflow completed - Generated {len(generated_files)} files", extra={"result": result})
+    return result
 
 
 def _save_result(result: dict, ctx: WorkflowContext, issue_number: int) -> None:

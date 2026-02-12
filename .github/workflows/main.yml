@@ -7,7 +7,6 @@ on:
 jobs:
   generate-profile:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'new-device')
     
     steps:
       - name: Checkout repository

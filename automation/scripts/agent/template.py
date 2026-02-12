@@ -91,8 +91,11 @@ def _load_all_profile_features() -> list[dict]:
 
 
 def _should_skip_profile(profile_path: Path) -> bool:
-    """Check if profile should be skipped."""
-    return profile_path.name == "profile.yaml" or "tests" in str(profile_path)
+    """Check if profile should be skipped.
+
+    Skips files in tests/ subdirectories (temporary test data, not device profiles).
+    """
+    return "tests" in profile_path.parts
 
 
 def _extract_profile_features(profile_path: Path) -> dict | None:
