@@ -120,7 +120,9 @@ GitHub Actions
 │       Agent Workflow (LangGraph)     │
 │                                      │
 │  Parse → Generate → Test → Validate  │
-│    ↑                        ↓        │
+│    ↑         ↓              ↓        │
+│    │    generate-expected    │       │
+│    │      -output.js         │       │
 │    └───── Retry (max 2) ────┘       │
 │                                      │
 │  Template Selection (Similarity)    │
@@ -160,6 +162,10 @@ automation/
 │   └── tools/
 │       ├── __init__.py
 │       └── parse_issue.py        # Standalone issue parser
+├── ../scripts/                   # Root-level scripts (shared with validation)
+│   ├── validate-profile.js       # Profile validation
+│   ├── generate-expected-output.js # Generate expected test outputs from codec
+│   └── test-codec.js             # Codec testing utilities
 ├── tests/                        # Testing and validation tools
 │   ├── validate-profiles.py      # Profile validation tool
 │   └── test-all-profiles.py      # Batch testing tool
@@ -195,7 +201,32 @@ python scripts/run-agent.py --issue-body-file test/test-issue-body.txt --issue-n
 
 # Validate profiles
 python tests/validate-profiles.py --all
+
+# Generate expected output for a profile (used by Test node)
+node scripts/generate-expected-output.js profiles/Senso8/Senso8-LRS20100.yaml profiles/Senso8/tests/test-data.json
 ```
+
+#### Test Node Workflow
+
+The **Test** node in the workflow does two things:
+
+1. **Generate Test Data** (`test-data.json`)
+   - Extracts hex bytes from Issue's uplink data
+   - Creates test cases with fPort and input data
+   - Saved to `profiles/{vendor}/tests/test-data.json`
+
+2. **Generate Expected Output** (`expected-output.json`) 
+   - Uses profile's codec to decode test data
+   - Executes `scripts/generate-expected-output.js`
+   - Produces expected sensor values (temperature, humidity, etc.)
+   - Saved to `profiles/{vendor}/tests/expected-output.json`
+
+**Purpose**: 
+- Enables CI/CD testing - validate that codec changes don't break existing functionality
+- Documents expected decoding results for each device
+- Allows regression testing when profiles are modified
+
+**If script is missing**: Test node will only generate `test-data.json` without expected outputs.
 
 ## Configuration
 
@@ -442,7 +473,3 @@ Extract from device_info:
 ```bash
 python scripts/run-agent.py --issue-body-file test/test-issue-body.txt --issue-number 1
 ```
-
-## License
-
-MIT
