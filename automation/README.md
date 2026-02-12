@@ -88,6 +88,29 @@ docker run --rm \
 
 ## Architecture
 
+### Why Template Similarity Matching?
+
+The agent uses **smart template selection** based on content similarity to improve generation quality:
+
+| Problem | Solution |
+|---------|----------|
+| LLM hallucination | Reference similar existing profiles as examples |
+| Inconsistent structure | Follow proven profile patterns |
+| Wrong sensor mappings | Match by device type (temperature → use temp sensor template) |
+| Invalid codec patterns | Copy working codec structures |
+
+**How it works:**
+1. Parse device requirements from Issue (vendor, model, sensor types)
+2. Compare against all existing profiles using weighted scoring
+3. Select best matching template as reference for LLM
+4. LLM generates new profile following the reference structure
+
+**Scoring Algorithm:**
+- Device type matching: 40% (water/air/climate/etc.)
+- BACnet object types: 30% (analog/binary inputs)
+- Sensor count: 20% (how many sensors)
+- LoRaWAN class: 10% (Class A/B/C)
+
 ```
 GitHub Issue
     ↓
@@ -100,6 +123,7 @@ GitHub Actions
 │    ↑                        ↓        │
 │    └───── Retry (max 2) ────┘       │
 │                                      │
+│  Template Selection (Similarity)    │
 └─────────────────────────────────────┘
     ↓
 Pull Request
