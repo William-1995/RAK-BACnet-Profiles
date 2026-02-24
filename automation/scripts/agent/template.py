@@ -207,6 +207,53 @@ def _calculate_lorawan_class_score(device_info: dict, profile: dict) -> float:
     return 0.0
 
 
+def extract_fport(text: str) -> int:
+    """Extract first fPort from uplink data. E.g. 'fPort 10: 01 02 64...' -> 10."""
+    examples = parse_uplink_examples(text)
+    return examples[0]["fPort"] if examples else 10
+
+
+def parse_uplink_examples(text: str) -> list[dict]:
+    """Parse all uplink examples from text. Returns list of {fPort, hex, name}."""
+    if not text or not text.strip():
+        return []
+
+    results = []
+    seen: set[tuple[int, str]] = set()
+
+    # Match each "fPort N: hex" or "fport: N" line (case-insensitive)
+    for m in re.finditer(
+        r"(?:fPort|fport|port)\s*:?\s*(\d+)\s*:\s*([0-9a-fA-F][0-9a-fA-F\s]*)",
+        text,
+        re.IGNORECASE,
+    ):
+        port = int(m.group(1))
+        raw_hex = m.group(2).strip().replace("\n", " ")
+        if len(re.sub(r"[^0-9a-fA-F]", "", raw_hex)) < 4:
+            continue
+        hex_str = _normalize_hex(raw_hex)
+        key = (port, hex_str)
+        if key not in seen:
+            seen.add(key)
+            results.append({"fPort": port, "hex": hex_str, "name": f"fPort {port} example"})
+
+    if results:
+        return results
+
+    # Fallback: single block without explicit fPort
+    try:
+        hex_str = extract_hex_bytes(text)
+        return [{"fPort": 10, "hex": hex_str, "name": "Issue example"}]
+    except ValueError:
+        return []
+
+
+def _normalize_hex(raw: str) -> str:
+    """Normalize hex to space-separated bytes."""
+    hex_chars = re.sub(r"[^0-9a-fA-F]", "", raw)
+    return " ".join(hex_chars[i : i + 2] for i in range(0, len(hex_chars), 2))
+
+
 def extract_hex_bytes(text: str) -> str:
     """Extract hex byte sequence from text.
 

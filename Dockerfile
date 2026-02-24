@@ -1,6 +1,6 @@
 # Profile Generation Agent - Docker image
 
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 # Add metadata
 LABEL maintainer="RAKwireless IoT Automation" \

@@ -8,6 +8,7 @@ This is a **BACnet Profile Automation Agent** that generates device profiles fro
 - **Deterministic**: LangGraph workflow with sequential processing
 - **Smart Templates**: Automatic template selection based on device similarity
 - **Self-Healing**: Auto-retry on validation failure (max 2 attempts)
+- **Profile Reuse**: Skips regeneration when existing profile passes validation (use `--force-regenerate` to override)
 
 ## Quick Start
 
@@ -24,25 +25,31 @@ cd automation
 pip install -r requirements.txt
 ```
 
-### Run Locally
+### Running the Agent
 
-For local development and testing, use the provided test file:
-
+**Python (direct):**
 ```bash
-python scripts/run-agent.py \
-  --issue-body-file test/test-issue-body.txt \
-  --issue-number <value of issue number>
+cd automation
+python scripts/run-agent.py --issue-body-file test/test-issue-body.txt --issue-number 1
 ```
 
-**Local Testing:**
-- Uses `test/test-issue-body.txt` as input (sample device profile request)
-- Issue number can be any value (e.g., `999`) for local testing
-- Results saved to `temp/run-{issue-number}-{timestamp}/`
-- **Purpose**: Develop and debug without creating real GitHub Issues
+**Docker (recommended for consistent local runs):**
+```bash
+cd automation
+# Linux/macOS
+./run-local-docker.sh test/test-issue-body.txt 1
+# Windows PowerShell
+.\run-local-docker.ps1 -IssueBodyFile test\test-issue-body.txt -IssueNumber 1
+```
 
 **Parameters:**
-- `--issue-body-file`: Path to the file containing the GitHub Issue body
-- `--issue-number`: Identifier for this run (used in logs and output files)
+| Option | Required | Description |
+|--------|----------|-------------|
+| `--issue-body-file` | Yes | Path to Issue body text |
+| `--issue-number` | Yes | Run identifier (logs, output dirs) |
+| `--force-regenerate` | No | Overwrite existing validated profiles |
+
+**Behavior:** Reuses existing profile if it passes validation (unless `--force-regenerate`). Results in `temp/run-{issue-number}-{timestamp}/` and `profiles/`.
 
 ## GitHub Actions Integration
 
@@ -180,6 +187,8 @@ automation/
 │   └── test-issue-body-zh.txt
 ├── temp/                         # Runtime temporary files
 ├── requirements.txt              # Python dependencies
+├── run-local-docker.sh           # Local Docker run (Linux/macOS)
+├── run-local-docker.ps1          # Local Docker run (Windows)
 ├── docker-entrypoint.sh          # Docker entry point
 └── README.md                     # This file
 ```
@@ -193,17 +202,16 @@ automation/
 5. **Type Safety**: Full type hints on all functions
 
 ## Development
-### Testing
 
 ```bash
-# Run agent with test data (use any number for local testing)
+# Run agent (see "Running the Agent" above)
 python scripts/run-agent.py --issue-body-file test/test-issue-body.txt --issue-number 1
 
-# Validate profiles
-python tests/validate-profiles.py --all
+# Force regenerate even when profile exists
+python scripts/run-agent.py --issue-body-file test/test-issue-body.txt --issue-number 1 --force-regenerate
 
-# Generate expected output for a profile (used by Test node)
-node scripts/generate-expected-output.js profiles/Senso8/Senso8-LRS20100.yaml profiles/Senso8/tests/test-data.json
+# Validate all profiles
+python tests/validate-profiles.py --all
 ```
 
 #### Test Node Workflow
@@ -211,8 +219,8 @@ node scripts/generate-expected-output.js profiles/Senso8/Senso8-LRS20100.yaml pr
 The **Test** node in the workflow does two things:
 
 1. **Generate Test Data** (`test-data.json`)
-   - Extracts hex bytes from Issue's uplink data
-   - Creates test cases with fPort and input data
+   - Parses all uplink examples (supports multiple fPorts)
+   - Creates one test case per uplink example
    - Saved to `profiles/{vendor}/tests/test-data.json`
 
 2. **Generate Expected Output** (`expected-output.json`) 
@@ -439,11 +447,9 @@ save_and_register() persists to YAML
 Value here
 ```
 
-2. **Run locally**:
+2. **Run locally** (add `--force-regenerate` to overwrite existing profile):
 ```bash
-python scripts/run-agent.py \
-  --issue-body-file test/test-issue-body.txt \
-  --issue-number 999
+python scripts/run-agent.py --issue-body-file test/test-issue-body.txt --issue-number 999
 ```
 
 3. **Check output** in `temp/run-999-*/` directory

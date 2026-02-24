@@ -44,13 +44,19 @@ def _parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--issue-number", type=int, required=True, help="GitHub Issue number"
     )
+    parser.add_argument(
+        "--force-regenerate",
+        action="store_true",
+        help="Force regenerate even if profile exists and passes validation",
+    )
     return parser.parse_args()
 
 
-def _initialize_context(issue_number: int) -> WorkflowContext:
+def _initialize_context(issue_number: int, force_regenerate: bool = False) -> WorkflowContext:
     """Initialize workflow context and logging."""
     ctx = WorkflowContext()
     ctx.setup(issue_number)
+    ctx.force_regenerate = force_regenerate
     _setup_logging(ctx.run_dir / "agent.log")
     return ctx
 

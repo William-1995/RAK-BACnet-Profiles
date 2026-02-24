@@ -116,6 +116,12 @@ def _process_single_device(
             return existing
         logger.info(f"Retrying generation for {device_name}")
 
+    # If profile already exists on disk and passes validation, reuse it (unless --force-regenerate)
+    if not ctx.force_regenerate:
+        existing_profile = _try_use_existing_profile_on_disk(device_info, existing_map, ctx)
+        if existing_profile is not None:
+            return existing_profile
+
     return _generate_or_error(device_info, existing_map, ctx)
 
 
@@ -123,6 +129,36 @@ def _should_use_existing(existing: DeviceProfile) -> bool:
     """Check if existing device should be reused."""
     attempts = int(existing.get("validate_attempts", 0))
     return existing.get("validation_passed", False) or attempts >= MAX_RETRY_ATTEMPTS
+
+
+def _try_use_existing_profile_on_disk(
+    device_info: dict, existing_map: dict, ctx: WorkflowContext
+) -> DeviceProfile | None:
+    """If profile exists on disk and passes validation, reuse it (avoid overwriting)."""
+    vendor = device_info["vendor"]
+    model = device_info["model"]
+    profile_path = PROFILES_DIR / vendor / f"{vendor}-{model}.yaml"
+
+    if not profile_path.exists():
+        return None
+
+    logger.info(f"Profile exists for {device_info['name']}, validating before reuse...")
+    success, _ = run_script("validate-profile.js", str(profile_path))
+
+    if not success:
+        logger.info(f"Existing profile failed validation, will regenerate")
+        return None
+
+    logger.info(f"Using existing validated profile for {device_info['name']}")
+    content = profile_path.read_text(encoding="utf-8")
+    return _create_device_profile(
+        device_info["name"],
+        device_info,
+        profile_path,
+        content,
+        existing_map,
+        validation_passed=True,
+    )
 
 
 def _generate_or_error(
@@ -194,6 +230,8 @@ def _create_device_profile(
     profile_path: Path,
     yaml_content: str,
     existing_map: dict,
+    *,
+    validation_passed: bool = False,
 ) -> DeviceProfile:
     """Create DeviceProfile with preserved attempt count if retrying."""
     attempts = _get_preserved_attempts(device_name, existing_map)
@@ -204,7 +242,7 @@ def _create_device_profile(
         profile_path=str(profile_path),
         profile_content=yaml_content,
         generated_files=[str(profile_path)],
-        validation_passed=False,
+        validation_passed=validation_passed,
         validation_errors=[],
         validate_attempts=attempts,
         test_data_path=None,

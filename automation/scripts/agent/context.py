@@ -24,6 +24,7 @@ class WorkflowContext:
     def __init__(self):
         self.run_dir: Path | None = None
         self.generated_files_list: Path | None = None
+        self.force_regenerate: bool = False
 
     def setup(self, issue_number: int) -> None:
         """Setup context for a new run."""
