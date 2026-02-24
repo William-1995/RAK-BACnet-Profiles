@@ -11,6 +11,7 @@ Usage:
 Environment Variables:
     GITHUB_TOKEN - GitHub API token
     GITHUB_REPOSITORY - Repository in format "owner/repo"
+    BASE_BRANCH - Base branch for diff (default: main). Use repo default branch in CI.
 """
 
 import json
@@ -76,31 +77,44 @@ def _normalize_path(path_str: str) -> str:
     return path_str.replace("\\", "/").lstrip("/")
 
 
-def _get_git_file_status(repo_root: Path) -> dict[str, str]:
-    """Get file status from git diff (main...HEAD). Returns path -> 'new'|'modified'|'unchanged'|'reused'."""
+def _get_git_file_status(repo_root: Path, issue_number: int) -> dict[str, str]:
+    """Get file status from git diff (base...PR branch). Returns path -> 'new'|'modified'|'unchanged'|'reused'.
+
+    Diffs against origin/auto-profile-{issue_number} when it exists; falls back to HEAD otherwise.
+    BASE_BRANCH env var configures the base (default: main).
+    """
     status_map: dict[str, str] = {}
-    for base in ("main", "origin/main", "master", "origin/master"):
-        try:
-            result = subprocess.run(
-                ["git", "diff", "--name-status", f"{base}...HEAD"],
-                cwd=repo_root,
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                for line in result.stdout.strip().split("\n"):
-                    parts = line.split("\t", 1)
-                    if len(parts) == 2:
-                        code, path = parts
-                        path = path.replace("\\", "/")
-                        if code == "A":
-                            status_map[path] = "new"
-                        elif code == "M":
-                            status_map[path] = "modified"
-                break
-        except Exception as e:
-            logger.debug("git diff %s...HEAD failed: %s", base, e)
+    base_branch = os.environ.get("BASE_BRANCH", "main").strip()
+    pr_branch = f"origin/auto-profile-{issue_number}"
+
+    # Prefer origin/base when base looks like a branch name
+    base_refs = [f"origin/{base_branch}", base_branch] if base_branch else ["origin/main", "main"]
+
+    for base_ref in base_refs:
+        for pr_ref in (pr_branch, "HEAD"):
+            try:
+                result = subprocess.run(
+                    ["git", "diff", "--name-status", f"{base_ref}...{pr_ref}"],
+                    cwd=repo_root,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                if result.returncode == 0:
+                    for line in (result.stdout or "").strip().split("\n"):
+                        if not line:
+                            continue
+                        parts = line.split("\t", 1)
+                        if len(parts) == 2:
+                            code, path = parts
+                            path = path.replace("\\", "/")
+                            if code == "A":
+                                status_map[path] = "new"
+                            elif code == "M":
+                                status_map[path] = "modified"
+                    return status_map
+            except Exception as e:
+                logger.debug("git diff %s...%s failed: %s", base_ref, pr_ref, e)
     return status_map
 
 
@@ -117,7 +131,7 @@ def _file_status_label(rel_path: str, status_map: dict[str, str]) -> str:
     return " (unchanged)"
 
 
-def build_comment_body(result: dict) -> str:
+def build_comment_body(result: dict, issue_number: int) -> str:
     """Build the comment body from result."""
     lines = ["## Profile Generation Agent Results", ""]
 
@@ -131,7 +145,7 @@ def build_comment_body(result: dict) -> str:
         )
         generated = result.get("generated_files", [])
         repo_root = _repo_root()
-        status_map = _get_git_file_status(repo_root)
+        status_map = _get_git_file_status(repo_root, issue_number)
         for file in generated:
             rel = _normalize_path(file)
             label = _file_status_label(rel, status_map)
@@ -198,7 +212,7 @@ def main() -> int:
     result = find_latest_result(temp_dir)
 
     # Build comment
-    body = build_comment_body(result)
+    body = build_comment_body(result, issue_number)
 
     # Post comment
     repo = os.environ.get("GITHUB_REPOSITORY", "")

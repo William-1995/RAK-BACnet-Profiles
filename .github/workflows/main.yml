@@ -78,11 +78,16 @@ jobs:
           branch: auto-profile-${{ github.event.issue.number }}
           delete-branch: true
 
+      - name: Fetch PR branch
+        if: steps.check_files.outputs.files_found == 'true'
+        run: git fetch origin auto-profile-${{ github.event.issue.number }}
+
       - name: Comment on Issue
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           cd automation
           python scripts/comment-on-issue.py ${{ github.event.issue.number }}
