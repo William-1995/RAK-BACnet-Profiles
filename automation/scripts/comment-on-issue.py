@@ -16,6 +16,7 @@ Environment Variables:
 import json
 import logging
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -75,6 +76,47 @@ def _normalize_path(path_str: str) -> str:
     return path_str.replace("\\", "/").lstrip("/")
 
 
+def _get_git_file_status(repo_root: Path) -> dict[str, str]:
+    """Get file status from git diff (main...HEAD). Returns path -> 'new'|'modified'|'unchanged'|'reused'."""
+    status_map: dict[str, str] = {}
+    for base in ("main", "origin/main", "master", "origin/master"):
+        try:
+            result = subprocess.run(
+                ["git", "diff", "--name-status", f"{base}...HEAD"],
+                cwd=repo_root,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                for line in result.stdout.strip().split("\n"):
+                    parts = line.split("\t", 1)
+                    if len(parts) == 2:
+                        code, path = parts
+                        path = path.replace("\\", "/")
+                        if code == "A":
+                            status_map[path] = "new"
+                        elif code == "M":
+                            status_map[path] = "modified"
+                break
+        except Exception as e:
+            logger.debug("git diff %s...HEAD failed: %s", base, e)
+    return status_map
+
+
+def _file_status_label(rel_path: str, status_map: dict[str, str]) -> str:
+    """Return (new), (modified), (reused), or (unchanged) for display."""
+    status = status_map.get(rel_path)
+    if status == "new":
+        return " (new)"
+    if status == "modified":
+        return " (modified)"
+    # Not in diff: profile yaml = reused, others = unchanged
+    if rel_path.endswith(".yaml") or rel_path.endswith(".yml"):
+        return " (reused)"
+    return " (unchanged)"
+
+
 def build_comment_body(result: dict) -> str:
     """Build the comment body from result."""
     lines = ["## Profile Generation Agent Results", ""]
@@ -88,11 +130,14 @@ def build_comment_body(result: dict) -> str:
             ]
         )
         generated = result.get("generated_files", [])
+        repo_root = _repo_root()
+        status_map = _get_git_file_status(repo_root)
         for file in generated:
-            lines.append(f"- `{_normalize_path(file)}`")
+            rel = _normalize_path(file)
+            label = _file_status_label(rel, status_map)
+            lines.append(f"- `{rel}`{label}")
 
         # Render file contents in collapsible blocks (deduplicate by path)
-        repo_root = _repo_root()
         seen_paths: set[str] = set()
         for file in generated:
             rel_path = _normalize_path(file)
