@@ -81,10 +81,11 @@ jobs:
           BASE_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           docker run --rm \
+            --entrypoint python \
             -u $(id -u):$(id -g) \
             -e GITHUB_TOKEN \
             -e GITHUB_REPOSITORY \
             -e BASE_BRANCH \
             -v "${{ github.workspace }}:/workspace" \
             profile-agent \
-            python automation/scripts/comment-on-issue.py ${{ github.event.issue.number }}
+            automation/scripts/comment-on-issue.py ${{ github.event.issue.number }}
